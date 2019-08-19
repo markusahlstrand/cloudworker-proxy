@@ -7,7 +7,7 @@ module.exports = function logger(options) {
   let logService;
 
   switch (options.type) {
-    case "http":
+    case 'http':
       logService = new HttpLogger(options);
       break;
     default:
@@ -15,28 +15,28 @@ module.exports = function logger(options) {
   }
 
   return async (ctx, next) => {
-    ctx.state["logger-startDate"] = new Date();
+    ctx.state['logger-startDate'] = new Date();
 
     try {
       await next(ctx);
 
       const data = {
-        message: "START",
-        requestIp: _.get(ctx, "request.headers.x-real-ip"),
-        requestId: _.get(ctx, "request.requestId"),
+        message: 'START',
+        requestIp: _.get(ctx, 'request.headers.x-real-ip'),
+        requestId: _.get(ctx, 'request.requestId'),
         request: {
-          headers: _.get(ctx, "request.headers"),
-          method: _.get(ctx, "request.method"),
-          url: _.get(ctx, "request.url")
+          headers: _.get(ctx, 'request.headers'),
+          method: _.get(ctx, 'request.method'),
+          url: _.get(ctx, 'request.url')
           //   body,
         },
         response: {
           status: ctx.status,
           headers: ctx.headers
         },
-        route: _.get(ctx, "route.handlerName"),
+        route: _.get(ctx, 'route.handlerName'),
         timestamp: new Date().toISOString(),
-        ttfb: new Date() - ctx.state["logger-startDate"],
+        ttfb: new Date() - ctx.state['logger-startDate'],
         redirectUrl: ctx.userRedirect
       };
 

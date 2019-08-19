@@ -1,4 +1,4 @@
-const Proxy = require("../src/index");
+const Proxy = require('../src/index');
 
 const rules = [
   {
@@ -11,9 +11,28 @@ const rules = [
     },
   },
   {
-    handlerName: "static",
+    handlerName: 'basicAuth',
+    path: '/basic',
+    options: {      
+      users: [
+        {
+            username: 'test',
+            authToken: 'dGVzdDpwYXNzd29yZA==', // "password" Base64 encoded
+        }
+      ]
+    }
+  },
+  {
+    handlerName: 'static',
+    path: '/basic',
+    options: {      
+      body: 'Very secret'
+    }
+  },
+  {
+    handlerName: 'static',
     options: {
-      body: "Hello world"
+      body: 'Hello world'
     }
   }
 ];
