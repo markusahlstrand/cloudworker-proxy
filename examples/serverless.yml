@@ -1,0 +1,34 @@
+# serverless.yml
+service:
+    name: proxy
+
+provider:
+  name: cloudflare
+  environment:
+  config:
+    # Ahlstrand.es
+    accountId: bfbba687e68f84266013cc6dd14759c9
+    zoneId: a3ec9ad580f2f4a5804b121f20bdf6f9
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-scriptable-plugin
+  - serverless-cloudflare-workers
+
+custom:
+  scriptHooks:
+    package:createDeploymentArtifacts: npm run build
+  dotenv:
+    path: ./.env
+
+functions:
+  cloudworker-proxy-examples:
+    # What the script will be called on Cloudflare (this property value must match the function name one line above)
+    name: cloudworker-proxy-examples
+    # The name of the script on your machine, omitting the .js file extension
+    script: 'dist/bundle'
+    webpack: false
+    events:
+      - http:
+          url: '*.ahlstrand.es/*'
+          method: ANY

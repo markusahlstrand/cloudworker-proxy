@@ -1,0 +1,20 @@
+{
+  "name": "cloudworker-proxy-examples",
+  "version": "1.0.0",
+  "description": "A example of how to use and deploy the cloudworker-proxy",
+  "main": "index.js",
+  "scripts": {
+    "start": "node local.js",
+    "build": "webpack --mode production --config ./webpack.config.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "serverless": "1.49.0",
+    "serverless-cloudflare-workers": "1.2.0",
+    "serverless-dotenv-plugin": "2.1.1",
+    "serverless-scriptable-plugin": "1.0.2",
+    "webpack": "4.39.1",
+    "webpack-cli": "3.3.6"
+  }
+}

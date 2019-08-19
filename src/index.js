@@ -1,19 +1,25 @@
-/**
- * This the entrypoint for the cloudflare workers
- */
+const Router = require('cloudworker-router');
+const handlers = require('./handlers');
 
-const handler = require('./handler')();
+module.exports = class Proxy {
+    constructor(rules = []) {
+        // Add the rules
 
-async function fetchAndApply(event) {
-  try {
-    return await handler(event);
-  } catch (err) {
-    // eslint-disable-next-line no-undef
-    return new Response(err.message);
-  }
-}
+        this.router = new Router();
 
-// eslint-disable-next-line no-undef,no-restricted-globals
-addEventListener('fetch', (event) => {
-  event.respondWith(fetchAndApply(event));
-});
+        rules.forEach(rule => {
+            const handler = handlers[rule.handlerName];
+
+            if (!handler) {
+                console.log(`Handler ${rule.handler} is not supported`);
+                return;
+            }
+
+            this.router.add(rule, handler(rule.options));            
+        })
+    }
+
+    async resolve(event) {
+        return this.router.resolve(event);
+    }
+};
