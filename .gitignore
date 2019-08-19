@@ -60,4 +60,6 @@ typings/
 # next.js build output
 .next
 
+# Serverless stuff
 dist
+.serverless
