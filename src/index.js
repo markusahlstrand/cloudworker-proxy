@@ -2,24 +2,24 @@ const Router = require('cloudworker-router');
 const handlers = require('./handlers');
 
 module.exports = class Proxy {
-    constructor(rules = []) {
-        // Add the rules
+  constructor(rules = []) {
+    // Add the rules
 
-        this.router = new Router();
+    this.router = new Router();
 
-        rules.forEach(rule => {
-            const handler = handlers[rule.handlerName];
+    rules.forEach((rule) => {
+      const handler = handlers[rule.handlerName];
 
-            if (!handler) {
-                console.log(`Handler ${rule.handler} is not supported`);
-                return;
-            }
+      if (!handler) {
+        console.log(`Handler ${rule.handler} is not supported`);
+        return;
+      }
 
-            this.router.add(rule, handler(rule.options));            
-        })
-    }
+      this.router.add(rule, handler(rule.options));
+    });
+  }
 
-    async resolve(event) {
-        return this.router.resolve(event);
-    }
+  async resolve(event) {
+    return this.router.resolve(event);
+  }
 };

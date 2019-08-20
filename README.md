@@ -1,24 +1,28 @@
 # cloudworker-proxy
+
 An api gateway for cloudflare workers with configurable handlers for:
-* Routing
-    * Load balancing of http endpoints
-    * Invoking AWS lambdas and google cloud functions
-    * Static responses
-* Logging (http, kinesis)
-* Authentication (basic, oauth2)
-* Rate limiting
-* Rewrite
-    * Headers
+
+- Routing
+  - Load balancing of http endpoints
+  - Invoking AWS lambdas and google cloud functions
+  - Static responses
+- Logging (http, kinesis)
+- Authentication (basic, oauth2)
+- Rate limiting
+- Rewrite
+  - Modifying headers
+  - Adding cors headers
 
 ## Usage
 
 A proxy is instanciated with a set of rules that are matched against each request based on hostname, method and path. Each rule is configured to execute one of the predefined handlers. The hanlders could either terminate the request and send the response to the client or pass on the request to the following handlers matching the request.
 
 A simple hello world proxy:
+
 ```
 const Proxy = require('cloudworker-proxy');
 
-const rules = [  
+const rules = [
   {
     handlerName: "static",
     options: {
@@ -30,7 +34,7 @@ const rules = [
 const proxy = new Proxy(rules);
 
 async function fetchAndApply(event) {
-    return await proxy.resolve(event);  
+    return await proxy.resolve(event);
 }
 
 addEventListener('fetch', (event) => {
@@ -41,15 +45,16 @@ addEventListener('fetch', (event) => {
 
 ## Handlers
 
-### Static
+### Response
 
 Returns a static response to the request.
 
 An example of configuration for a static handler:
+
 ```
-const rules = [  
+const rules = [
   {
-    handlerName: "static",
+    handlerName: "response",
     options: {
       body: "Hello world"
     }
@@ -64,6 +69,7 @@ The logging handler supports logging of requests and errors to http endpoints su
 The logs are sent in chunks to the server. The chunks are sent when the predefined limit of messages are reached or after a certain time, whatever comes first.
 
 An example of configuration for a http logger:
+
 ```
 rules = [{
     handlerName: 'logger',
@@ -71,7 +77,7 @@ rules = [{
         type: 'http',
         url: process.env.LOGZ_URL,
         contentType: 'text/plain',
-        delimiter: '_',      
+        delimiter: '_',
     },
 }];
 
@@ -79,7 +85,28 @@ rules = [{
 
 ### Basic Auth
 
+Uses basic auth to protect matching rules. The username and authTokens (base64-encoded versions of the passwords) are stored straight in the config which works fine for simple scenarios, but makes adding and removing users hard.
 
+An example of the configuration for the basic auth handler:
+
+```
+rules = [{
+    handlerName: 'basicAuth',
+    path: '/basic',
+    options: {
+      users: [
+        {
+            username: 'test',
+            authToken: 'dGVzdDpwYXNzd29yZA==', // "password" Base64 encoded
+        }
+      ]
+    }
+}];
+```
+
+## Cors
+
+Adds cross origin request headers for a path.
 
 ## Examples
 

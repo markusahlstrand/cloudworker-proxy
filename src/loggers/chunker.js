@@ -8,7 +8,7 @@ module.exports = class chunker {
     this.queue = []; // The queue of messages to process
     this.sink = sink; // The function to call with a complete chunk
     this.flushing = false; // A state flag to avoid multiple simultaneous flushes
-    this.timer; // A promise to pass to ctx.waitUntil
+    this.timer = null; // A promise to pass to ctx.waitUntil
   }
 
   async push(message) {
@@ -44,16 +44,15 @@ module.exports = class chunker {
     this.flushing = true;
 
     try {
-      const data = this.queue.join("\n");
+      const data = this.queue.join('\n');
       this.queue = [];
 
       const result = await this.sink(data);
 
       if (this.timer) {
-          // TODO: Cancel the timer
+        clearTimeout(this.cancelationToken);
         this.resolveTimer(result);
       }
-      return result;
     } catch (err) {
       if (this.timer) {
         this.rejectTimer(err);

@@ -1,12 +1,7 @@
-const _ = {
-  get: require("lodash.get"),
-  set: require("lodash.set")
-};
-
 function setUnauthorizedResponse(ctx) {
-    ctx.status = 401;
-    ctx.body = 'Unauthorized',
-    ctx.set('WWW-Authenticate', 'Basic');
+  ctx.status = 401;
+  ctx.body = 'Unauthorized';
+  ctx.set('WWW-Authenticate', 'Basic');
 }
 
 /**
@@ -16,22 +11,27 @@ function setUnauthorizedResponse(ctx) {
  */
 function basicAuth(options) {
   return async (ctx, next) => {
-    const authHeaders = ctx.request.headers.get('authorization');
-    if (!authHeaders || !authHeaders.startsWith("Basic ")) {        
+    // Forces a new login which is the closest you can get to a logout with basic auth
+    if (ctx.request.path === options.logoutPath) {
       return setUnauthorizedResponse(ctx);
     }
 
-    const userTokens = options.users.map(user => user.authToken);
+    const authHeaders = ctx.request.headers.get('authorization');
+    if (!authHeaders || !authHeaders.startsWith('Basic ')) {
+      return setUnauthorizedResponse(ctx);
+    }
+
+    const userTokens = options.users.map((user) => user.authToken);
 
     const authToken = authHeaders.substring(6);
     const userIndex = userTokens.indexOf(authToken);
-    if (userIndex == -1) {
-        return setUnauthorizedResponse(ctx);
+    if (userIndex === -1) {
+      return setUnauthorizedResponse(ctx);
     }
 
     ctx.state.user = options.users[userIndex].username;
 
-    return await next(ctx);
+    return next(ctx);
   };
 }
 

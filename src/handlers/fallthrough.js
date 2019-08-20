@@ -1,4 +1,4 @@
-module.exports = function fallthroughHandler({}) {
+module.exports = function fallthroughHandler() {
   return async (ctx) => {
     // eslint-disable-next-line no-undef
     const response = await fetch(cxt.request);

@@ -10,6 +10,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "dotenv": "8.1.0",
+    "node-cloudworker": "1.0.5",
     "serverless": "1.49.0",
     "serverless-cloudflare-workers": "1.2.0",
     "serverless-dotenv-plugin": "2.1.1",

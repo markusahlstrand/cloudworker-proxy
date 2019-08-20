@@ -5,36 +5,37 @@ const rules = [
     handlerName: 'logger',
     options: {
       type: 'http',
-      url: process.env.LOGZ_URL,
+      url: process.env.LOGZ_IO_URL,
       contentType: 'text/plain',
-      delimiter: '_',      
+      delimiter: '_',
     },
   },
   {
     handlerName: 'basicAuth',
-    path: '/basic',
-    options: {      
+    path: '/basic/:path*',
+    options: {
       users: [
         {
-            username: 'test',
-            authToken: 'dGVzdDpwYXNzd29yZA==', // "password" Base64 encoded
-        }
-      ]
-    }
+          username: 'test',
+          authToken: 'dGVzdDpwYXNzd29yZA==', // "password" Base64 encoded
+        },
+      ],
+      logoutPath: '/basic/logout',
+    },
   },
   {
-    handlerName: 'static',
+    handlerName: 'response',
     path: '/basic',
-    options: {      
-      body: 'Very secret'
-    }
+    options: {
+      body: 'Very secret',
+    },
   },
   {
-    handlerName: 'static',
+    handlerName: 'response',
     options: {
-      body: 'Hello world'
-    }
-  }
+      body: 'Hello world',
+    },
+  },
 ];
 
 const proxy = new Proxy(rules);

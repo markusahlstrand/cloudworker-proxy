@@ -2,35 +2,35 @@ const { expect } = require('chai');
 const HttpLogger = require('../../src/loggers/http');
 
 describe('httpLogger', () => {
-    let realFetch, fetchCalls;
-    const mockFetch = async  (url, options) => {
-        fetchCalls.push({
-            url,
-            options,
-        });
-    }
+  let realFetch, fetchCalls;
+  const mockFetch = async (url, options) => {
+    fetchCalls.push({
+      url,
+      options,
+    });
+  };
 
-    beforeEach(() => {
-        realFetch = global.fetch;
-        fetchCalls = [];
+  beforeEach(() => {
+    realFetch = global.fetch;
+    fetchCalls = [];
 
-        global.fetch = mockFetch;
+    global.fetch = mockFetch;
+  });
+
+  afterEach(() => {
+    global.fetch = realFetch;
+  });
+
+  it('should send a message to a http endpoint', async () => {
+    const logger = new HttpLogger({
+      ctx: {},
+      maxSize: 0,
     });
 
-    afterEach(() => {
-        global.fetch = realFetch;
+    logger.log({
+      foo: 'bar',
     });
 
-    it('should send a message to a http endpoint', async () => {
-        const logger = new HttpLogger({
-            ctx: {},
-            maxSize: 0,
-        });
-
-        logger.log({
-            foo: 'bar',
-        });
-
-        expect(fetchCalls.length).to.equal(1);
-    });
+    expect(fetchCalls.length).to.equal(1);
+  });
 });

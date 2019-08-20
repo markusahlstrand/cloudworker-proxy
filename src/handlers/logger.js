@@ -1,6 +1,9 @@
+const lodashGet = require('lodash.get');
+
 const _ = {
-  get: require('lodash.get')
+  get: lodashGet,
 };
+
 const HttpLogger = require('../loggers/http');
 
 module.exports = function logger(options) {
@@ -27,17 +30,17 @@ module.exports = function logger(options) {
         request: {
           headers: _.get(ctx, 'request.headers'),
           method: _.get(ctx, 'request.method'),
-          url: _.get(ctx, 'request.url')
+          url: _.get(ctx, 'request.href'),
           //   body,
         },
         response: {
           status: ctx.status,
-          headers: ctx.headers
+          headers: ctx.headers,
         },
         route: _.get(ctx, 'route.handlerName'),
         timestamp: new Date().toISOString(),
         ttfb: new Date() - ctx.state['logger-startDate'],
-        redirectUrl: ctx.userRedirect
+        redirectUrl: ctx.userRedirect,
       };
 
       logService.log(data);
