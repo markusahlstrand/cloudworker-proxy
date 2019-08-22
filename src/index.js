@@ -11,7 +11,7 @@ module.exports = class Proxy {
       const handler = handlers[rule.handlerName];
 
       if (!handler) {
-        console.log(`Handler ${rule.handler} is not supported`);
+        console.log(`Handler ${rule.handlerName} is not supported`);
         return;
       }
 

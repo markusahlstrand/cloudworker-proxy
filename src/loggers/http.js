@@ -6,7 +6,7 @@ module.exports = class HttpLogger {
     this.url = options.url;
     this.contentType = options.contentType;
     this.delimiter = options.delimiter;
-    this.chunker = new Chunker(Object.assign({}, options, { sink: this.sendMessage.bind(this) }));
+    this.chunker = new Chunker({ sink: this.sendMessage.bind(this), ...options });
   }
 
   async log(message) {

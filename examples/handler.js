@@ -25,15 +25,29 @@ const rules = [
   },
   {
     handlerName: 'response',
-    path: '/basic',
+    path: '/basic.*',
     options: {
       body: 'Very secret',
     },
   },
   {
     handlerName: 'response',
+    path: '/edge',
     options: {
-      body: 'Hello world',
+      body: 'This is a static page served directly from the edge',
+    },
+  },
+  {
+    handlerName: 'origin',
+    path: '/hello.html',
+    options: {
+      localOriginOverride: 'https://static.ahlstrand.es',
+    },
+  },
+  {
+    handlerName: 'origin',
+    options: {
+      localOriginOverride: 'https://static.ahlstrand.es',
     },
   },
 ];

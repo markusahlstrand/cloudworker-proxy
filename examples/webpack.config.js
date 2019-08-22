@@ -1,7 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 
-module.exports = () => ({
+module.exports = (env) => ({
   entry: {
     'bundle.js': [path.resolve(__dirname, './index.js')],
   },
@@ -14,7 +14,9 @@ module.exports = () => ({
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env': {},
+      'process.env': {
+        LOGZ_IO_URL: JSON.stringify(env.LOGZ_IO_URL),
+      },
     }),
   ],
 });

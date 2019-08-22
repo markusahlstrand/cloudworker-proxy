@@ -11,12 +11,12 @@
   "license": "MIT",
   "devDependencies": {
     "dotenv": "8.1.0",
-    "node-cloudworker": "1.0.5",
-    "serverless": "1.49.0",
+    "node-cloudworker": "1.0.6",
+    "serverless": "1.50.0",
     "serverless-cloudflare-workers": "1.2.0",
     "serverless-dotenv-plugin": "2.1.1",
     "serverless-scriptable-plugin": "1.0.2",
-    "webpack": "4.39.1",
-    "webpack-cli": "3.3.6"
+    "webpack": "4.39.2",
+    "webpack-cli": "3.3.7"
   }
 }

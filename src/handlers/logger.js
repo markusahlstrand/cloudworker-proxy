@@ -41,11 +41,24 @@ module.exports = function logger(options) {
         timestamp: new Date().toISOString(),
         ttfb: new Date() - ctx.state['logger-startDate'],
         redirectUrl: ctx.userRedirect,
+        severity: 30,
       };
 
-      logService.log(data);
+      ctx.event.waitUntil(logService.log(data));
     } catch (err) {
-      console.log(err.message);
+      const errData = {
+        request: {
+          headers: _.get(ctx, 'request.headers'),
+          method: _.get(ctx, 'request.method'),
+          url: _.get(ctx, 'request.href'),
+          //   body,
+        },
+        message: 'ERROR',
+        error: err.message,
+        severity: 50,
+      };
+
+      ctx.event.waitUntil(logService.log(errData));
     }
   };
 };

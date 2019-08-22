@@ -1,11 +1,11 @@
-const fallthrough = require('./fallthrough');
+const origin = require('./origin');
 const logger = require('./logger');
 const response = require('./response');
 const basicAuth = require('./basic-auth');
 
 module.exports = {
   basicAuth,
-  fallthrough,
+  origin,
   logger,
   response,
 };

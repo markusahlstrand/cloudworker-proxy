@@ -17,7 +17,7 @@ plugins:
 
 custom:
   scriptHooks:
-    package:createDeploymentArtifacts: npm run build
+    package:createDeploymentArtifacts: npm run build -- --env.LOGZ_IO_URL=${env:LOGZ_IO_URL}
   dotenv:
     path: ./.env
 
@@ -30,5 +30,5 @@ functions:
     webpack: false
     events:
       - http:
-          url: '*.ahlstrand.es/*'
+          url: 'app.ahlstrand.es/*'
           method: ANY
