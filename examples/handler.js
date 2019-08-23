@@ -11,6 +11,10 @@ const rules = [
     },
   },
   {
+    handlerName: 'rateLimit',
+    options: {},
+  },
+  {
     handlerName: 'basicAuth',
     path: '/basic/:path*',
     options: {

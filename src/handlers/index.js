@@ -1,11 +1,13 @@
-const origin = require('./origin');
-const logger = require('./logger');
-const response = require('./response');
 const basicAuth = require('./basic-auth');
+const logger = require('./logger');
+const origin = require('./origin');
+const response = require('./response');
+const rateLimit = require('./rate-limit');
 
 module.exports = {
   basicAuth,
-  origin,
   logger,
+  origin,
+  rateLimit,
   response,
 };

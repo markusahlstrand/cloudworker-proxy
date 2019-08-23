@@ -104,9 +104,64 @@ rules = [{
 }];
 ```
 
-## Cors
+### Load balancer
+
+### Origin
+
+Passed the request to the origin for the cdn. This is typically used as a catch all handler to pass all requests that the worker shouldn't handle to origin.
+
+As this wouldn't work when running locall it's possible to specify another host name that will be used for debugging locally.
+
+An example of the configuration for the origin handler:
+
+```
+rules = [{
+    handlerName: 'origin',
+    options: {
+        localOriginOverride: 'https://some.origin.com',
+    }
+}];
+```
+
+### Cors
 
 Adds cross origin request headers for a path.
+
+An example of the configuration for cors handler:
+
+```
+rules = [{
+    handlerName: 'cors',
+    options: {}
+}];
+```
+
+### Ratelimit
+
+Ratelimit the matching requests per minute per IP or for all clients.
+
+The ratelimit keeps the counters in memory so different edge nodes will have separate counters. For IP-based ratelimits it should work just fine as the requests from a client will hit the same edge node.
+
+The ratelimit can have different scopes, so a proxy can have multiple rate-limits for different endpoints.
+
+The ratelimit adds the following headers to the response object:
+
+- X-Ratelimit-Limit. This is the current limit being enforced
+- X-Ratelimit-Count. The current count of requests being made within the window
+- X-Ratelimit-Reset. The timeperiod in seconds until the rate limit is reset.
+
+An example of the configuration for ratelimit handler:
+
+```
+rules = [{
+    handlerName: 'ratelimit',
+    options: {
+        limit: 1000, // The default allowed calls
+        scope: 'default',
+        type: 'IP', // Anything except IP will sum up all calls
+    }
+}];
+```
 
 ## Examples
 
