@@ -30,5 +30,5 @@ functions:
     webpack: false
     events:
       - http:
-          url: 'app.ahlstrand.es/*'
+          url: 'proxy.ahlstrand.es/*'
           method: ANY

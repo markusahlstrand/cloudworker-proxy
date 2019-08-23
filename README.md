@@ -104,7 +104,89 @@ rules = [{
 }];
 ```
 
+### Cors
+
+Adds cross origin request headers for a path.
+
+An example of the configuration for cors handler:
+
+```
+rules = [{
+    handlerName: 'cors',
+    options: {}
+}];
+```
+
 ### Load balancer
+
+Load balances requests between one or many endpoints.
+
+Currently the load balancer distributes the load between the endpoints randomly. Use cases for this handler are:
+
+- Load balance between multiple ingress servers in kubernetes
+- Route trafic to providers that doesn't support custom domains easliy, such as google cloud functions
+- Route trafic to cloud services with nested paths such as AWS Api Gateway or google cloud functions.
+- Route trafic to different endpoints and having flexibility to do updates without changing the origin servers.
+
+In some cases it is necessary to resolve the IP of the endpoint based on a different url than the host header. One example of this is when the load is distributed over multiple load balancer nodes that host multiple domains or subdomains. In these cases it's possible to set the resolveOverride on the load balancer handler. This way it will resolve the IP according to url property of the source, but use the resolveOverride as host header. NOTE: this is only possible if the host is hosted via the cloudflare cdn.
+
+An example of the configuration for loadbalancer with a single source on google cloud functions:
+
+```
+rules = [{
+    handlerName: 'loadbalancer',
+    options: {
+        sources: [
+            {
+                url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
+            }
+        ]
+    }
+}];
+```
+
+An example of the configuration for loadbalancing traffic between two ingresses for multiple hosts, with an override of the host header:
+
+```
+rules = [{
+    handlerName: 'loadbalancer',
+    path: '/:file*',
+    options: {
+        "resolveOverride": "www.ahlstrand.es",
+        "sources": [
+            {
+                "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+            },
+            {
+                "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+            },
+        ]
+    }
+}];
+
+```
+
+Using path and host parameters the handler can be more generic:
+
+```
+rules = [{
+    handlerName: 'loadbalancer',
+    path: '/:file*',
+    host: ':host.ahlstrand.es',
+    options: {
+        "resolveOverride": "{host}.ahlstrand.es",
+        "sources": [
+            {
+                "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+            },
+            {
+                "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+            },
+        ]
+    }
+}];
+
+```
 
 ### Origin
 
@@ -123,19 +205,6 @@ rules = [{
 }];
 ```
 
-### Cors
-
-Adds cross origin request headers for a path.
-
-An example of the configuration for cors handler:
-
-```
-rules = [{
-    handlerName: 'cors',
-    options: {}
-}];
-```
-
 ### Ratelimit
 
 Ratelimit the matching requests per minute per IP or for all clients.
@@ -149,6 +218,8 @@ The ratelimit adds the following headers to the response object:
 - X-Ratelimit-Limit. This is the current limit being enforced
 - X-Ratelimit-Count. The current count of requests being made within the window
 - X-Ratelimit-Reset. The timeperiod in seconds until the rate limit is reset.
+
+HEAD and OPTIONS requests are not counted against the limit.
 
 An example of the configuration for ratelimit handler:
 

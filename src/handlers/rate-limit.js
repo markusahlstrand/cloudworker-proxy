@@ -35,7 +35,11 @@ module.exports = function rateLimitHandler({ type = 'IP', scope = 'default', lim
     const key = getKey(currentMinute, ctx.request.headers);
 
     let count = _.get(buckets, key, 0);
-    count += 1;
+
+    // Don't count head and options reqests
+    if (['HEAD', 'OPTIONS'].indexOf(ctx.request.method) === -1) {
+      count += 1;
+    }
 
     ctx.set('X-Ratelimit-Limit', limit);
     ctx.set('X-Ratelimit-Count', count);

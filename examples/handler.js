@@ -42,10 +42,14 @@ const rules = [
     },
   },
   {
-    handlerName: 'origin',
-    path: '/hello.html',
+    handlerName: 'loadbalancer',
+    path: '/google/:file*',
     options: {
-      localOriginOverride: 'https://static.ahlstrand.es',
+      sources: [
+        {
+          url: 'https://europe-west1-disvolvigo.cloudfunctions.net/disvolvigo-api/{file}',
+        },
+      ],
     },
   },
   {
