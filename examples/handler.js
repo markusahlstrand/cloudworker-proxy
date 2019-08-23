@@ -53,6 +53,24 @@ const rules = [
     },
   },
   {
+    handlerName: 'oauth2',
+    path: '/oauth2/.*',
+    options: {
+      kvAccountId: process.env.KV_ACCOUNT_ID,
+      kvNamespace: process.env.KV_NAMESPACE,
+      kvAuthEmail: process.env.KV_AUTH_EMAIL,
+      kvAuthKey: process.env.KV_AUTH_KEY,
+      kvTtl: 60 * 60 * 24 * 30, // A month
+    },
+  },
+  {
+    handlerName: 'response',
+    path: '/oauth2/.*',
+    options: {
+      body: 'This is a secret messages protected by oauth2',
+    },
+  },
+  {
     handlerName: 'origin',
     options: {
       localOriginOverride: 'https://static.ahlstrand.es',

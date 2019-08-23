@@ -26,6 +26,7 @@
   "homepage": "https://github.com/markusahlstrand/cloudworker-proxy#readme",
   "dependencies": {
     "cloudworker-router": "1.4.0",
+    "cookie": "0.4.0",
     "lodash.get": "4.4.2",
     "lodash.set": "4.3.2"
   },
