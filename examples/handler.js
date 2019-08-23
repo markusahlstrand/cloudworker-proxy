@@ -47,7 +47,7 @@ const rules = [
     options: {
       sources: [
         {
-          url: 'https://europe-west1-disvolvigo.cloudfunctions.net/disvolvigo-api/{file}',
+          url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}',
         },
       ],
     },
