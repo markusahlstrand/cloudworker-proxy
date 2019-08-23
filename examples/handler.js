@@ -47,7 +47,7 @@ const rules = [
     options: {
       sources: [
         {
-          url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}',
+          url: 'https://us-central1-ahlstrand-es.cloudfunctions.net/hello/{file}',
         },
       ],
     },

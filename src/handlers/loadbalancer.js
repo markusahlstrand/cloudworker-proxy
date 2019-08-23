@@ -32,7 +32,8 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
 
     if (source.resolveOverride) {
       const resolveOverride = resolveParams(source.resolveOverride, ctx.request.params);
-      // Cloudflare header to change host. Only possible to add proxied cf dns within the same account
+      // Cloudflare header to change host.
+      // Only possible to add proxied cf dns within the same account.
       _.set(options, 'cf.resolveOverride', resolveOverride);
     }
 
@@ -43,7 +44,7 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
     const { readable, writable } = new TransformStream();
 
     // Don't await..
-    response.body.pipeTo(writable);
+    ctx.event.waitUntil(response.body.pipeTo(writable));
 
     ctx.body = readable;
     ctx.status = response.status;
