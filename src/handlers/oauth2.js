@@ -26,6 +26,11 @@ function decodeJwt(token) {
   }
 }
 
+function getCookie({ cookieHeader = '' , cookieName}) {  
+  const cookies = cookie.parse(cookieHeader);
+  return cookies[cookieName];
+}
+
 async function isValidJwt(encodedToken) {
   const token = decodeJwt(encodedToken);
 
@@ -82,11 +87,6 @@ function serializeFormData(obj) {
   return Object.keys(obj)
     .map(key => `${key}=${encodeURIComponent(obj[key])}`)
     .join('&');
-}
-
-async function handleLogout(ctx) {
-  ctx.status = 200;
-  ctx.body = 'HandleCallback';
 }
 
 function isBrowser(accept = '') {
@@ -146,6 +146,25 @@ module.exports = function oauth2Handler({
     }
 
     return await response.json();
+  }
+
+  async function handleLogout(ctx) {
+    const sessionCookie = getCookie({ 
+      cookieHeader: ctx.request.headers.cookie,
+      cookieName,
+    });
+
+    if(sessionCookie) {
+      // Remove the cookie
+      ctx.set('Set-Cookie', cookie.serialize(cookieName, '', {
+        domain: `.${ctx.request.hostname}`,
+        maxAge: 0,          
+      }));
+    }
+
+    const returnTo = encodeURIComponent(`${ctx.request.protocol}://${ctx.request.host}`);    
+    ctx.set('Location', `${authDomain}/v2/logout?client_id=${clientId}&returnTo=${returnTo}`);
+    ctx.status = 302;
   }
 
   async function handleCallback(ctx) {
@@ -210,9 +229,11 @@ module.exports = function oauth2Handler({
       return true;
     }
 
-    const cookieHeader = ctx.request.headers.cookie || '';
-    const cookies = cookie.parse(cookieHeader);
-    const sessionCookie = cookies[cookieName];
+    const sessionCookie = getCookie({ 
+      cookieHeader: ctx.request.headers.cookie,
+      cookieName,
+    });
+
     // If the client didn't supply a bearer token, try to fetch one based on the cookie
     if (!ctx.request.headers.authorization && sessionCookie) {
       const session = await kvStorage.get(sessionCookie);
@@ -238,7 +259,7 @@ module.exports = function oauth2Handler({
     }
 
     if (isBrowser(ctx.request.headers.accept)) {
-      // For now we just encode the requested url in the state. Could pass more properties in a serialized object
+      // For now we just oode the requested url in the state. Could pass more properties in a serialized object
       const state = encodeURIComponent(ctx.request.href);
       const encodedRedirectUri = encodeURIComponent(`${ctx.request.protocol}://${ctx.request.host}${callbackPath}`);
 

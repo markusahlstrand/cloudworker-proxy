@@ -1,3 +1,15 @@
+function filterCfHeaders(headers) {
+  const result = {};
+
+  Object.keys(headers).forEach((key, value) => {
+    if (!key.startsWith('cf')) {
+      result[key] = value;
+    }
+  });
+
+  return result;
+}
+
 module.exports = function originHandler(options) {
   const { localOriginOverride } = options;
 
@@ -7,7 +19,7 @@ module.exports = function originHandler(options) {
       : ctx.request.href;
 
     const requestOptions = {
-      headers: ctx.request.headers,
+      headers: filterCfHeaders(ctx.request.headers),
       method: ctx.request.method,
       body: ctx.request.body,
     };

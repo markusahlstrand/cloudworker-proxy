@@ -13,25 +13,36 @@ An api gateway for cloudflare workers with configurable handlers for:
   - Modifying headers
   - Adding cors headers
 
+## Concept
+
+The proxy is a pipeline of different handlers that processes each request. The different stages in the pipeline are:
+- Middleware. Such as logging or authentication that typically passes on the request further down the pipeline
+- Origins. Fetches content from other services, for instance using http.
+- Tranforms. Modifies the content before passing it back to the client
+
+Each handler can specify rules for which hosts and paths it should apply to, so it's possible to for instance only apply authentication to certain requests.
+
 ## Usage
 
-A proxy is instanciated with a set of rules that are matched against each request based on hostname, method and path. Each rule is configured to execute one of the predefined handlers. The hanlders could either terminate the request and send the response to the client or pass on the request to the following handlers matching the request.
+A proxy is instanciated with a set of middlewares, origins and transforms that are matched against each request based on hostname, method and path. Each rule is configured to execute one of the predefined handlers. The hanlders could either terminate the request and send the response to the client or pass on the request to the following handlers matching the request.
 
 A simple hello world proxy:
 
 ```
 const Proxy = require('cloudworker-proxy');
 
-const rules = [
-  {
-    handlerName: "static",
-    options: {
-      body: "Hello world"
-    }
-  }
-];
+const config = {
+    middlewares: [],
+    origins: [{
+        handlerName: "static",
+        options: {
+        body: "Hello world"
+        }
+    }],
+    transfoms: []
+};
 
-const proxy = new Proxy(rules);
+const proxy = new Proxy(config);
 
 async function fetchAndApply(event) {
     return await proxy.resolve(event);
