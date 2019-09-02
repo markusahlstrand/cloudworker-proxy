@@ -56,6 +56,13 @@ const rules = [
     handlerName: 'oauth2',
     path: '/oauth2/.*',
     options: {
+      oauthClientId: 'Sr9X2zDNy1HKDehLGSuSODE2AvvJbIbW',
+      oauth2ClientSecret: 'mmpXutAyl6eb64bharOOheESWK4OLYcY0F-w_6tQhPSkmaLdlSYBYONGibDtxLN6',
+      oauth2AuthDomain: 'https://disvolvigo.eu.auth0.com',
+      oauth2Audience: 'https://api.disvolvigo.io',
+      oauth2CallbackPath: '/oauth2/callback',
+      oauth2LogoutPath: '/oauth2/logout',
+      oauth2Scopes: ['openid', 'email', 'profile', 'offline_access'],
       kvAccountId: process.env.KV_ACCOUNT_ID,
       kvNamespace: process.env.KV_NAMESPACE,
       kvAuthEmail: process.env.KV_AUTH_EMAIL,
