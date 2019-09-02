@@ -5,6 +5,7 @@ const oauth2 = require('./oauth2');
 const origin = require('./origin');
 const response = require('./response');
 const rateLimit = require('./rate-limit');
+const split = require('./split');
 
 module.exports = {
   basicAuth,
@@ -14,4 +15,5 @@ module.exports = {
   origin,
   rateLimit,
   response,
+  split,
 };

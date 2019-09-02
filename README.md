@@ -54,167 +54,9 @@ addEventListener('fetch', (event) => {
 
 ```
 
-## Handlers
+## Middlewares
 
-### Response
-
-Returns a static response to the request.
-
-An example of configuration for a static handler:
-
-```
-const rules = [
-  {
-    handlerName: "response",
-    options: {
-      body: "Hello world"
-    }
-  }
-];
-```
-
-### Logging
-
-The logging handler supports logging of requests and errors to http endpoints such as logz.io and AWS Kinesis.
-
-The logs are sent in chunks to the server. The chunks are sent when the predefined limit of messages are reached or after a certain time, whatever comes first.
-
-An example of configuration for a http logger:
-
-```
-rules = [{
-    handlerName: 'logger',
-    options: {
-        type: 'http',
-        url: process.env.LOGZ_URL,
-        contentType: 'text/plain',
-        delimiter: '_',
-    },
-}];
-
-```
-
-### Basic Auth
-
-Uses basic auth to protect matching rules. The username and authTokens (base64-encoded versions of the passwords) are stored straight in the config which works fine for simple scenarios, but makes adding and removing users hard.
-
-An example of the configuration for the basic auth handler:
-
-```
-rules = [{
-    handlerName: 'basicAuth',
-    path: '/basic',
-    options: {
-      users: [
-        {
-            username: 'test',
-            authToken: 'dGVzdDpwYXNzd29yZA==', // "password" Base64 encoded
-        }
-      ]
-    }
-}];
-```
-
-### Cors
-
-Adds cross origin request headers for a path.
-
-An example of the configuration for cors handler:
-
-```
-rules = [{
-    handlerName: 'cors',
-    options: {}
-}];
-```
-
-### Load balancer
-
-Load balances requests between one or many endpoints.
-
-Currently the load balancer distributes the load between the endpoints randomly. Use cases for this handler are:
-
-- Load balance between multiple ingress servers in kubernetes
-- Route trafic to providers that doesn't support custom domains easliy, such as google cloud functions
-- Route trafic to cloud services with nested paths such as AWS Api Gateway or google cloud functions.
-- Route trafic to different endpoints and having flexibility to do updates without changing the origin servers.
-
-In some cases it is necessary to resolve the IP of the endpoint based on a different url than the host header. One example of this is when the load is distributed over multiple load balancer nodes that host multiple domains or subdomains. In these cases it's possible to set the resolveOverride on the load balancer handler. This way it will resolve the IP according to url property of the source, but use the resolveOverride as host header. NOTE: this is only possible if the host is hosted via the cloudflare cdn.
-
-An example of the configuration for loadbalancer with a single source on google cloud functions:
-
-```
-rules = [{
-    handlerName: 'loadbalancer',
-    options: {
-        sources: [
-            {
-                url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
-            }
-        ]
-    }
-}];
-```
-
-An example of the configuration for loadbalancing traffic between two ingresses for multiple hosts, with an override of the host header:
-
-```
-rules = [{
-    handlerName: 'loadbalancer',
-    path: '/:file*',
-    options: {
-        "resolveOverride": "www.ahlstrand.es",
-        "sources": [
-            {
-                "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
-            },
-            {
-                "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
-            },
-        ]
-    }
-}];
-
-```
-
-Using path and host parameters the handler can be more generic:
-
-```
-rules = [{
-    handlerName: 'loadbalancer',
-    path: '/:file*',
-    host: ':host.ahlstrand.es',
-    options: {
-        "resolveOverride": "{host}.ahlstrand.es",
-        "sources": [
-            {
-                "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
-            },
-            {
-                "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
-            },
-        ]
-    }
-}];
-
-```
-
-### Origin
-
-Passed the request to the origin for the cdn. This is typically used as a catch all handler to pass all requests that the worker shouldn't handle to origin.
-
-As this wouldn't work when running locall it's possible to specify another host name that will be used for debugging locally.
-
-An example of the configuration for the origin handler:
-
-```
-rules = [{
-    handlerName: 'origin',
-    options: {
-        localOriginOverride: 'https://some.origin.com',
-    }
-}];
-```
+All middlewares are executed in order for all requests that they match.
 
 ### Ratelimit
 
@@ -235,14 +77,212 @@ HEAD and OPTIONS requests are not counted against the limit.
 An example of the configuration for ratelimit handler:
 
 ```
-rules = [{
-    handlerName: 'ratelimit',
+config = {
+    middlewares: [{
+        handlerName: 'ratelimit',
+        options: {
+            limit: 1000, // The default allowed calls
+            scope: 'default',
+            type: 'IP', // Anything except IP will sum up all calls
+        }
+    }];
+};
+```
+
+### Logging
+
+The logging handler supports logging of requests and errors to http endpoints such as logz.io and AWS Kinesis.
+
+The logs are sent in chunks to the server. The chunks are sent when the predefined limit of messages are reached or after a certain time, whatever comes first.
+
+An example of configuration for a http logger:
+
+```
+config = {
+    middlewares: [{
+        handlerName: 'logger',
+        options: {
+            type: 'http',
+            url: process.env.LOGZ_URL,
+            contentType: 'text/plain',
+            delimiter: '_',
+        },
+    }],
+};
+```
+
+### Basic Auth
+
+Uses basic auth to protect matching rules. The username and authTokens (base64-encoded versions of the passwords) are stored straight in the config which works fine for simple scenarios, but makes adding and removing users hard.
+
+An example of the configuration for the basic auth middleware:
+
+```
+config = {
+    middlewares: [{
+        handlerName: 'basicAuth',
+        path: '/basic',
+        options: {
+            users: [
+                {
+                    username: 'test',
+                    authToken: 'dGVzdDpwYXNzd29yZA==', // "password" Base64 encoded
+                }
+            ],
+        },
+    }]
+};
+```
+
+### Split
+
+Splits the request in two separate requests. The duplicated request will not return any results to the client, but can for instance be used to sample the traffic on a live website or to get webhooks to post to multiple endpoints.
+
+The split handler takes a host parameter that lets you route the requests to a different origin.
+
+An example of the configuration for the split middleware:
+
+```
+config = {
+    middlewares: [{
+        handlerName: 'split',
+        options: {
+            host: 'test.example.com',
+        },
+    }]
+};
+```
+
+## Origins
+
+### Response
+
+Returns a static response to the request.
+
+An example of configuration for a static handler:
+
+```
+const rules = [
+  {
+    handlerName: "response",
     options: {
-        limit: 1000, // The default allowed calls
-        scope: 'default',
-        type: 'IP', // Anything except IP will sum up all calls
+      body: "Hello world"
     }
-}];
+  }
+];
+```
+
+## Transforms
+
+### Cors
+
+Adds cross origin request headers for a path.
+
+An example of the configuration for cors handler:
+
+```
+config = {
+    transforms:[{
+        handlerName: 'cors',
+        options: {}
+    }],
+};
+```
+
+### Load balancer
+
+Load balances requests between one or many endpoints.
+
+Currently the load balancer distributes the load between the endpoints randomly. Use cases for this handler are:
+
+- Load balance between multiple ingress servers in kubernetes
+- Route trafic to providers that doesn't support custom domains easliy, such as google cloud functions
+- Route trafic to cloud services with nested paths such as AWS Api Gateway or google cloud functions.
+- Route trafic to different endpoints and having flexibility to do updates without changing the origin servers.
+
+In some cases it is necessary to resolve the IP of the endpoint based on a different url than the host header. One example of this is when the load is distributed over multiple load balancer nodes that host multiple domains or subdomains. In these cases it's possible to set the resolveOverride on the load balancer handler. This way it will resolve the IP according to url property of the source, but use the resolveOverride as host header. NOTE: this is only possible if the host is hosted via the cloudflare cdn.
+
+An example of the configuration for loadbalancer with a single source on google cloud functions:
+
+```
+config = {
+    origins: [{
+        handlerName: 'loadbalancer',
+        options: {
+            sources: [
+                {
+                    url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
+                }
+            ]
+        }
+    }]
+};
+```
+
+An example of the configuration for loadbalancing traffic between two ingresses for multiple hosts, with an override of the host header:
+
+```
+config = {
+    origins: [{
+        handlerName: 'loadbalancer',
+        path: '/:file*',
+        options: {
+            "resolveOverride": "www.ahlstrand.es",
+            "sources": [
+                {
+                    "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+                },
+                {
+                    "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+                },
+            ]
+        }
+    }],
+};
+
+```
+
+Using path and host parameters the handler can be more generic:
+
+```
+config = {
+    origins: [{
+        handlerName: 'loadbalancer',
+        path: '/:file*',
+        host: ':host.ahlstrand.es',
+        options: {
+            "resolveOverride": "{host}.ahlstrand.es",
+            "sources": [
+                {
+                    "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+                },
+                {
+                    "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+                },
+            ]
+        }
+    }]
+};
+
+```
+
+### Origin
+
+Passed the request to the origin for the cdn. This is typically used as a catch all handler to pass all requests that the worker shouldn't handle to origin.
+
+As this wouldn't work when running locall it's possible to specify another host name that will be used for debugging locally.
+
+An example of the configuration for the origin handler:
+
+```
+config = {
+    origins: [{
+        handlerName: 'origin',
+        options: {
+            localOriginOverride: 'https://some.origin.com',
+        }
+    }]
+};
 ```
 
 ## Examples
