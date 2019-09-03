@@ -15,7 +15,7 @@ An api gateway for cloudflare workers with configurable handlers for:
 
 ## Concept
 
-The proxy is a pipeline of different handlers that processes each request. The different stages in the pipeline are:
+The proxy is a pipeline of different handlers that processes each request. The handlers in the pipeline could be:
 - Middleware. Such as logging or authentication that typically passes on the request further down the pipeline
 - Origins. Fetches content from other services, for instance using http.
 - Tranforms. Modifies the content before passing it back to the client
@@ -24,23 +24,19 @@ Each handler can specify rules for which hosts and paths it should apply to, so 
 
 ## Usage
 
-A proxy is instanciated with a set of middlewares, origins and transforms that are matched against each request based on hostname, method and path. Each rule is configured to execute one of the predefined handlers. The hanlders could either terminate the request and send the response to the client or pass on the request to the following handlers matching the request.
+A proxy is instanciated with a set of middlewares, origins and transforms that are matched against each request based on hostname, method and path. Each rule is configured to execute one of the predefined handlers. The handlers could either terminate the request and send the response to the client or pass on the request to the following handlers matching the request.
 
 A simple hello world proxy:
 
 ```
 const Proxy = require('cloudworker-proxy');
 
-const config = {
-    middlewares: [],
-    origins: [{
-        handlerName: "static",
-        options: {
-        body: "Hello world"
-        }
-    }],
-    transfoms: []
-};
+const config = [{
+    handlerName: "static",
+    options: {
+    body: "Hello world"
+    }
+}];
 
 const proxy = new Proxy(config);
 
@@ -54,9 +50,7 @@ addEventListener('fetch', (event) => {
 
 ```
 
-## Middlewares
-
-All middlewares are executed in order for all requests that they match.
+## Handlers
 
 ### Ratelimit
 
@@ -77,16 +71,14 @@ HEAD and OPTIONS requests are not counted against the limit.
 An example of the configuration for ratelimit handler:
 
 ```
-config = {
-    middlewares: [{
-        handlerName: 'ratelimit',
-        options: {
-            limit: 1000, // The default allowed calls
-            scope: 'default',
-            type: 'IP', // Anything except IP will sum up all calls
-        }
-    }];
-};
+rules = [{
+    handlerName: 'ratelimit',
+    options: {
+        limit: 1000, // The default allowed calls
+        scope: 'default',
+        type: 'IP', // Anything except IP will sum up all calls
+    }
+}];
 ```
 
 ### Logging
@@ -98,17 +90,15 @@ The logs are sent in chunks to the server. The chunks are sent when the predefin
 An example of configuration for a http logger:
 
 ```
-config = {
-    middlewares: [{
-        handlerName: 'logger',
-        options: {
-            type: 'http',
-            url: process.env.LOGZ_URL,
-            contentType: 'text/plain',
-            delimiter: '_',
-        },
-    }],
-};
+config = [{
+    handlerName: 'logger',
+    options: {
+        type: 'http',
+        url: process.env.LOGZ_URL,
+        contentType: 'text/plain',
+        delimiter: '_',
+    },
+}];
 ```
 
 ### Basic Auth
@@ -118,20 +108,18 @@ Uses basic auth to protect matching rules. The username and authTokens (base64-e
 An example of the configuration for the basic auth middleware:
 
 ```
-config = {
-    middlewares: [{
-        handlerName: 'basicAuth',
-        path: '/basic',
-        options: {
-            users: [
-                {
-                    username: 'test',
-                    authToken: 'dGVzdDpwYXNzd29yZA==', // "password" Base64 encoded
-                }
-            ],
-        },
-    }]
-};
+config = [{
+    handlerName: 'basicAuth',
+    path: '/basic',
+    options: {
+        users: [
+            {
+                username: 'test',
+                authToken: 'dGVzdDpwYXNzd29yZA==', // "password" Base64 encoded
+            }
+        ],
+    },
+}];
 ```
 
 ### Split
@@ -143,17 +131,13 @@ The split handler takes a host parameter that lets you route the requests to a d
 An example of the configuration for the split middleware:
 
 ```
-config = {
-    middlewares: [{
-        handlerName: 'split',
-        options: {
-            host: 'test.example.com',
-        },
-    }]
-};
+config = [{
+    handlerName: 'split',
+    options: {
+        host: 'test.example.com',
+    },
+}];
 ```
-
-## Origins
 
 ### Response
 
@@ -172,21 +156,19 @@ const rules = [
 ];
 ```
 
-## Transforms
-
 ### Cors
 
-Adds cross origin request headers for a path.
+Adds cross origin request headers for a path. The cors handler can optionally take an array of allowed origins to enable cors for.
 
 An example of the configuration for cors handler:
 
 ```
-config = {
-    transforms:[{
-        handlerName: 'cors',
-        options: {}
-    }],
-};
+config = [{
+    handlerName: 'cors',
+    options: {
+        allowedOrigins: ['http://domain.com'],
+    }
+}];
 ```
 
 ### Load balancer
@@ -205,65 +187,57 @@ In some cases it is necessary to resolve the IP of the endpoint based on a diffe
 An example of the configuration for loadbalancer with a single source on google cloud functions:
 
 ```
-config = {
-    origins: [{
-        handlerName: 'loadbalancer',
-        options: {
-            sources: [
-                {
-                    url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
-                }
-            ]
-        }
-    }]
-};
+config = [{
+    handlerName: 'loadbalancer',
+    options: {
+        sources: [
+            {
+                url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
+            }
+        ]
+    }
+}];
 ```
 
 An example of the configuration for loadbalancing traffic between two ingresses for multiple hosts, with an override of the host header:
 
 ```
-config = {
-    origins: [{
-        handlerName: 'loadbalancer',
-        path: '/:file*',
-        options: {
-            "resolveOverride": "www.ahlstrand.es",
-            "sources": [
-                {
-                    "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
-                },
-                {
-                    "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
-                },
-            ]
-        }
-    }],
-};
-
+config = [{
+    handlerName: 'loadbalancer',
+    path: '/:file*',
+    options: {
+        "resolveOverride": "www.ahlstrand.es",
+        "sources": [
+            {
+                "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+            },
+            {
+                "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+            },
+        ]
+    }
+}];
 ```
 
 Using path and host parameters the handler can be more generic:
 
 ```
-config = {
-    origins: [{
-        handlerName: 'loadbalancer',
-        path: '/:file*',
-        host: ':host.ahlstrand.es',
-        options: {
-            "resolveOverride": "{host}.ahlstrand.es",
-            "sources": [
-                {
-                    "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
-                },
-                {
-                    "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
-                },
-            ]
-        }
-    }]
-};
-
+config = [{
+    handlerName: 'loadbalancer',
+    path: '/:file*',
+    host: ':host.ahlstrand.es',
+    options: {
+        "resolveOverride": "{host}.ahlstrand.es",
+        "sources": [
+            {
+                "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+            },
+            {
+                "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+            },
+        ]
+    }
+}];
 ```
 
 ### Origin
@@ -275,14 +249,12 @@ As this wouldn't work when running locall it's possible to specify another host 
 An example of the configuration for the origin handler:
 
 ```
-config = {
-    origins: [{
-        handlerName: 'origin',
-        options: {
-            localOriginOverride: 'https://some.origin.com',
-        }
-    }]
-};
+config = [{
+    handlerName: 'origin',
+    options: {
+        localOriginOverride: 'https://some.origin.com',
+    }
+}];
 ```
 
 ## Examples
