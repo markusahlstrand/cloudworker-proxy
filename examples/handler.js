@@ -35,6 +35,11 @@ const rules = [
     },
   },
   {
+    handlerName: 'cors',
+    path: '/edge',
+    options: {},
+  },
+  {
     handlerName: 'response',
     path: '/edge',
     options: {

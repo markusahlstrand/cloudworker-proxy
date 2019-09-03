@@ -1,6 +1,6 @@
 module.exports = function corsHandler({ allowedOrigins = ['*'] }) {
   return async (ctx, next) => {
-    const origin = ctx.request.headers.get('origin');
+    const origin = ctx.request.headers.origin;
 
     if (allowedOrigins[0] === '*' || allowedOrigins.indexOf(origin) !== -1) {
       ctx.set('Access-Control-Allow-Credentials', 'true');
