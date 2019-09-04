@@ -6,6 +6,44 @@ const _ = {
 
 const HttpLogger = require('../loggers/http');
 
+async function streamToString(readable, maxSize) {
+  const results = [];
+  const reader = readable.getReader();
+  // eslint-disable-next-line no-undef
+  const textDecoder = new TextDecoder();
+  let bytesCount = 0;
+
+  while (maxSize && bytesCount < maxSize) {
+    // eslint-disable-next-line no-await-in-loop
+    const { done, value } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    bytesCount += value.byteLength;
+    results.push(textDecoder.decode(value));
+  }
+
+  const result = results.join('');
+  if (maxSize) {
+    return result.substring(0, maxSize);
+  }
+  return result;
+}
+
+/**
+ * Returns the first 10 KB of the body
+ * @param {*} ctx 
+ */
+async function getBody(request) {
+  if (['POST', 'PATCH'].indexOf(request.method) === -1) {
+    return null;
+  }
+
+  return await streamToString(request.body, 1024 * 10);
+}
+
 module.exports = function logger(options) {
   let logService;
 
@@ -31,7 +69,7 @@ module.exports = function logger(options) {
           headers: _.get(ctx, 'request.headers'),
           method: _.get(ctx, 'request.method'),
           url: _.get(ctx, 'request.href'),
-          //   body,
+          body: await getBody(ctx.event.request),
         },
         response: {
           status: ctx.status,
@@ -51,7 +89,7 @@ module.exports = function logger(options) {
           headers: _.get(ctx, 'request.headers'),
           method: _.get(ctx, 'request.method'),
           url: _.get(ctx, 'request.href'),
-          //   body,
+          body: await getBody(ctx.event.request),
         },
         message: 'ERROR',
         error: err.message,
