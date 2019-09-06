@@ -76,6 +76,16 @@ const rules = [
     },
   },
   {
+    handlerName: 'jwt',
+    path: '/oauth2/.*',
+    options: {},
+  },
+  {
+    handlerName: 'apiKeyApi',
+    path: '/oauth2/apikeys',
+    options: {}
+  },
+  {
     handlerName: 'response',
     path: '/oauth2/.*',
     options: {

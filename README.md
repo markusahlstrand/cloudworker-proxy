@@ -122,6 +122,12 @@ config = [{
 }];
 ```
 
+### Api keys
+
+The api keys handler reads the `X-Api-Key` header and adds a jwt token to the authorizion header if there's a match. The jwt access and refresh tokens are stored in a cloudflare Key Value Storage.
+
+There's a separate api-key-api handler to add, remove or list a api keys.
+
 ### Split
 
 Splits the request in two separate requests. The duplicated request will not return any results to the client, but can for instance be used to sample the traffic on a live website or to get webhooks to post to multiple endpoints.
@@ -256,6 +262,12 @@ config = [{
     }
 }];
 ```
+
+## Security
+
+The hanlders api-keys and oauth2 only stores AES encrypted access and refresh-tokens in storage. The encryption keys are sent as part of the request from the user, so in order to get a valid token you need to have access both to the storage and a request from a user.
+
+The tokens entries have a ttl of one month by default, so any token that hasn't been accessed in a month will automatically be removed.
 
 ## Examples
 
