@@ -26,45 +26,48 @@ function decodeJwt(token) {
     }
 }
 
-async function isValidJwtSignature(token) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode([token.raw.header, token.raw.payload].join('.'));
-    const signature = new Uint8Array(Array.from(token.signature).map(c => c.charCodeAt(0)));
-    /*
-      const jwk = {
-        alg: 'RS256',
-        e: 'AQAB',
-        ext: true,
-        key_ops: ['verify'],
-        kty: 'RSA',
-        n: RSA_PUBLIC_KEY
-      };
-    */
-    // You need to JWK data with whatever is your public RSA key. If you're using Auth0 you
-    // can download it from https://[your_domain].auth0.com/.well-known/jwks.json
-    //   const jwk = {
-    //     alg: "RS256",
-    //     kty: "RSA",
-    //     key_ops: ['verify'],
-    //     use: "sig",
-    //     x5c: [
-    //       "MIIDCTCCAfGgAwIBAgIJZB7GbpJrH2wSMA0GCSqGSIb3DQEBCwUAMCIxIDAeBgNVBAMTF2Rpc3ZvbHZpZ28uZXUuYXV0aDAuY29tMB4XDTE5MDQxMDEwNDUwNloXDTMyMTIxNzEwNDUwNlowIjEgMB4GA1UEAxMXZGlzdm9sdmlnby5ldS5hdXRoMC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDJxFEVtDlxvv6D0cjjhi9xz4e0LAj5l4Q2xdKsUHY3z93vmPpusa+OIgiGXsIspf1EApk4Ia4XcK2IkHrGvxrRuOWHpyjCm/jL7jvRCuLS716q8ZAKRnf+EMyiEew1aINmP/r5xjEZbW0PJJXzf2rhwqS2ZxmRSTNsZGi27QAseflUwENtt4m6n6UNOM/lgZXYk+BjYbLNaNpX++hooDlBIYFJsoCoCdkmPIZqob1r3XM6ajGIlt6amhOHewOKsPAcFOLho7BEbh3r4tgk9bpI4CIWOrX/VWESYxA8JZvAwAW1RbTmyNKq/NptrcW+pDioTsMn74R92j9SfU7B2DurAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFNaMTqrvMBWLOdoSBi28qxOnXmTKMA4GA1UdDwEB/wQEAwIChDANBgkqhkiG9w0BAQsFAAOCAQEAjuMvX06iA0qAm+IqoD4zY12/tUOyQXP71nfZUdLjw101FwyTF4597gnctACpq6C/fyvS52vSglSq/YnjYI7FD63obzmQbVCIErv0d1vGQqyFayKIV4vOedIDJotpkRYMkzc9Jqe/OmIMK5oqhxAGG1dehhnnUBwIN09Eoa2FQ8q1HjkzsdQe9a7hIovPRNpzRFz3/DfY4fQr4zPI+F2eRnyyi7B3/E/tBlR4pRWsxzuETMYZ2TxDyHB9/OC3+PfwrKWhfNXzAO6uuDw8n20vzpU4VEskVsHsvOF80dfRPk7x3uhp2naXh+vhP1d0tQ4Xy+tjvh7e2ocAC2mZQtUPWQ=="
-    //     ],
-    //     n: "ycRRFbQ5cb7-g9HI44Yvcc-HtCwI-ZeENsXSrFB2N8_d75j6brGvjiIIhl7CLKX9RAKZOCGuF3CtiJB6xr8a0bjlh6cowpv4y-470Qri0u9eqvGQCkZ3_hDMohHsNWiDZj_6-cYxGW1tDySV839q4cKktmcZkUkzbGRotu0ALHn5VMBDbbeJup-lDTjP5YGV2JPgY2GyzWjaV_voaKA5QSGBSbKAqAnZJjyGaqG9a91zOmoxiJbempoTh3sDirDwHBTi4aOwRG4d6-LYJPW6SOAiFjq1_1VhEmMQPCWbwMAFtUW05sjSqvzaba3FvqQ4qE7DJ--Efdo_Un1Owdg7qw",
-    //     e: "AQAB",
-    //     kid: "MTQ1NEZFRTNENkYxNTlFQUQxQTNGMzc1Mjk3QzRDMDMwNDNGREE5Qw",
-    //     x5t: "MTQ1NEZFRTNENkYxNTlFQUQxQTNGMzc1Mjk3QzRDMDMwNDNGREE5Qw"
-    //   };
-    const response = await fetch('https://disvolvigo.eu.auth0.com/.well-known/jwks.json');
-    const body = await response.json();
-    const [jwk] = body.keys;
+module.exports = function jwtHandler({ jwksUri, jwksTtl = 30 }) { 
+    let jwkCache = null;
+    let jwkExpire = null;
+    let jwkRequest = null;
 
-    const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
-    return crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, signature, data);
-}
+    async function makeJwkRequest() {
+        const response = await fetch(jwksUri);
+        const body = await response.json();
+        const [jwk] = body.keys;
 
+        // Store cached values
+        jwkCache = jwk;
+        jwkExpire = Date.now() + 1000 * jwksTtl;
 
-module.exports = function jwtHandler({ }) {
+        return jwk;
+    }
+
+    async function getJwk() {
+        if (jwkCache && jwkExpire > Date.now()) {
+            // There's a cached and valid jwk, so let's use that.
+            return jwkCache;
+        }
+
+        if(jwkRequest && jwkRequest.status === 'PENDING') {
+            // There's a jwkRequest in flight. Wait for it to complete
+            return jwkRequest;
+        }
+
+        jwkRequest = makeJwkRequest();
+        return jwkRequest;
+    }
+
+    async function isValidJwtSignature(token) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode([token.raw.header, token.raw.payload].join('.'));
+        const signature = new Uint8Array(Array.from(token.signature).map(c => c.charCodeAt(0)));
+      
+        const jwk = await getJwk();
+        const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+        return crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, signature, data);
+    }
+
     /**
      * Validates the request based on bearer token and cookie
      * @param {*} ctx

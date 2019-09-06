@@ -78,7 +78,9 @@ const rules = [
   {
     handlerName: 'jwt',
     path: '/oauth2/.*',
-    options: {},
+    options: {
+      jwksUri: process.env.JWKS_URI,
+    },
   },
   {
     handlerName: 'apiKeyApi',
