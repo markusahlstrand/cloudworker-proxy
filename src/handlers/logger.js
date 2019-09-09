@@ -41,7 +41,9 @@ async function getBody(request) {
     return null;
   }
 
-  return await streamToString(request.body, 1024 * 10);
+  const clonedRequest = request.clone();
+
+  return await streamToString(clonedRequest.body, 1024 * 10);
 }
 
 module.exports = function logger(options) {
@@ -57,8 +59,9 @@ module.exports = function logger(options) {
 
   return async (ctx, next) => {
     ctx.state['logger-startDate'] = new Date();
+    const body = await getBody(ctx.event.request);
 
-    try {
+    try {    
       await next(ctx);
 
       const data = {
@@ -69,7 +72,7 @@ module.exports = function logger(options) {
           headers: _.get(ctx, 'request.headers'),
           method: _.get(ctx, 'request.method'),
           url: _.get(ctx, 'request.href'),
-          body: await getBody(ctx.event.request),
+          body,
         },
         response: {
           status: ctx.status,
@@ -89,7 +92,7 @@ module.exports = function logger(options) {
           headers: _.get(ctx, 'request.headers'),
           method: _.get(ctx, 'request.method'),
           url: _.get(ctx, 'request.href'),
-          body: await getBody(ctx.event.request),
+          body,
         },
         message: 'ERROR',
         error: err.message,

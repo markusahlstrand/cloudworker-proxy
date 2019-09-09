@@ -1,6 +1,6 @@
 {
   "name": "cloudworker-proxy",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "An api gateway for cloudflare workers",
   "main": "src/index.js",
   "scripts": {
