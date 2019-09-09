@@ -38,7 +38,7 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
     }
 
     // eslint-disable-next-line no-undef
-    const response = await fetch(url + ctx.request.querystring, options);
+    const response = await fetch(url + ctx.request.search, options);
 
     // eslint-disable-next-line no-undef
     const { readable, writable } = new TransformStream();
