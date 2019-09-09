@@ -76,7 +76,7 @@ module.exports = function jwtHandler({ jwksUri, jwksTtl = 30 }) {
     async function handleValidate(ctx, next) {
         // Options requests should not be authenticated
         if (ctx.request.method === 'OPTIONS') {
-            return true;
+            return next(ctx);
         }
 
         const authHeader = ctx.request.headers.authorization || '';

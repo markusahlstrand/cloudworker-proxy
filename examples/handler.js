@@ -58,6 +58,19 @@ const rules = [
     },
   },
   {
+    handlerName: 'apiKey',
+    path: '/oauth2/.*',
+    options: {
+      oauthClientId: process.env.OAUTH2_CLIENT_ID,
+      oauth2ClientSecret: process.env.OAUTH2_CLIENT_SECRET,
+      oauth2AuthDomain: process.env.OAUTH2_AUTH_DOMAIN,      
+      kvAccountId: process.env.KV_ACCOUNT_ID,
+      kvNamespace: process.env.KV_NAMESPACE,
+      kvAuthEmail: process.env.KV_AUTH_EMAIL,
+      kvAuthKey: process.env.KV_AUTH_KEY,
+    }
+  },
+  {
     handlerName: 'oauth2',
     path: '/oauth2/.*',
     options: {
@@ -72,7 +85,6 @@ const rules = [
       kvNamespace: process.env.KV_NAMESPACE,
       kvAuthEmail: process.env.KV_AUTH_EMAIL,
       kvAuthKey: process.env.KV_AUTH_KEY,
-      kvTtl: 60 * 60 * 24 * 30, // A month
     },
   },
   {
@@ -85,7 +97,13 @@ const rules = [
   {
     handlerName: 'apiKeyApi',
     path: '/oauth2/apikeys',
-    options: {}
+    options: {
+      createPath: '/oauth2/apikeys',
+      kvAccountId: process.env.KV_ACCOUNT_ID,
+      kvNamespace: process.env.KV_NAMESPACE,
+      kvAuthEmail: process.env.KV_AUTH_EMAIL,
+      kvAuthKey: process.env.KV_AUTH_KEY,
+    }
   },
   {
     handlerName: 'response',

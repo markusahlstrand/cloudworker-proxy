@@ -34,7 +34,7 @@ class Context {
  */
 function getCtx() {
   const ctx = new Context();
-  ctx.request.headers.set('origin', 'http://localhost');
+  ctx.request.headers.origin = 'http://localhost';
 
   return ctx;
 }

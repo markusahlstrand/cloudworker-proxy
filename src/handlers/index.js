@@ -1,3 +1,4 @@
+const apiKey = require('./apikey');
 const apiKeyApi = require('./apikey-api');
 const basicAuth = require('./basic-auth');
 const cors = require('./cors');
@@ -11,6 +12,7 @@ const rateLimit = require('./rate-limit');
 const split = require('./split');
 
 module.exports = {
+  apiKey,
   apiKeyApi,
   basicAuth,
   cors,

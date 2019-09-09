@@ -1,7 +1,8 @@
 const cookie = require('cookie');
 const KvStorage = require('../services/kvStorage');
+const jwtRefresh = require('./jwt-refresh');
 
-function getCookie({ cookieHeader = '' , cookieName}) {  
+function getCookie({ cookieHeader = '', cookieName }) {
   const cookies = cookie.parse(cookieHeader);
   return cookies[cookieName];
 }
@@ -20,13 +21,13 @@ function isBrowser(accept = '') {
   return accept.split(',').indexOf('text/html') !== -1;
 }
 
-module.exports = function oauth2Handler({  
+module.exports = function oauth2Handler({
   cookieName = 'proxy',
   kvAccountId,
   kvNamespace,
   kvAuthEmail,
   kvAuthKey,
-  kvTtl,
+  kvTtl = 2592000, // A month
   oauth2AuthDomain,
   oauthClientId,
   oauth2ClientSecret,
@@ -76,38 +77,50 @@ module.exports = function oauth2Handler({
   }
 
   async function handleLogout(ctx) {
-    const sessionCookie = getCookie({ 
+    const sessionCookie = getCookie({
       cookieHeader: ctx.request.headers.cookie,
       cookieName,
     });
 
-    if(sessionCookie) {
+    if (sessionCookie) {
       // Remove the cookie
       ctx.set('Set-Cookie', cookie.serialize(cookieName, '', {
         domain: `.${ctx.request.hostname}`,
-        maxAge: 0,          
+        maxAge: 0,
       }));
     }
 
-    const returnTo = encodeURIComponent(`${ctx.request.protocol}://${ctx.request.host}`);    
+    const returnTo = encodeURIComponent(`${ctx.request.protocol}://${ctx.request.host}`);
     ctx.set('Location', `${authDomain}/v2/logout?client_id=${clientId}&returnTo=${returnTo}`);
     ctx.status = 302;
   }
 
+  function splitAuthData(authData) {
+    const accessTokenSegments = authData.accessToken.split('.');
+    const refreshSplitIndex = Math.floor(authData.refreshToken.length / 2);
+
+    const key = `${accessTokenSegments.pop()}.${authData.refreshToken.slice(refreshSplitIndex)}`;
+
+    return {
+      serverAuthData: {
+        accessToken: `${accessTokenSegments.join('.')}.`,
+        refreshToken: authData.refreshToken.slice(0, refreshSplitIndex),
+        expires: authData.expires,
+      },
+      key,
+    };
+  }
+
   async function handleCallback(ctx) {
     const body = await getTokenFromCode(ctx.request.query.code, ctx.request.href);
-    const accessTokenSegments = body.access_token.split('.');
-    const refreshSplitIndex = Math.floor(body.refresh_token.length / 2);
 
-    const key = `${accessTokenSegments.pop()}.${body.refresh_token.slice(refreshSplitIndex)}`;
-
-    const authData = {
-      accessToken: `${accessTokenSegments.join('.')}.`,
-      refreshToken: body.refresh_token.slice(0, refreshSplitIndex),
+    const { serverAuthData, key } = splitAuthData({
+      accessToken: body.access_token,
+      refreshToken: body.refresh_token,
       expires: Date.now() + body.expires_in * 1000,
-    };
+    });
 
-    await kvStorage.put(key, JSON.stringify(authData));
+    await kvStorage.put(key, JSON.stringify(serverAuthData));
 
     ctx.status = 302;
     ctx.set('Set-Cookie', cookie.serialize(cookieName, key, {
@@ -117,46 +130,18 @@ module.exports = function oauth2Handler({
     ctx.set('Location', ctx.request.query.state);
   }
 
-  async function getTokenFromRefreshToken(refreshToken) {
-    const tokenUrl = `${authDomain}/oauth/token`
-    const response = await fetch(tokenUrl, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        grant_type: 'refresh_token',
-        client_id: clientId,
-        client_secret: clientSecret,
-        refresh_token: refreshToken,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Authentication failed');
-    }
-
-    return await response.json();
-  }
-
-  async function refreshAccessToken(refreshToken) {
-    const body = await getTokenFromRefreshToken(refreshToken);
-
-    return body.access_token;
-  }
-
   /**
    * Validates the request based on bearer token and cookie
    * @param {*} ctx
    * @param {*} next
    */
   async function handleValidate(ctx, next) {
-    // Options requests should not be authenticated
-    if (ctx.request.method === 'OPTIONS') {
-      return true;
+    // Options requests should not be authenticated. Requests with auth headers are passed through
+    if (ctx.request.method === 'OPTIONS' || ctx.request.headers.authorization) {
+      return next(ctx);
     }
 
-    const sessionCookie = getCookie({ 
+    const sessionCookie = getCookie({
       cookieHeader: ctx.request.headers.cookie,
       cookieName,
     });
@@ -166,16 +151,41 @@ module.exports = function oauth2Handler({
       const session = await kvStorage.get(sessionCookie);
 
       if (session) {
-        const authData = JSON.parse(session);
-        const [accessPart, refreshPart] = sessionCookie.split('.');
+        try {
+          let authData = JSON.parse(session);
+          const [accessPart, refreshPart] = sessionCookie.split('.');
 
-        let accessToken = authData.accessToken + accessPart;
-        if (session.expires < Date.now()) {
-          accessToken = await refreshAccessToken(authData.refreshToken + refreshPart);
+          // Store this in the state as other handlers might need it..
+          ctx.state.refreshToken = authData.refreshToken + refreshPart;
+
+          if (authData.expires < Date.now()) {
+            const refreshedJwt = await jwtRefresh({
+              refreshToken: ctx.state.refreshToken,
+              clientId,
+              authDomain,
+              clientSecret,
+            });
+
+            const { key, serverAuthData } = splitAuthData(refreshedJwt);
+
+            authData = serverAuthData;
+
+            await kvStorage.put(key, JSON.stringify(serverAuthData));
+            ctx.set('Set-Cookie', cookie.serialize(cookieName, key, {
+              domain: `.${ctx.request.hostname}`,
+              maxAge: 60 * 60 * 24 * 365, // 1 year            
+            }));
+          }
+
+          ctx.state.accessToken = authData.accessToken + accessPart;
+          ctx.state.accessTokenExpires = authData.expires;
+
+          ctx.request.headers.authorization = `bearer ${ctx.state.accessToken}`;
+          return next(ctx);
+
+        } catch (err) {
+          console.log(`Failed to fetch the session: ${err.message}`);
         }
-
-        ctx.request.headers.authorization = `bearer ${accessToken}`;
-        return next(ctx);
       }
     }
 
