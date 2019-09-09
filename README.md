@@ -124,7 +124,7 @@ config = [{
 
 ### Apikeys
 
-The api keys handler reads the `X-Api-Key` header and adds a jwt token to the authorizion header if there's a match. The jwt access and refresh tokens are stored in a cloudflare Key Value Storage.
+The api keys handler reads the `X-Api-Key` header, with a fallback to `?apikey=..` querystring, and adds a jwt token to the authorizion header if there's a match. The jwt access and refresh tokens are stored in a cloudflare Key Value Storage.
 
 The handler renews the access tokens once they expire using the refresh token. It doesn't validate the access token but only ads it to the request headers so that it can be validated using the jwt handler.
 
