@@ -25,13 +25,13 @@ module.exports = function apikeyHandler({
     const clientSecret = oauth2ClientSecret;
 
     return async (ctx, next) => {
-        const apiKeyHeader = ctx.request.headers['x-api-key'];
+        const clientApiKey = ctx.request.headers['x-api-key'] || ctx.request.query.apikey;
 
-        if (!apiKeyHeader) {
+        if (!clientApiKey) {
             return next(ctx);
         }
 
-        const [userHash, apiKey] = apiKeyHeader.split('.');
+        const [userHash, apiKey] = clientApiKey.split('.');
 
         const kvKey = kvPrefix + userHash;
         const apiKeys = JSON.parse(await kvStorage.get(kvKey) || '{}');

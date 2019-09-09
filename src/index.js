@@ -19,7 +19,7 @@ module.exports = class Proxy {
     });
   }
 
-  async resolve(event) {
+  async resolve(event) {    
     return this.router.resolve(event);
   }
 };
