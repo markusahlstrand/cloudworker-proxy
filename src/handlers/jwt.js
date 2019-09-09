@@ -16,7 +16,7 @@ function decodeJwt(token) {
     const parts = token.split('.');
     const header = JSON.parse(atob(parts[0]));
     const payload = JSON.parse(atob(parts[1]));
-    const signature = atob(parts[2]);
+    const signature = atob(parts[2].replace(/-/g, '+').replace(/_/g, '/'));
 
     return {
         header,
