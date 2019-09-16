@@ -174,9 +174,11 @@ module.exports = function oauth2Handler({
 
             authData = serverAuthData;
 
+            const domain = ctx.request.hostname.match(/[^\.]+\.[^\.]+$/i)[0];
+
             await kvStorage.put(key, JSON.stringify(serverAuthData));
             ctx.set('Set-Cookie', cookie.serialize(cookieName, key, {
-              domain: `.${ctx.request.hostname}`,
+              domain: `.${domain}`,
               maxAge: 60 * 60 * 24 * 365, // 1 year            
             }));
           }
@@ -189,6 +191,17 @@ module.exports = function oauth2Handler({
 
         } catch (err) {
           console.log(`Failed to fetch the session: ${err.message}`);
+        }
+      } else {
+        // Remove the cookie if the session can't be found in the kv-store
+        const domain = ctx.request.hostname.match(/[^\.]+\.[^\.]+$/i)[0];
+
+        if (sessionCookie) {
+          // Remove the cookie
+          ctx.set('Set-Cookie', cookie.serialize(cookieName, '', {
+            domain: `.${domain}`,
+            maxAge: 0,
+          }));
         }
       }
     }
