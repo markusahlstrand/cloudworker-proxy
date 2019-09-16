@@ -82,10 +82,12 @@ module.exports = function oauth2Handler({
       cookieName,
     });
 
+    const domain = ctx.request.hostname.match(/[^\.]+\.[^\.]+$/i)[0];
+
     if (sessionCookie) {
       // Remove the cookie
       ctx.set('Set-Cookie', cookie.serialize(cookieName, '', {
-        domain: `.${ctx.request.hostname}`,
+        domain: `.${domain}`,
         maxAge: 0,
       }));
     }
@@ -122,9 +124,11 @@ module.exports = function oauth2Handler({
 
     await kvStorage.put(key, JSON.stringify(serverAuthData));
 
+    const domain = ctx.request.hostname.match(/[^\.]+\.[^\.]+$/i)[0];
+
     ctx.status = 302;
     ctx.set('Set-Cookie', cookie.serialize(cookieName, key, {
-      domain: `.${ctx.request.hostname}`,
+      domain: `.${domain}`,
       maxAge: 60 * 60 * 24 * 365, // 1 year            
     }));
     ctx.set('Location', ctx.request.query.state);
