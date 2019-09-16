@@ -37,7 +37,8 @@ module.exports = function apikeyHandler({
         const apiKeys = JSON.parse(await kvStorage.get(kvKey) || '{}');
         
         if (apiKeys[apiKey]) {
-            if (apiKeys[apiKey].expires < Date.now()) {
+            if (!apiKeys[apiKey].expires 
+                    || apiKeys[apiKey].expires < Date.now()) {
                 apiKeys[apiKey] = await jwtRefresh({
                     refreshToken: apiKeys[apiKey].refreshToken,
                     authDomain,

@@ -32,7 +32,7 @@ module.exports = function apikeyApiHandler({
         const apikey = shortId();
         apiKeys[apikey] = {
             accessToken: ctx.state.accessToken,
-            accessTokenExpires: ctx.state.accessTokenExpires,
+            expires: ctx.state.accessTokenExpires,
             refreshToken: ctx.state.refreshToken,
         };
 
