@@ -1,10 +1,10 @@
 {
   "name": "cloudworker-proxy",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "An api gateway for cloudflare workers",
   "main": "src/index.js",
   "scripts": {
-    "lint": "eslint",
+    "lint": "eslint src",
     "test": "mocha test/**/*.test.js"
   },
   "repository": {
@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/markusahlstrand/cloudworker-proxy#readme",
   "dependencies": {
-    "cloudworker-router": "1.5.0",
+    "cloudworker-router": "1.6.0",
     "cookie": "0.4.0",
     "lodash.get": "4.4.2",
     "lodash.set": "4.3.2",
@@ -34,12 +34,12 @@
   "devDependencies": {
     "chai": "4.2.0",
     "dotenv": "8.1.0",
-    "eslint": "6.3.0",
+    "eslint": "6.5.0",
     "eslint-config-airbnb-base": "14.0.0",
-    "eslint-config-prettier": "6.2.0",
+    "eslint-config-prettier": "6.3.0",
     "eslint-plugin-import": "2.18.2",
-    "eslint-plugin-prettier": "3.1.0",
-    "mocha": "6.2.0",
+    "eslint-plugin-prettier": "3.1.1",
+    "mocha": "6.2.1",
     "node-cloudworker": "1.1.2",
     "prettier": "1.18.2"
   }

@@ -2,6 +2,13 @@ const Proxy = require('../src/index');
 
 const rules = [
   {
+    path: '/split',
+    handlerName: 'split',
+    options: {
+      host: 'split.localhost',
+    },
+  },
+  {
     handlerName: 'logger',
     options: {
       type: 'http',
@@ -13,6 +20,21 @@ const rules = [
   {
     handlerName: 'rateLimit',
     options: {},
+  },
+  {
+    handlerName: 'response',
+    host: 'localhost:3000',
+    path: '/split',
+    options: {
+      body: 'This request is split to a separate request',
+    },
+  },
+  {
+    handlerName: 'response',    
+    host: 'split.localhost',    
+    options: {
+      body: 'This reponse is only available on the splitted request',
+    },
   },
   {
     handlerName: 'basicAuth',

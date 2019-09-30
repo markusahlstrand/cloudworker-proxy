@@ -34,7 +34,7 @@ async function streamToString(readable, maxSize) {
 
 /**
  * Returns the first 10 KB of the body
- * @param {*} ctx 
+ * @param {*} ctx
  */
 async function getBody(request) {
   if (['POST', 'PATCH'].indexOf(request.method) === -1) {
@@ -43,7 +43,7 @@ async function getBody(request) {
 
   const clonedRequest = request.clone();
 
-  return await streamToString(clonedRequest.body, 1024 * 10);
+  return streamToString(clonedRequest.body, 1024 * 10);
 }
 
 module.exports = function logger(options) {
@@ -61,7 +61,7 @@ module.exports = function logger(options) {
     ctx.state['logger-startDate'] = new Date();
     const body = await getBody(ctx.event.request);
 
-    try {    
+    try {
       await next(ctx);
 
       const data = {

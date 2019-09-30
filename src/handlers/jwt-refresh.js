@@ -1,11 +1,16 @@
-module.exports = async function refreshAccessToken({ refreshToken, authDomain, clientId, clientSecret }) {
-  const tokenUrl = `${authDomain}/oauth/token`
+module.exports = async function refreshAccessToken({
+  refreshToken,
+  authDomain,
+  clientId,
+  clientSecret,
+}) {
+  const tokenUrl = `${authDomain}/oauth/token`;
 
   // eslint-disable-next-line no-undef
   const response = await fetch(tokenUrl, {
     method: 'POST',
     headers: {
-      'content-type': 'application/json'
+      'content-type': 'application/json',
     },
     body: JSON.stringify({
       grant_type: 'refresh_token',
@@ -26,4 +31,4 @@ module.exports = async function refreshAccessToken({ refreshToken, authDomain, c
     refreshToken,
     expires: Date.now() + body.expires_in * 1000,
   };
-}
+};

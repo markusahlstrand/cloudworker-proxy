@@ -9,11 +9,11 @@ function getCookie({ cookieHeader = '', cookieName }) {
 
 /**
  * Very simplistic form serializer that works for this case but probably nothing else :)
- * @param {*} obj 
+ * @param {*} obj
  */
 function serializeFormData(obj) {
   return Object.keys(obj)
-    .map(key => `${key}=${encodeURIComponent(obj[key])}`)
+    .map((key) => `${key}=${encodeURIComponent(obj[key])}`)
     .join('&');
 }
 
@@ -54,11 +54,13 @@ module.exports = function oauth2Handler({
   const scope = scopes.join('%20');
 
   async function getTokenFromCode(code, redirectUrl) {
-    const tokenUrl = `${authDomain}/oauth/token`
+    const tokenUrl = `${authDomain}/oauth/token`;
+
+    // eslint-disable-next-line no-undef
     const response = await fetch(tokenUrl, {
       method: 'POST',
       headers: {
-        'content-type': 'application/x-www-form-urlencoded'
+        'content-type': 'application/x-www-form-urlencoded',
       },
       body: serializeFormData({
         grant_type: 'authorization_code',
@@ -73,7 +75,7 @@ module.exports = function oauth2Handler({
       throw new Error('Authentication failed');
     }
 
-    return await response.json();
+    return response.json();
   }
 
   async function handleLogout(ctx) {
@@ -86,10 +88,13 @@ module.exports = function oauth2Handler({
 
     if (sessionCookie) {
       // Remove the cookie
-      ctx.set('Set-Cookie', cookie.serialize(cookieName, '', {
-        domain: `.${domain}`,
-        maxAge: 0,
-      }));
+      ctx.set(
+        'Set-Cookie',
+        cookie.serialize(cookieName, '', {
+          domain: `.${domain}`,
+          maxAge: 0,
+        }),
+      );
     }
 
     const returnTo = encodeURIComponent(`${ctx.request.protocol}://${ctx.request.host}`);
@@ -127,10 +132,13 @@ module.exports = function oauth2Handler({
     const domain = ctx.request.hostname.match(/[^\.]+\.[^\.]+$/i)[0];
 
     ctx.status = 302;
-    ctx.set('Set-Cookie', cookie.serialize(cookieName, key, {
-      domain: `.${domain}`,
-      maxAge: 60 * 60 * 24 * 365, // 1 year            
-    }));
+    ctx.set(
+      'Set-Cookie',
+      cookie.serialize(cookieName, key, {
+        domain: `.${domain}`,
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      }),
+    );
     ctx.set('Location', ctx.request.query.state);
   }
 
@@ -177,10 +185,13 @@ module.exports = function oauth2Handler({
             const domain = ctx.request.hostname.match(/[^\.]+\.[^\.]+$/i)[0];
 
             await kvStorage.put(key, JSON.stringify(serverAuthData));
-            ctx.set('Set-Cookie', cookie.serialize(cookieName, key, {
-              domain: `.${domain}`,
-              maxAge: 60 * 60 * 24 * 365, // 1 year            
-            }));
+            ctx.set(
+              'Set-Cookie',
+              cookie.serialize(cookieName, key, {
+                domain: `.${domain}`,
+                maxAge: 60 * 60 * 24 * 365, // 1 year
+              }),
+            );
           }
 
           ctx.state.accessToken = authData.accessToken + accessPart;
@@ -188,8 +199,8 @@ module.exports = function oauth2Handler({
 
           ctx.request.headers.authorization = `bearer ${ctx.state.accessToken}`;
           return next(ctx);
-
         } catch (err) {
+          // eslint-disable-next-line no-console
           console.log(`Failed to fetch the session: ${err.message}`);
         }
       } else {
@@ -198,21 +209,31 @@ module.exports = function oauth2Handler({
 
         if (sessionCookie) {
           // Remove the cookie
-          ctx.set('Set-Cookie', cookie.serialize(cookieName, '', {
-            domain: `.${domain}`,
-            maxAge: 0,
-          }));
+          ctx.set(
+            'Set-Cookie',
+            cookie.serialize(cookieName, '', {
+              domain: `.${domain}`,
+              maxAge: 0,
+            }),
+          );
         }
       }
+
+      return ctx;
     }
 
     if (isBrowser(ctx.request.headers.accept)) {
       // For now we just oode the requested url in the state. Could pass more properties in a serialized object
       const state = encodeURIComponent(ctx.request.href);
-      const encodedRedirectUri = encodeURIComponent(`${ctx.request.protocol}://${ctx.request.host}${callbackPath}`);
+      const encodedRedirectUri = encodeURIComponent(
+        `${ctx.request.protocol}://${ctx.request.host}${callbackPath}`,
+      );
 
       ctx.status = 302;
-      ctx.set('location', `${authDomain}/authorize?state=${state}&client_id=${clientId}&response_type=code&scope=${scope}&audience=${audience}&redirect_uri=${encodedRedirectUri}`);
+      ctx.set(
+        'location',
+        `${authDomain}/authorize?state=${state}&client_id=${clientId}&response_type=code&scope=${scope}&audience=${audience}&redirect_uri=${encodedRedirectUri}`,
+      );
     } else {
       ctx.status = 403;
       ctx.body = 'Forbidden';

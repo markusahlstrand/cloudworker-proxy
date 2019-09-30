@@ -1,6 +1,6 @@
 module.exports = function corsHandler({ allowedOrigins = ['*'] }) {
   return async (ctx, next) => {
-    const origin = ctx.request.headers.origin;
+    const { origin } = ctx.request.headers;
 
     if (origin) {
       if (allowedOrigins[0] === '*' || allowedOrigins.indexOf(origin) !== -1) {
