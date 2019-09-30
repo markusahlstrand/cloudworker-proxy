@@ -6,6 +6,18 @@ const _ = {
   set: lodashSet,
 };
 
+function filterCfHeaders(headers) {
+  const result = {};
+
+  Object.keys(headers).forEach((key, value) => {
+    if (!key.startsWith('cf')) {
+      result[key] = value;
+    }
+  });
+
+  return result;
+}
+
 function getSource(sources) {
   // Random for now. Maybe support sticky sessions, least connected or fallback
   return sources[Math.floor(Math.random() * sources.length)];
@@ -21,7 +33,7 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
 
     const options = {
       method: ctx.request.method,
-      headers: ctx.request.headers,
+      headers: filterCfHeaders(ctx.request.headers),
     };
 
     if (_.get(ctx, 'event.request.body')) {

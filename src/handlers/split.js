@@ -6,8 +6,8 @@ module.exports = function splitHandler({ host }) {
   return async (ctx, next) => {
     const duplicateContext = ctx.clone();
     duplicateContext.request = {
-      host,
       ...duplicateContext.request,
+      host,
     };
 
     // eslint-disable-next-line no-undef
