@@ -1,9 +1,9 @@
 function filterCfHeaders(headers) {
   const result = {};
 
-  Object.keys(headers).forEach((key, value) => {
+  Object.keys(headers).forEach((key) => {
     if (!key.startsWith('cf')) {
-      result[key] = value;
+      result[key] = headers[key];
     }
   });
 
