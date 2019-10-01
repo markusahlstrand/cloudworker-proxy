@@ -34,6 +34,7 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
     const options = {
       method: ctx.request.method,
       headers: filterCfHeaders(ctx.request.headers),
+      redirect: 'manual',
     };
 
     if (_.get(ctx, 'event.request.body')) {

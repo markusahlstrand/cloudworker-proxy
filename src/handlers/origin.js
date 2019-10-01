@@ -22,6 +22,7 @@ module.exports = function originHandler(options) {
       headers: filterCfHeaders(ctx.request.headers),
       method: ctx.request.method,
       body: ctx.request.body,
+      redirect: 'manual',
     };
 
     // eslint-disable-next-line no-undef
