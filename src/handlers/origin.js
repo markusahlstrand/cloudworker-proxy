@@ -1,3 +1,9 @@
+const lodashGet = require('lodash.get');
+
+const _ = {
+  get: lodashGet,
+};
+
 function filterCfHeaders(headers) {
   const result = {};
 
@@ -21,9 +27,12 @@ module.exports = function originHandler(options) {
     const requestOptions = {
       headers: filterCfHeaders(ctx.request.headers),
       method: ctx.request.method,
-      body: ctx.request.body,
       redirect: 'manual',
     };
+
+    if (_.get(ctx, 'event.request.body')) {
+      requestOptions.body = ctx.event.request.body;
+    }
 
     // eslint-disable-next-line no-undef
     const response = await fetch(url, requestOptions);
