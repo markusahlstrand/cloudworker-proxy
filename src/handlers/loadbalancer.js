@@ -27,6 +27,15 @@ function resolveParams(url, params = {}) {
   return Object.keys(params).reduce((acc, key) => acc.replace(`{${key}}`, params[key]), url);
 }
 
+function instanceToJson(instance) {
+  return [...instance].reduce((obj, item) => {
+    const prop = {};
+    // eslint-disable-next-line prefer-destructuring
+    prop[item[0]] = item[1];
+    return { ...obj, ...prop };
+  }, {});
+}
+
 module.exports = function loadbalancerHandler({ sources = [] }) {
   return async (ctx) => {
     const source = getSource(sources);
@@ -61,6 +70,10 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
 
     ctx.body = readable;
     ctx.status = response.status;
-    response.headers.forEach((value, key) => ctx.set(key, value));
+
+    const responseHeaders = instanceToJson(response.headers);
+    Object.keys(responseHeaders).forEach((key) => {
+      ctx.set(key, responseHeaders[key]);
+    });
   };
 };

@@ -16,6 +16,15 @@ function filterCfHeaders(headers) {
   return result;
 }
 
+function instanceToJson(instance) {
+  return [...instance].reduce((obj, item) => {
+    const prop = {};
+    // eslint-disable-next-line prefer-destructuring
+    prop[item[0]] = item[1];
+    return { ...obj, ...prop };
+  }, {});
+}
+
 module.exports = function originHandler(options) {
   const { localOriginOverride } = options;
 
@@ -39,5 +48,9 @@ module.exports = function originHandler(options) {
 
     ctx.body = response.body;
     ctx.status = response.status;
+    const responseHeaders = instanceToJson(response.headers);
+    Object.keys(responseHeaders).forEach((key) => {
+      ctx.set(key, responseHeaders[key]);
+    });
   };
 };
