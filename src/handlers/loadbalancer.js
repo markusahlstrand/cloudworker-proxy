@@ -60,6 +60,6 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
 
     ctx.body = readable;
     ctx.status = response.status;
-    ctx.headers = { ...ctx.headers, ...response.headers };
+    response.headers.forEach((value, key) => ctx.set(key, value));
   };
 };
