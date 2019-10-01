@@ -39,6 +39,5 @@ module.exports = function originHandler(options) {
 
     ctx.body = response.body;
     ctx.status = response.status;
-    response.headers.forEach((value, key) => ctx.set(key, value));
   };
 };
