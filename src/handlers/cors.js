@@ -12,6 +12,6 @@ module.exports = function corsHandler({ allowedOrigins = ['*'] }) {
       }
     }
 
-    return next(ctx);
+    await next(ctx);
   };
 };

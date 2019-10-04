@@ -5,14 +5,16 @@ module.exports = function splitHandler({ host }) {
 
   return async (ctx, next) => {
     const duplicateContext = ctx.clone();
+    duplicateContext.cloned = true;
+
     duplicateContext.request = {
       ...duplicateContext.request,
+      href: duplicateContext.request.href.replace(duplicateContext.request.href, host),
       host,
     };
 
     // eslint-disable-next-line no-undef
     ctx.event.waitUntil(next(duplicateContext));
-
-    return next(ctx);
+    await next(ctx);
   };
 };
