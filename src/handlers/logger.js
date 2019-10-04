@@ -78,7 +78,7 @@ module.exports = function logger(options) {
           status: ctx.status,
           headers: _.get(ctx, 'response.headers'),
         },
-        handlers: _.get(ctx, 'state.handlers'),
+        handlers: _.get(ctx, 'state.handlers', []).join(','),
         route: _.get(ctx, 'route.handlerName'),
         timestamp: new Date().toISOString(),
         ttfb: new Date() - ctx.state['logger-startDate'],
@@ -92,11 +92,12 @@ module.exports = function logger(options) {
         request: {
           headers: _.get(ctx, 'request.headers'),
           method: _.get(ctx, 'request.method'),
-          handlers: _.get(ctx, 'state.handlers'),
+          handlers: _.get(ctx, 'state.handlers', []).join(','),
           url: _.get(ctx, 'request.href'),
           body,
         },
         message: 'ERROR',
+        stack: err.stack,
         error: err.message,
         severity: 50,
       };

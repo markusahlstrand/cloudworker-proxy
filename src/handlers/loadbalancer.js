@@ -65,8 +65,11 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
     // eslint-disable-next-line no-undef
     const { readable, writable } = new TransformStream();
 
-    // Don't await..
-    ctx.event.waitUntil(response.body.pipeTo(writable));
+    // Only stream the body for non-cloned requests
+    if (!ctx.cloned) {
+      // Don't await..
+      ctx.event.waitUntil(response.body.pipeTo(writable));
+    }
 
     ctx.body = readable;
     ctx.status = response.status;

@@ -46,7 +46,16 @@ module.exports = function originHandler(options) {
     // eslint-disable-next-line no-undef
     const response = await fetch(url, requestOptions);
 
-    ctx.body = response.body;
+    // eslint-disable-next-line no-undef
+    const { readable, writable } = new TransformStream();
+
+    // Only stream the body for non-cloned requests
+    if (!ctx.cloned) {
+      // Don't await..
+      ctx.event.waitUntil(response.body.pipeTo(writable));
+    }
+
+    ctx.body = readable;
     ctx.status = response.status;
     const responseHeaders = instanceToJson(response.headers);
     Object.keys(responseHeaders).forEach((key) => {
