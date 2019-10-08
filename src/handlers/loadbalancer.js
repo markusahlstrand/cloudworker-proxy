@@ -62,16 +62,17 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
     // eslint-disable-next-line no-undef
     const response = await fetch(url + ctx.request.search, options);
 
-    // eslint-disable-next-line no-undef
-    const { readable, writable } = new TransformStream();
-
     // Only stream the body for non-cloned requests
-    if (!ctx.cloned) {
+    if (!ctx.cloned && response.body !== null) {
+      // eslint-disable-next-line no-undef
+      const { readable, writable } = new TransformStream();
+
       // Don't await..
       ctx.event.waitUntil(response.body.pipeTo(writable));
+
+      ctx.body = readable;
     }
 
-    ctx.body = readable;
     ctx.status = response.status;
 
     const responseHeaders = instanceToJson(response.headers);
