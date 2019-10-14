@@ -1,4 +1,5 @@
 const lodashGet = require('lodash.get');
+const cachedFetch = require('../services/cachedFetch');
 
 const _ = {
   get: lodashGet,
@@ -44,7 +45,7 @@ module.exports = function originHandler(options) {
     }
 
     // eslint-disable-next-line no-undef
-    const response = await fetch(url, requestOptions);
+    const response = await cachedFetch(url, requestOptions);
 
     // Only stream the body for non-cloned requests
     if (!ctx.cloned && response.body !== null) {

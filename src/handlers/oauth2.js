@@ -218,8 +218,6 @@ module.exports = function oauth2Handler({
           );
         }
       }
-
-      return ctx;
     }
 
     if (isBrowser(ctx.request.headers.accept)) {

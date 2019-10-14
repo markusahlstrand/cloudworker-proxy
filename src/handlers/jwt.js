@@ -1,3 +1,5 @@
+const cachedFetch = require('../services/cachedFetch');
+
 /**
  * Parse and decode a JWT.
  * A JWT is three, base64 encoded, strings concatenated with ‘.’:
@@ -27,13 +29,10 @@ function decodeJwt(token) {
 }
 
 module.exports = function jwtHandler({ jwksUri, jwksTtl = 30 }) {
-  let jwkCache = null;
-  let jwkExpire = null;
-  let jwkRequest = null;
+  async function getJwk() {
+    // TODO: override jwksTtl..
+    const response = await cachedFetch(jwksUri);
 
-  async function makeJwkRequest() {
-    // eslint-disable-next-line no-undef
-    const response = await fetch(jwksUri);
     const body = await response.json();
     const [jwk] = body.keys;
 
@@ -42,21 +41,6 @@ module.exports = function jwtHandler({ jwksUri, jwksTtl = 30 }) {
     jwkExpire = Date.now() + 1000 * jwksTtl;
 
     return jwk;
-  }
-
-  async function getJwk() {
-    if (jwkCache && jwkExpire > Date.now()) {
-      // There's a cached and valid jwk, so let's use that.
-      return jwkCache;
-    }
-
-    if (jwkRequest && jwkRequest.status === 'PENDING') {
-      // There's a jwkRequest in flight. Wait for it to complete
-      return jwkRequest;
-    }
-
-    jwkRequest = makeJwkRequest();
-    return jwkRequest;
   }
 
   async function isValidJwtSignature(token) {

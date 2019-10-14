@@ -1,5 +1,6 @@
 const lodashGet = require('lodash.get');
 const lodashSet = require('lodash.set');
+const cachedFetch = require('../services/cachedFetch');
 
 const _ = {
   get: lodashGet,
@@ -60,7 +61,7 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
     }
 
     // eslint-disable-next-line no-undef
-    const response = await fetch(url + ctx.request.search, options);
+    const response = await cachedFetch(url + ctx.request.search, options);
 
     // Only stream the body for non-cloned requests
     if (!ctx.cloned && response.body !== null) {
