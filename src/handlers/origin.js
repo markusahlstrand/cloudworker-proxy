@@ -27,7 +27,7 @@ function instanceToJson(instance) {
 }
 
 module.exports = function originHandler(options) {
-  const { localOriginOverride } = options;
+  const { localOriginOverride, cached = true } = options;
 
   return async (ctx) => {
     const url = process.env.LOCAL
@@ -38,13 +38,13 @@ module.exports = function originHandler(options) {
       headers: filterCfHeaders(ctx.request.headers),
       method: ctx.request.method,
       redirect: 'manual',
+      cached,
     };
 
     if (_.get(ctx, 'event.request.body')) {
       requestOptions.body = ctx.event.request.body;
     }
 
-    // eslint-disable-next-line no-undef
     const response = await cachedFetch(url, requestOptions);
 
     // Only stream the body for non-cloned requests

@@ -37,7 +37,7 @@ function instanceToJson(instance) {
   }, {});
 }
 
-module.exports = function loadbalancerHandler({ sources = [] }) {
+module.exports = function loadbalancerHandler({ sources = [], cached = true }) {
   return async (ctx) => {
     const source = getSource(sources);
 
@@ -45,6 +45,7 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
       method: ctx.request.method,
       headers: filterCfHeaders(ctx.request.headers),
       redirect: 'manual',
+      cached,
     };
 
     if (_.get(ctx, 'event.request.body')) {
@@ -60,7 +61,6 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
       _.set(options, 'cf.resolveOverride', resolveOverride);
     }
 
-    // eslint-disable-next-line no-undef
     const response = await cachedFetch(url + ctx.request.search, options);
 
     // Only stream the body for non-cloned requests

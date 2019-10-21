@@ -2,6 +2,11 @@
 const cache = caches.default;
 
 async function cachedFetch(url, options = {}) {
+  // eslint-disable-next-line no-undef
+  if (!options.cached) {
+    return fetch(url, options);
+  }
+
   const cachedResponse = await cache.match(url);
 
   if (cachedResponse) {
