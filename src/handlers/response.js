@@ -2,6 +2,9 @@ module.exports = function responseHandler({ body = '', headers = {}, status = '2
   return async (ctx) => {
     ctx.body = body;
     ctx.status = status;
-    ctx.headers = { headers, ...ctx.headers };
+
+    Object.keys(headers).forEach((key) => {
+      ctx.set(key, headers[key]);
+    });
   };
 };

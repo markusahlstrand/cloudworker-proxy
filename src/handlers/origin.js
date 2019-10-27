@@ -1,5 +1,5 @@
 const lodashGet = require('lodash.get');
-const cachedFetch = require('../services/cachedFetch');
+const constants = require('../constants');
 
 const _ = {
   get: lodashGet,
@@ -27,7 +27,7 @@ function instanceToJson(instance) {
 }
 
 module.exports = function originHandler(options) {
-  const { localOriginOverride, cached = true } = options;
+  const { localOriginOverride } = options;
 
   return async (ctx) => {
     const url = process.env.LOCAL
@@ -38,26 +38,20 @@ module.exports = function originHandler(options) {
       headers: filterCfHeaders(ctx.request.headers),
       method: ctx.request.method,
       redirect: 'manual',
-      cached,
     };
 
-    if (_.get(ctx, 'event.request.body')) {
-      requestOptions.body = ctx.event.request.body;
+    if (
+      constants.methodsMethodsWithBody.indexOf(cxt.request.method) !== -1 &&
+      _.get(ctx, 'event.request.body')
+    ) {
+      const clonedRequest = ctx.event.request.clone();
+      requestOptions.body = clonedRequest.body;
     }
 
-    const response = await cachedFetch(url, requestOptions);
+    // eslint-disable-next-line no-undef
+    const response = await fetch(url, requestOptions);
 
-    // Only stream the body for non-cloned requests
-    if (!ctx.cloned && response.body !== null) {
-      // eslint-disable-next-line no-undef
-      const { readable, writable } = new TransformStream();
-
-      // Don't await..
-      ctx.event.waitUntil(response.body.pipeTo(writable));
-
-      ctx.body = readable;
-    }
-
+    ctx.body = response.body;
     ctx.status = response.status;
     const responseHeaders = instanceToJson(response.headers);
     Object.keys(responseHeaders).forEach((key) => {

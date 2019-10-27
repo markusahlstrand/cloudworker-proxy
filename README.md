@@ -283,6 +283,8 @@ config = [{
 }];
 ```
 
+Requests made by the loadbalancer handler would not be cached when using standard fetch-calls as the source isn't proxied by cloudflare. Instead the handler uses the cache-api to manually store the response in the cloudflare cache. The responses are cached according to the cache-headers. If the ´cacheOverride`-option is added to the loadbalancer it will bypass the cache api and use standard fetch requests.
+
 ### Origin
 
 Passed the request to the origin for the cdn. This is typically used as a catch all handler to pass all requests that the worker shouldn't handle to origin.

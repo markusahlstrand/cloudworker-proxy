@@ -1,9 +1,10 @@
 {
   "name": "cloudworker-proxy",
-  "version": "0.0.38",
+  "version": "0.0.40",
   "description": "An api gateway for cloudflare workers",
   "main": "src/index.js",
   "scripts": {
+    "deploy": "serverless deploy",
     "lint": "eslint src",
     "test": "mocha test/**/*.test.js"
   },
