@@ -16,6 +16,7 @@ An api gateway for cloudflare workers with configurable handlers for:
 ## Concept
 
 The proxy is a pipeline of different handlers that processes each request. The handlers in the pipeline could be:
+
 - Middleware. Such as logging or authentication that typically passes on the request further down the pipeline
 - Origins. Fetches content from other services, for instance using http.
 - Tranforms. Modifies the content before passing it back to the client
@@ -32,7 +33,7 @@ A simple hello world proxy:
 const Proxy = require('cloudworker-proxy');
 
 const config = [{
-    handlerName: "static",
+    name: "static",
     options: {
     body: "Hello world"
     }
@@ -72,7 +73,7 @@ An example of the configuration for ratelimit handler:
 
 ```
 rules = [{
-    handlerName: 'ratelimit',
+    name: 'ratelimit',
     options: {
         limit: 1000, // The default allowed calls
         scope: 'default',
@@ -91,7 +92,7 @@ An example of configuration for a http logger:
 
 ```
 config = [{
-    handlerName: 'logger',
+    name: 'logger',
     options: {
         type: 'http',
         url: process.env.LOGZ_URL,
@@ -109,7 +110,7 @@ An example of the configuration for the basic auth middleware:
 
 ```
 config = [{
-    handlerName: 'basicAuth',
+    name: 'basicAuth',
     path: '/basic',
     options: {
         users: [
@@ -131,9 +132,10 @@ The handler renews the access tokens once they expire using the refresh token. I
 There's a separate api-key-api handler to add, remove or list a api keys.
 
 An example of the configuration for the apikey handler:
+
 ```
 config = [{
-    handlerName: 'apikeys',
+    name: 'apikeys',
     options: {
         oauthClientId: <OAUTH2_CLIENT_ID>,
         oauth2ClientSecret: <OAUTH2_CLIENT_SECRET>,
@@ -154,7 +156,7 @@ An example of the configuration for the apikey api handler:
 
 ```
 config = [{
-    handlerName: 'apikeysApi',
+    name: 'apikeysApi',
     options: {
         createPath: '/apikeys',
         kvAccountId: <KV_ACCOUNT_ID>,
@@ -175,7 +177,7 @@ An example of the configuration for the split handler:
 
 ```
 config = [{
-    handlerName: 'split',
+    name: 'split',
     options: {
         host: 'test.example.com',
     },
@@ -191,7 +193,7 @@ An example of configuration for a static handler:
 ```
 const rules = [
   {
-    handlerName: "response",
+    name: "response",
     options: {
       body: "Hello world"
     }
@@ -207,7 +209,7 @@ An example of the configuration for cors handler:
 
 ```
 config = [{
-    handlerName: 'cors',
+    name: 'cors',
     options: {
         allowedOrigins: ['http://domain.com'],
     }
@@ -231,7 +233,7 @@ An example of the configuration for loadbalancer with a single source on google 
 
 ```
 config = [{
-    handlerName: 'loadbalancer',
+    name: 'loadbalancer',
     options: {
         sources: [
             {
@@ -246,7 +248,7 @@ An example of the configuration for loadbalancing traffic between two ingresses 
 
 ```
 config = [{
-    handlerName: 'loadbalancer',
+    name: 'loadbalancer',
     path: '/:file*',
     options: {
         "resolveOverride": "www.ahlstrand.es",
@@ -266,7 +268,7 @@ Using path and host parameters the handler can be more generic:
 
 ```
 config = [{
-    handlerName: 'loadbalancer',
+    name: 'loadbalancer',
     path: '/:file*',
     host: ':host.ahlstrand.es',
     options: {
@@ -295,9 +297,38 @@ An example of the configuration for the origin handler:
 
 ```
 config = [{
-    handlerName: 'origin',
+    name: 'origin',
     options: {
         localOriginOverride: 'https://some.origin.com',
+    }
+}];
+```
+
+### Transform
+
+The transform handler uses regexes to replace text in the responses. It can for instance be used to update relative paths in response from sources hosted on different domains or to insert scripts in web pages.
+
+The transformer in applied as a middleware and hence need to be added before the handler that fetches the data to transform.
+
+The replace parameter can take parameters from the regex match using `{{$0}}`, where the number is the index of the capturing group.
+
+The current implementation of tranforms have a few limitations:
+
+- If the size of the response get larger than about 5 MB it will use more cpu than the limit on cloudflare and fail.
+- If the string to be replaced is split between two chunks it won't currently work. The solution is likely to ensure that the chunks always contains complete rows which is sufficient for most cases.
+
+An example of the configuration for the origin handler:
+
+```
+config = [{
+    name: 'tranform',
+    options: {
+        tranforms: [
+            {
+                regex: 'foo',
+                replace: 'bar'
+            }
+        ]
     }
 }];
 ```

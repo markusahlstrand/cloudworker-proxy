@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const transformFactory = require('../../src/handlers/transformer');
+const transformFactory = require('../../src/handlers/transform');
 const helpers = require('../helpers');
 
 describe('transform', () => {
@@ -43,5 +43,25 @@ describe('transform', () => {
 
     expect(ctx.body).to.equal('<html><body>Hello</body></html>');
     expect(ctx.status).to.equal(200);
+  });
+
+  it('should only transform on 200 status codes', async () => {
+    const transformHandler = transformFactory({
+      transforms: [
+        {
+          regex: 'foo',
+          replace: 'bar',
+        },
+      ],
+    });
+
+    const ctx = helpers.getCtx();
+
+    ctx.status = 404;
+    ctx.body = 'foo';
+
+    await transformHandler(ctx, () => {});
+
+    expect(ctx.body).to.equal('foo');
   });
 });

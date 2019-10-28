@@ -50,7 +50,7 @@ module.exports = function loadbalancerHandler({ sources = [], cacheOverride }) {
     };
 
     if (
-      constants.methodsMethodsWithBody.indexOf(cxt.request.method) !== -1 &&
+      constants.methodsMethodsWithBody.indexOf(ctx.request.method) !== -1 &&
       _.get(ctx, 'event.request.body')
     ) {
       const clonedRequest = ctx.event.request.clone();

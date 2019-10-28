@@ -1,3 +1,3 @@
 module.exports = {
-    methodsMethodsWithBody = ['POST', 'PUT', 'PATCH']
-}
+  methodsMethodsWithBody: ['POST', 'PUT', 'PATCH'],
+};

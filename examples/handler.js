@@ -62,10 +62,56 @@ const rules = [
     options: {},
   },
   {
+    name: 'transform',
+    path: '/edge',
+    options: {
+      transforms: [
+        {
+          regex: '.*',
+          replace: '{{$0}} with a transformed result',
+        },
+      ],
+    },
+  },
+  {
     name: 'response',
     path: '/edge',
     options: {
       body: 'This is a static page served directly from the edge',
+    },
+  },
+  {
+    name: 'transform',
+    path: '/transform',
+    options: {
+      transforms: [
+        {
+          regex: '<body>',
+          replace: '{{$0}}<script>alert("hello world!")</script>',
+        },
+      ],
+    },
+  },
+  {
+    name: 'response',
+    path: '/transform',
+    options: {
+      body: '<html><body>A html page</body></html>',
+      headers: {
+        'content-type': 'text/html',
+      },
+    },
+  },
+  {
+    name: 'transform',
+    path: '/google/.*',
+    options: {
+      transforms: [
+        {
+          regex: 'google',
+          replace: 'giggle',
+        },
+      ],
     },
   },
   {
