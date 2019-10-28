@@ -6,10 +6,10 @@ module.exports = class Proxy {
     this.router = new Router();
 
     rules.forEach((rule) => {
-      const handler = handlers[rule.handlerName];
+      const handler = handlers[rule.name];
 
       if (!handler) {
-        throw new Error(`Handler ${rule.handlerName} is not supported`);
+        throw new Error(`Handler ${rule.name} is not supported`);
       }
 
       this.router.add(rule, handler(rule.options));

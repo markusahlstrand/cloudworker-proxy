@@ -1,6 +1,7 @@
 const lodashGet = require('lodash.get');
 const lodashSet = require('lodash.set');
 const cachedFetch = require('../services/cachedFetch');
+const constants = require('../constants');
 
 const _ = {
   get: lodashGet,
@@ -37,7 +38,7 @@ function instanceToJson(instance) {
   }, {});
 }
 
-module.exports = function loadbalancerHandler({ sources = [], cached = true }) {
+module.exports = function loadbalancerHandler({ sources = [], cacheOverride }) {
   return async (ctx) => {
     const source = getSource(sources);
 
@@ -45,11 +46,15 @@ module.exports = function loadbalancerHandler({ sources = [], cached = true }) {
       method: ctx.request.method,
       headers: filterCfHeaders(ctx.request.headers),
       redirect: 'manual',
-      cached,
+      cacheOverride,
     };
 
-    if (_.get(ctx, 'event.request.body')) {
-      options.body = ctx.event.request.body;
+    if (
+      constants.methodsMethodsWithBody.indexOf(ctx.request.method) !== -1 &&
+      _.get(ctx, 'event.request.body')
+    ) {
+      const clonedRequest = ctx.event.request.clone();
+      options.body = clonedRequest.body;
     }
 
     const url = resolveParams(source.url, ctx.params);
@@ -61,21 +66,10 @@ module.exports = function loadbalancerHandler({ sources = [], cached = true }) {
       _.set(options, 'cf.resolveOverride', resolveOverride);
     }
 
-    const response = await cachedFetch(url + ctx.request.search, options);
+    const response = await cachedFetch(url, options);
 
-    // Only stream the body for non-cloned requests
-    if (!ctx.cloned && response.body !== null) {
-      // eslint-disable-next-line no-undef
-      const { readable, writable } = new TransformStream();
-
-      // Don't await..
-      ctx.event.waitUntil(response.body.pipeTo(writable));
-
-      ctx.body = readable;
-    }
-
+    ctx.body = response.body;
     ctx.status = response.status;
-
     const responseHeaders = instanceToJson(response.headers);
     Object.keys(responseHeaders).forEach((key) => {
       ctx.set(key, responseHeaders[key]);

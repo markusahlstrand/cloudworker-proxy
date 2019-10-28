@@ -79,7 +79,7 @@ module.exports = function logger(options) {
           headers: _.get(ctx, 'response.headers'),
         },
         handlers: _.get(ctx, 'state.handlers', []).join(','),
-        route: _.get(ctx, 'route.handlerName'),
+        route: _.get(ctx, 'route.name'),
         timestamp: new Date().toISOString(),
         ttfb: new Date() - ctx.state['logger-startDate'],
         redirectUrl: ctx.userRedirect,
