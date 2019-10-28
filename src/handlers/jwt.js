@@ -28,17 +28,13 @@ function decodeJwt(token) {
   };
 }
 
-module.exports = function jwtHandler({ jwksUri, jwksTtl = 30 }) {
+module.exports = function jwtHandler({ jwksUri }) {
   async function getJwk() {
     // TODO: override jwksTtl..
     const response = await cachedFetch(jwksUri);
 
     const body = await response.json();
     const [jwk] = body.keys;
-
-    // Store cached values
-    jwkCache = jwk;
-    jwkExpire = Date.now() + 1000 * jwksTtl;
 
     return jwk;
   }

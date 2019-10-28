@@ -10,6 +10,7 @@ const origin = require('./origin');
 const response = require('./response');
 const rateLimit = require('./rate-limit');
 const split = require('./split');
+const transform = require('./transform');
 
 module.exports = {
   apiKey,
@@ -24,4 +25,5 @@ module.exports = {
   rateLimit,
   response,
   split,
+  transform,
 };

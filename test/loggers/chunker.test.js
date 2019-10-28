@@ -3,13 +3,18 @@ const Chunker = require('../../src/loggers/chunker');
 
 describe('chunker', () => {
   it('should enque a message', async () => {
-    const chunker = new Chunker({});
+    const chunker = new Chunker({
+      maxSeconds: 0.01,
+      sink: async () => {},
+    });
 
-    chunker.push({
+    const timerPromise = chunker.push({
       foo: 'bar',
     });
 
     expect(chunker.queue.length).to.equal(1);
+
+    await timerPromise;
   });
 
   it('should process a message once the queue length is higher than the limit', async () => {

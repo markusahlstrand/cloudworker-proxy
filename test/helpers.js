@@ -1,3 +1,5 @@
+const stream = require('stream');
+
 class Context {
   constructor() {
     this.request = {
@@ -34,6 +36,7 @@ class Context {
  */
 function getCtx() {
   const ctx = new Context();
+  ctx.request.method = 'GET';
   ctx.request.headers.origin = 'http://localhost';
 
   return ctx;
@@ -44,7 +47,8 @@ function getCtx() {
  */
 function getNext() {
   return async (ctx) => {
-    return ctx;
+    ctx.status = 200;
+    ctx.body = 'A test helper';
   };
 }
 
