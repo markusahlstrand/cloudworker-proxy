@@ -3,6 +3,7 @@ const apiKeyApi = require('./apikey-api');
 const basicAuth = require('./basic-auth');
 const cors = require('./cors');
 const jwt = require('./jwt');
+const lambda = require('./lambda');
 const loadbalancer = require('./loadbalancer');
 const logger = require('./logger');
 const oauth2 = require('./oauth2');
@@ -18,6 +19,7 @@ module.exports = {
   basicAuth,
   cors,
   jwt,
+  lambda,
   loadbalancer,
   logger,
   oauth2,
