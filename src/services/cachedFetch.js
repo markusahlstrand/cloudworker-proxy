@@ -16,7 +16,7 @@ async function cachedFetch(url, options = {}) {
   // eslint-disable-next-line no-undef
   const response = await fetch(url, options);
   if (response.status === 200) {
-    await cache.put(url, response);
+    await cache.put(url, response.clone());
   }
 
   return response;
