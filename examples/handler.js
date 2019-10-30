@@ -3,13 +3,13 @@ const Proxy = require('../src/index');
 const rules = [
   {
     path: '/split',
-    name: 'split',
+    handlerName: 'split',
     options: {
       host: 'split.localhost',
     },
   },
   {
-    name: 'logger',
+    handlerName: 'logger',
     options: {
       type: 'http',
       url: process.env.LOGZ_IO_URL,
@@ -18,11 +18,11 @@ const rules = [
     },
   },
   {
-    name: 'rateLimit',
+    handlerName: 'rateLimit',
     options: {},
   },
   {
-    name: 'response',
+    handlerName: 'response',
     host: 'localhost:3000',
     path: '/split',
     options: {
@@ -30,19 +30,19 @@ const rules = [
     },
   },
   {
-    name: 'response',
+    handlerName: 'response',
     host: 'split.localhost',
     options: {
       body: 'This reponse is only available on the splitted request',
     },
   },
   {
-    name: 'basicAuth',
+    handlerName: 'basicAuth',
     path: '/basic/:path*',
     options: {
       users: [
         {
-          username: 'test',
+          userhandlerName: 'test',
           authToken: 'dGVzdDpwYXNzd29yZA==', // "password" Base64 encoded
         },
       ],
@@ -50,19 +50,19 @@ const rules = [
     },
   },
   {
-    name: 'response',
+    handlerName: 'response',
     path: '/basic.*',
     options: {
       body: 'Very secret',
     },
   },
   {
-    name: 'cors',
+    handlerName: 'cors',
     path: '/edge',
     options: {},
   },
   {
-    name: 'transform',
+    handlerName: 'transform',
     path: '/edge',
     options: {
       transforms: [
@@ -74,14 +74,14 @@ const rules = [
     },
   },
   {
-    name: 'response',
+    handlerName: 'response',
     path: '/edge',
     options: {
       body: 'This is a static page served directly from the edge',
     },
   },
   {
-    name: 'transform',
+    handlerName: 'transform',
     path: '/transform',
     options: {
       transforms: [
@@ -93,7 +93,7 @@ const rules = [
     },
   },
   {
-    name: 'response',
+    handlerName: 'response',
     path: '/transform',
     options: {
       body: '<html><body>A html page</body></html>',
@@ -103,7 +103,17 @@ const rules = [
     },
   },
   {
-    name: 'transform',
+    handlerName: 'lambda',
+    path: '/lambda/.*',
+    options: {
+      region: 'us-east-1',
+      lambdaName: 'lambda-hello-dev-hello',
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  },
+  {
+    handlerName: 'transform',
     path: '/google/.*',
     options: {
       transforms: [
@@ -115,7 +125,7 @@ const rules = [
     },
   },
   {
-    name: 'loadbalancer',
+    handlerName: 'loadbalancer',
     path: '/google/:file*',
     options: {
       sources: [
@@ -126,7 +136,7 @@ const rules = [
     },
   },
   {
-    name: 'apiKey',
+    handlerName: 'apiKey',
     path: '/oauth2/.*',
     options: {
       oauthClientId: process.env.OAUTH2_CLIENT_ID,
@@ -139,7 +149,7 @@ const rules = [
     },
   },
   {
-    name: 'oauth2',
+    handlerName: 'oauth2',
     path: '/oauth2/.*',
     options: {
       oauthClientId: process.env.OAUTH2_CLIENT_ID,
@@ -156,14 +166,14 @@ const rules = [
     },
   },
   {
-    name: 'jwt',
+    handlerName: 'jwt',
     path: '/oauth2/.*',
     options: {
       jwksUri: process.env.JWKS_URI,
     },
   },
   {
-    name: 'apiKeyApi',
+    handlerName: 'apiKeyApi',
     path: '/oauth2/apikeys',
     options: {
       createPath: '/oauth2/apikeys',
@@ -174,14 +184,14 @@ const rules = [
     },
   },
   {
-    name: 'response',
+    handlerName: 'response',
     path: '/oauth2/.*',
     options: {
       body: 'This is a secret messages protected by oauth2',
     },
   },
   {
-    name: 'origin',
+    handlerName: 'origin',
     options: {
       localOriginOverride: 'https://static.ahlstrand.es',
     },

@@ -1,5 +1,7 @@
 # cloudworker-proxy
 
+THIS IS STILL WORK IN PROGRESS AND THERE MAY BE BREAKING CHANGES EVEN IN MINOR RELEASES.
+
 An api gateway for cloudflare workers with configurable handlers for:
 
 - Routing
