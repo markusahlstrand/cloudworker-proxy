@@ -143,6 +143,63 @@ module.exports = function oauth2Handler({
   }
 
   /**
+   * Try to set a bearer based on the session cookie
+   * @param {*} ctx
+   * @param {*} sessionCookie
+   */
+  async function getSession(ctx, sessionCookie) {
+    const session = await kvStorage.get(sessionCookie);
+
+    if (session) {
+      let authData = JSON.parse(session);
+      const [accessPart, refreshPart] = sessionCookie.split('.');
+
+      // Store this in the state as other handlers might need it..
+      ctx.state.refreshToken = authData.refreshToken + refreshPart;
+
+      if (authData.expires < Date.now()) {
+        const refreshedJwt = await jwtRefresh({
+          refreshToken: ctx.state.refreshToken,
+          clientId,
+          authDomain,
+          clientSecret,
+        });
+
+        const { key, serverAuthData } = splitAuthData(refreshedJwt);
+
+        authData = serverAuthData;
+
+        const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
+
+        await kvStorage.put(key, JSON.stringify(serverAuthData));
+        ctx.set(
+          'Set-Cookie',
+          cookie.serialize(cookieName, key, {
+            domain: `.${domain}`,
+            maxAge: 60 * 60 * 24 * 365, // 1 year
+          }),
+        );
+      }
+
+      ctx.state.accessToken = authData.accessToken + accessPart;
+      ctx.state.accessTokenExpires = authData.expires;
+
+      ctx.request.headers.authorization = `bearer ${ctx.state.accessToken}`;
+    } else {
+      // Remove the cookie if the session can't be found in the kv-store
+      const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
+      // Remove the cookie
+      ctx.set(
+        'Set-Cookie',
+        cookie.serialize(cookieName, '', {
+          domain: `.${domain}`,
+          maxAge: 0,
+        }),
+      );
+    }
+  }
+
+  /**
    * Validates the request based on bearer token and cookie
    * @param {*} ctx
    * @param {*} next
@@ -159,81 +216,28 @@ module.exports = function oauth2Handler({
 
       // If the client didn't supply a bearer token, try to fetch one based on the cookie
       if (!ctx.request.headers.authorization && sessionCookie) {
-        const session = await kvStorage.get(sessionCookie);
-
-        if (session) {
-          try {
-            let authData = JSON.parse(session);
-            const [accessPart, refreshPart] = sessionCookie.split('.');
-
-            // Store this in the state as other handlers might need it..
-            ctx.state.refreshToken = authData.refreshToken + refreshPart;
-
-            if (authData.expires < Date.now()) {
-              const refreshedJwt = await jwtRefresh({
-                refreshToken: ctx.state.refreshToken,
-                clientId,
-                authDomain,
-                clientSecret,
-              });
-
-              const { key, serverAuthData } = splitAuthData(refreshedJwt);
-
-              authData = serverAuthData;
-
-              const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
-
-              await kvStorage.put(key, JSON.stringify(serverAuthData));
-              ctx.set(
-                'Set-Cookie',
-                cookie.serialize(cookieName, key, {
-                  domain: `.${domain}`,
-                  maxAge: 60 * 60 * 24 * 365, // 1 year
-                }),
-              );
-            }
-
-            ctx.state.accessToken = authData.accessToken + accessPart;
-            ctx.state.accessTokenExpires = authData.expires;
-
-            ctx.request.headers.authorization = `bearer ${ctx.state.accessToken}`;
-            await next(ctx);
-          } catch (err) {
-            // eslint-disable-next-line no-console
-            console.log(`Failed to fetch the session: ${err.message}`);
-          }
-        } else {
-          // Remove the cookie if the session can't be found in the kv-store
-          const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
-
-          if (sessionCookie) {
-            // Remove the cookie
-            ctx.set(
-              'Set-Cookie',
-              cookie.serialize(cookieName, '', {
-                domain: `.${domain}`,
-                maxAge: 0,
-              }),
-            );
-          }
-        }
+        await getSession(ctx, sessionCookie);
       }
 
-      if (isBrowser(ctx.request.headers.accept)) {
-        // For now we just oode the requested url in the state. Could pass more properties in a serialized object
-        const state = encodeURIComponent(ctx.request.href);
-        const encodedRedirectUri = encodeURIComponent(
-          `${ctx.request.protocol}://${ctx.request.host}${callbackPath}`,
-        );
-
-        ctx.status = 302;
-        ctx.set(
-          'location',
-          `${authDomain}/authorize?state=${state}&client_id=${clientId}&response_type=code&scope=${scope}&audience=${audience}&redirect_uri=${encodedRedirectUri}`,
-        );
+      if (ctx.request.headers.authorization) {
+        await next(ctx);
       } else {
-        ctx.status = 403;
-        ctx.body = 'Forbidden';
+        if (isBrowser(ctx.request.headers.accept)) {
+          // For now we just oode the requested url in the state. Could pass more properties in a serialized object
+          const state = encodeURIComponent(ctx.request.href);
+          const encodedRedirectUri = encodeURIComponent(
+            `${ctx.request.protocol}://${ctx.request.host}${callbackPath}`,
+          );
+
+          ctx.status = 302;
+          ctx.set(
+            'location',
+            `${authDomain}/authorize?state=${state}&client_id=${clientId}&response_type=code&scope=${scope}&audience=${audience}&redirect_uri=${encodedRedirectUri}`,
+          );
+        } else {
+          ctx.status = 403;
+          ctx.body = 'Forbidden';
+        }
       }
     }
   }
