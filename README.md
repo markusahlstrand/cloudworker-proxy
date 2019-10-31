@@ -203,7 +203,7 @@ const rules = [
 ];
 ```
 
-### Cors
+### CORS
 
 Adds cross origin request headers for a path. The cors handler can optionally take an array of allowed origins to enable cors for.
 
@@ -291,7 +291,7 @@ Requests made by the loadbalancer handler would not be cached when using standar
 
 ### Origin
 
-Passed the request to the origin for the cdn. This is typically used as a catch all handler to pass all requests that the worker shouldn't handle to origin.
+Passes the request to the origin for the cdn. This is typically used as a catch all handler to pass all requests that the worker shouldn't handle to origin.
 
 As this wouldn't work when running locall it's possible to specify another host name that will be used for debugging locally.
 
@@ -303,6 +303,24 @@ config = [{
     options: {
         localOriginOverride: 'https://some.origin.com',
     }
+}];
+```
+
+### Lambda
+
+Invoke a AWS lambda using http without the AWS api gateway. The API Gateway from AWS is rather expensive for high load scenarios and using workers as a gateway is almost 10 times cheaper and much more flexible.
+
+An example of the configuration for the lambda handler:
+
+```
+config = [{
+    name: 'lambda',
+    options: {
+      region: 'us-east-1',
+      lambdaName: 'lambda-hello-dev-hello',
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
 }];
 ```
 
