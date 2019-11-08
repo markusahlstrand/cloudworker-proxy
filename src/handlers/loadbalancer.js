@@ -66,7 +66,7 @@ module.exports = function loadbalancerHandler({ sources = [], cacheOverride }) {
       _.set(options, 'cf.resolveOverride', resolveOverride);
     }
 
-    const response = await cachedFetch(url, options);
+    const response = await cachedFetch(url + ctx.request.search, options);
 
     ctx.body = response.body;
     ctx.status = response.status;

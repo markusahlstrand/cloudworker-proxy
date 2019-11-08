@@ -1,0 +1,45 @@
+const { expect } = require('chai');
+const loadbalancerFactory = require('../../src/handlers/loadbalancer');
+const helpers = require('../helpers');
+
+describe('loadbalancer', () => {
+  let fetch;
+  let fetchedUrl;
+
+  before(() => {
+    fetch = global.fetch;
+    global.fetch = async (url, options) => {
+      fetchedUrl = url;
+
+      return new Response('test', {
+        status: 200,
+      });
+    };
+  });
+
+  after(() => {
+    global.fetch = fetch;
+    delete global.fetch;
+    delete global.caches;
+  });
+
+  it('should make a request to source', async () => {
+    const handler = loadbalancerFactory({
+      sources: [
+        {
+          url: 'https://example.com/{file}',
+        },
+      ],
+    });
+
+    const ctx = helpers.getCtx();
+    ctx.params = {
+      file: 'test',
+    };
+    ctx.request.search = '?foo=bar';
+
+    await handler(ctx, []);
+
+    expect(fetchedUrl).to.equal('https://example.com/test?foo=bar');
+  });
+});
