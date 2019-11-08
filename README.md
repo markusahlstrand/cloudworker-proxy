@@ -104,6 +104,21 @@ config = [{
 }];
 ```
 
+An example of configuration for a kinesis logger:
+
+```
+config = [{
+    name: 'logger',
+    options: {
+      type: 'kinesis',
+      region: 'us-east-1',
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      streamName: 'cloudworker-proxy',
+    },
+}];
+```
+
 ### Basic Auth
 
 Uses basic auth to protect matching rules. The username and authTokens (base64-encoded versions of the passwords) are stored straight in the config which works fine for simple scenarios, but makes adding and removing users hard.
@@ -190,6 +205,8 @@ config = [{
 
 Returns a static response to the request.
 
+The response handler is configured using a options object that contains the status, body and headers of the response. The body could either be a string or an object.
+
 An example of configuration for a static handler:
 
 ```
@@ -197,7 +214,11 @@ const rules = [
   {
     name: "response",
     options: {
-      body: "Hello world"
+      body: "Hello world",
+      status: 200,
+      headers: {
+          'Content-Type': 'text/html'
+      }
     }
   }
 ];
