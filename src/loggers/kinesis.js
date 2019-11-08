@@ -1,0 +1,48 @@
+const { AwsClient } = require('aws4fetch');
+
+const Chunker = require('./chunker');
+const flatten = require('./flatten');
+
+module.exports = class KinesisLogger {
+  constructor(options) {
+    this.delimiter = options.delimiter;
+    this.chunker = new Chunker({ sink: this.sendMessage.bind(this), ...options });
+    this.awsClient = new AwsClient({
+      accessKeyId: options.accessKeyId,
+      secretAccessKey: options.secretAccessKey,
+      region: options.region,
+    });
+    this.streamName = options.streamName;
+    this.region = options.region;
+  }
+
+  async log(message) {
+    const flatMessage = flatten(message, this.delimiter);
+
+    await this.chunker.push(JSON.stringify(flatMessage));
+  }
+
+  async sendMessage(message) {
+    // eslint-disable-next-line no-undef
+    const data = btoa(`${JSON.stringify(message)}\n`);
+    const body = JSON.stringify({
+      DeliveryStreamName: this.streamName,
+      Record: {
+        Data: data,
+      },
+    });
+
+    const url = `https://firehose.${this.region}.amazonaws.com`;
+    // eslint-disable-next-line no-undef
+    const request = new Request(url, {
+      method: 'POST',
+      body,
+      headers: {
+        'X-Amz-Target': 'Firehose_20150804.PutRecord',
+        'Content-Type': ' application/x-amz-json-1.1',
+      },
+    });
+
+    return await this.awsClient.fetch(request);
+  }
+};

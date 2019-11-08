@@ -2,6 +2,7 @@ const Proxy = require('../src/index');
 
 const rules = [
   {
+    // This rule is place before the logger and ratelimit as it create a new separate request
     path: '/split',
     handlerName: 'split',
     options: {
@@ -18,8 +19,51 @@ const rules = [
     },
   },
   {
+    handlerName: 'logger',
+    options: {
+      type: 'kinesis',
+      region: 'us-east-1',
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      streamName: 'cloudworker-proxy',
+    },
+  },
+  {
     handlerName: 'rateLimit',
     options: {},
+  },
+  {
+    handlerName: 'response',
+    host: 'localhost:3000',
+    path: '/',
+    options: {
+      body: {
+        description: 'Sample endpoints for the cloudworker-proxy',
+        links: [
+          {
+            split: '/split',
+          },
+          {
+            basicAuth: '/basic/test',
+          },
+          {
+            response: '/edge',
+          },
+          {
+            oauth2: '/oauth2/test',
+          },
+          {
+            transform: '/transform',
+          },
+          {
+            awsLambda: '/lambda/test',
+          },
+          {
+            googleFunctions: '/google/test',
+          },
+        ],
+      },
+    },
   },
   {
     handlerName: 'response',
