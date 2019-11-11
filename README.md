@@ -376,7 +376,7 @@ config = [{
 
 ## Security
 
-The hanlders api-keys and oauth2 only stores AES encrypted access and refresh-tokens in storage. The encryption keys are sent as part of the request from the user, so in order to get a valid token you need to have access both to the storage and a request from a user.
+The handlers for oauth2 only stores half of the access and refresh-tokens in key-value storage. The other part of the keys are sent as part of the cookie from the user, so in order to get a valid token you need to have access both to the storage and a request from a user.
 
 The tokens entries have a ttl of one month by default, so any token that hasn't been accessed in a month will automatically be removed.
 
