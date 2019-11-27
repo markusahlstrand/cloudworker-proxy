@@ -1,7 +1,5 @@
 # cloudworker-proxy
 
-THIS IS STILL WORK IN PROGRESS AND THERE MAY BE BREAKING CHANGES EVEN IN MINOR RELEASES.
-
 An api gateway for cloudflare workers with configurable handlers for:
 
 - Routing
@@ -15,6 +13,14 @@ An api gateway for cloudflare workers with configurable handlers for:
   - Modifying headers
   - Adding cors headers
 
+## Installing
+
+Installing via NPM:
+
+```
+npm install cloudworker-proxy --save
+```
+
 ## Concept
 
 The proxy is a pipeline of different handlers that processes each request. The handlers in the pipeline could be:
@@ -25,9 +31,11 @@ The proxy is a pipeline of different handlers that processes each request. The h
 
 Each handler can specify rules for which hosts and paths it should apply to, so it's possible to for instance only apply authentication to certain requests.
 
+The examples are deployed at https://proxy.cloudproxy.io
+
 ## Usage
 
-A proxy is instanciated with a set of middlewares, origins and transforms that are matched against each request based on hostname, method and path. Each rule is configured to execute one of the predefined handlers. The handlers could either terminate the request and send the response to the client or pass on the request to the following handlers matching the request.
+A proxy is instantiated with a set of middlewares, origins and transforms that are matched against each request based on hostname, method, path and headers. Each rule is configured to execute one of the predefined handlers. The handlers could either terminate the request and send the response to the client or pass on the request to the following handlers matching the request.
 
 A simple hello world proxy:
 
@@ -236,6 +244,38 @@ config = [{
     options: {
         allowedOrigins: ['http://domain.com'],
     }
+}];
+```
+
+### Geo-decorator
+
+Adds a `proxy-continent` header to the request that can be used to route traffic from differnt continent differenty. The followin continents are available:
+
+- AF, africa
+- AN, antarctica
+- AS, asia
+- EU, europe
+- NA, north america
+- OC, oceania
+- SA, south america
+
+An example of the configuration for geo decoration handler in combinatin with a response handler targeting Europe:
+
+```
+config = [{
+    handlerName: 'geoDecorator',
+    path: '/geo',
+    options: {},
+},
+{
+    handlerName: 'response',
+    path: '/geo',
+    headers: {
+      'proxy-continent': 'EU',
+    },
+    options: {
+      body: 'This is served to clients in EU',
+    },
 }];
 ```
 

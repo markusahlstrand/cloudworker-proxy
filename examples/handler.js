@@ -10,6 +10,11 @@ const rules = [
     },
   },
   {
+    handlerName: 'geoDecorator',
+    path: '/geo',
+    options: {},
+  },
+  {
     handlerName: 'logger',
     options: {
       type: 'http',
@@ -18,51 +23,88 @@ const rules = [
       delimiter: '_',
     },
   },
-  {
-    handlerName: 'logger',
-    options: {
-      type: 'kinesis',
-      region: 'us-east-1',
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      streamName: 'cloudworker-proxy',
-    },
-  },
+  // {
+  //   handlerName: 'logger',
+  //   options: {
+  //     type: 'kinesis',
+  //     region: 'us-east-1',
+  //     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  //     streamName: 'cloudworker-proxy',
+  //   },
+  // },
   {
     handlerName: 'rateLimit',
     options: {},
   },
   {
     handlerName: 'response',
-    host: 'localhost:3000',
     path: '/',
     options: {
       body: {
         description: 'Sample endpoints for the cloudworker-proxy',
         links: [
           {
-            split: '/split',
+            name: '/split',
+            description: 'Splits the request pipeline into two separate pipelines',
+            url: 'https://proxy.cloudproxy.io/split',
           },
           {
-            basicAuth: '/basic/test',
+            name: 'Basic auth',
+            description: 'Protects a resource with basic auth',
+            url: 'https://proxy.cloudproxy.io/basic/test',
           },
           {
-            response: '/edge',
+            name: '/geo',
+            description: 'Routes to different pages depending on geo',
+            url: 'https://proxy.cloudproxy.io/geo',
           },
           {
-            oauth2: '/oauth2/test',
+            name: 'Response',
+            description: 'Generates a static response straight from the edge',
+            url: 'https://proxy.cloudproxy.io/edge',
           },
           {
-            transform: '/transform',
+            name: 'Basic auth',
+            description: 'Protects a resource with oAuth2. In this case with auth0',
+            url: 'https://proxy.cloudproxy.io/oauth2/test',
           },
           {
-            awsLambda: '/lambda/test',
+            name: 'Transform response',
+            description: 'Rewrite responses using regular expressions',
+            url: 'https://proxy.cloudproxy.io/transform',
           },
           {
-            googleFunctions: '/google/test',
+            name: 'Invoke lambda',
+            description:
+              'Invokes a lambda straight from the edge without paying for the api gateway from aws',
+            url: 'https://proxy.cloudproxy.io/lambda/test',
+          },
+          {
+            name: 'Invoke google cloud function',
+            description:
+              'Invokes a google cloud function via http. Makes it easier to get custom domains working',
+            url: 'https://proxy.cloudproxy.io/google/test',
           },
         ],
       },
+    },
+  },
+  {
+    handlerName: 'response',
+    path: '/geo',
+    headers: {
+      'proxy-continent': 'EU',
+    },
+    options: {
+      body: 'This is served to clients in EU',
+    },
+  },
+  {
+    handlerName: 'response',
+    path: '/geo',
+    options: {
+      body: 'This is served to clients outside the EU',
     },
   },
   {
