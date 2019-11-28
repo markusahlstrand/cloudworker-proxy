@@ -1,7 +1,14 @@
 const path = require('path');
 const webpack = require('webpack');
+const parsedEnv = require('dotenv').config().parsed;
 
-module.exports = (env) => ({
+const envJson = {};
+
+Object.keys(parsedEnv).forEach((key) => {
+  envJson[key] = JSON.stringify(parsedEnv[key]);
+});
+
+module.exports = () => ({
   entry: {
     'bundle.js': [path.resolve(__dirname, './index.js')],
   },
@@ -14,9 +21,7 @@ module.exports = (env) => ({
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env': {
-        LOGZ_IO_URL: JSON.stringify(env.LOGZ_IO_URL),
-      },
+      'process.env': envJson,
     }),
   ],
 });

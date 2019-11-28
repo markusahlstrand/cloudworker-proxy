@@ -2,6 +2,7 @@ const apiKey = require('./apikey');
 const apiKeyApi = require('./apikey-api');
 const basicAuth = require('./basic-auth');
 const cors = require('./cors');
+const geoDecorator = require('./geo-decorator');
 const jwt = require('./jwt');
 const lambda = require('./lambda');
 const loadbalancer = require('./loadbalancer');
@@ -18,6 +19,7 @@ module.exports = {
   apiKeyApi,
   basicAuth,
   cors,
+  geoDecorator,
   jwt,
   lambda,
   loadbalancer,

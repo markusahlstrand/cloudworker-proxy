@@ -1,15 +1,13 @@
 # serverless.yml
 service:
-    name: proxy
+  name: cloudworker-proxy
 
 provider:
   name: cloudflare
   environment:
   config:
     accountId: ${env:CLOUDFLARE_ACCOUNT_ID}
-    zoneId: ${env:CLOUDFLARE_ZONE_ID}    
-    # accountId: bfbba687e68f84266013cc6dd14759c9
-    # zoneId: a3ec9ad580f2f4a5804b121f20bdf6f9
+    zoneId: ${env:CLOUDFLARE_ZONE_ID}
 
 plugins:
   - serverless-dotenv-plugin
@@ -18,7 +16,7 @@ plugins:
 
 custom:
   scriptHooks:
-    package:createDeploymentArtifacts: npm run build -- --env.LOGZ_IO_URL=${env:LOGZ_IO_URL}
+    package:createDeploymentArtifacts: npm run build
   dotenv:
     path: ./.env
 
@@ -31,5 +29,5 @@ functions:
     webpack: false
     events:
       - http:
-          url: 'proxy.ahlstrand.es/*'
+          url: 'proxy.cloudproxy.io/*'
           method: ANY
