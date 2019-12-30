@@ -189,6 +189,11 @@ const rules = [
     },
   },
   {
+    handlerName: 'custom',
+    path: '/custom',
+    options: {},
+  },
+  {
     handlerName: 'lambda',
     path: '/lambda/.*',
     options: {
@@ -284,7 +289,14 @@ const rules = [
   },
 ];
 
-const proxy = new Proxy(rules);
+const proxy = new Proxy(rules, {
+  custom: (options) => {
+    return async (ctx) => {
+      ctx.status = 200;
+      ctx.body = 'Custom handler';
+    };
+  },
+});
 
 /**
  * Fetch and log a given request object
