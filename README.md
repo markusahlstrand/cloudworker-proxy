@@ -61,7 +61,7 @@ addEventListener('fetch', (event) => {
 
 ```
 
-## Handlers
+## Default Handlers
 
 ### Ratelimit
 
@@ -412,6 +412,21 @@ config = [{
         ]
     }
 }];
+```
+
+## Custom handlers
+
+It's possible to register custom handlers with new handler names or overriding default handlers by passing an object containing the handlers as second paramter of the proxy constructor:
+
+```
+const proxy = new Proxy(rules, {
+  custom: (options) => {
+    return async (ctx) => {
+      ctx.status = 200;
+      ctx.body = 'Custom handler';
+    };
+  },
+});
 ```
 
 ## Security
