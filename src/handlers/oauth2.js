@@ -23,6 +23,7 @@ function isBrowser(accept = '') {
 
 module.exports = function oauth2Handler({
   cookieName = 'proxy',
+  allowPublicAccess = false,
   kvAccountId,
   kvNamespace,
   kvAuthEmail,
@@ -32,9 +33,12 @@ module.exports = function oauth2Handler({
   oauthClientId,
   oauth2ClientSecret,
   oauth2Audience,
+  oauth2Scopes,
   oauth2CallbackPath = '/callback',
   oauth2LogoutPath = '/logout',
-  oauth2Scopes,
+  oauth2LoginPath = '/login',
+  oauth2ServerTokenPath = '/oauth/token',
+  oauth2ServerAuthorizePath = '',
 }) {
   const kvStorage = new KvStorage({
     accountId: kvAccountId,
@@ -46,15 +50,18 @@ module.exports = function oauth2Handler({
 
   const authDomain = oauth2AuthDomain;
   const callbackPath = oauth2CallbackPath;
+  const serverTokenPath = oauth2ServerTokenPath;
+  const serverAuthorizePath = oauth2ServerAuthorizePath;
   const clientId = oauthClientId;
   const clientSecret = oauth2ClientSecret;
   const audience = oauth2Audience;
   const logoutPath = oauth2LogoutPath;
+  const loginPath = oauth2LoginPath;
   const scopes = oauth2Scopes;
   const scope = scopes.join('%20');
 
   async function getTokenFromCode(code, redirectUrl) {
-    const tokenUrl = `${authDomain}/oauth/token`;
+    const tokenUrl = `${authDomain}${serverTokenPath}`;
 
     // eslint-disable-next-line no-undef
     const response = await fetch(tokenUrl, {
@@ -63,10 +70,10 @@ module.exports = function oauth2Handler({
         'content-type': 'application/x-www-form-urlencoded',
       },
       body: serializeFormData({
+        code,
         grant_type: 'authorization_code',
         client_id: clientId,
         client_secret: clientSecret,
-        code,
         redirect_uri: redirectUrl,
       }),
     });
@@ -119,7 +126,9 @@ module.exports = function oauth2Handler({
   }
 
   async function handleCallback(ctx) {
-    const body = await getTokenFromCode(ctx.request.query.code, ctx.request.href);
+    const redirectUrl = ctx.request.href.split('?')[0];
+
+    const body = await getTokenFromCode(ctx.request.query.code, redirectUrl);
 
     const { serverAuthData, key } = splitAuthData({
       accessToken: body.access_token,
@@ -136,6 +145,7 @@ module.exports = function oauth2Handler({
       'Set-Cookie',
       cookie.serialize(cookieName, key, {
         domain: `.${domain}`,
+        path: '/',
         maxAge: 60 * 60 * 24 * 365, // 1 year
       }),
     );
@@ -200,6 +210,39 @@ module.exports = function oauth2Handler({
   }
 
   /**
+   * Explicitly logins a user
+   * @param {*} ctx
+   * @param {*} next
+   */
+  async function handleLogin(ctx) {
+    // Options requests should return a 200
+    if (ctx.request.method === 'OPTIONS') {
+      ctx.status = 200;
+    } else {
+      let redirectTo = ctx.request.query['redirect-to'];
+
+      const referer = ctx.request.headers.referer;
+      if (!redirectTo && referer) {
+        const baseUrl = `${ctx.request.protocol}://${ctx.reqhost}`;
+        if (referer.startsWith(baseUrl)) {
+          redirectTo = referer.replace(baseUrl, '');
+        }
+      }
+
+      const state = encodeURIComponent(redirectTo || '/');
+      const encodedRedirectUri = encodeURIComponent(
+        `${ctx.request.protocol}://${ctx.request.host}${callbackPath}`,
+      );
+
+      ctx.status = 302;
+      ctx.set(
+        'location',
+        `${authDomain}${serverAuthorizePath}/authorize?state=${state}&client_id=${clientId}&response_type=code&scope=${scope}&audience=${audience}&redirect_uri=${encodedRedirectUri}`,
+      );
+    }
+  }
+
+  /**
    * Validates the request based on bearer token and cookie
    * @param {*} ctx
    * @param {*} next
@@ -219,7 +262,7 @@ module.exports = function oauth2Handler({
         await getSession(ctx, sessionCookie);
       }
 
-      if (ctx.request.headers.authorization) {
+      if (ctx.request.headers.authorization || allowPublicAccess) {
         await next(ctx);
       } else {
         if (isBrowser(ctx.request.headers.accept)) {
@@ -232,7 +275,7 @@ module.exports = function oauth2Handler({
           ctx.status = 302;
           ctx.set(
             'location',
-            `${authDomain}/authorize?state=${state}&client_id=${clientId}&response_type=code&scope=${scope}&audience=${audience}&redirect_uri=${encodedRedirectUri}`,
+            `${authDomain}${serverAuthorizePath}/authorize?state=${state}&client_id=${clientId}&response_type=code&scope=${scope}&audience=${audience}&redirect_uri=${encodedRedirectUri}`,
           );
         } else {
           ctx.status = 403;
@@ -249,6 +292,9 @@ module.exports = function oauth2Handler({
         break;
       case logoutPath:
         await handleLogout(ctx);
+        break;
+      case loginPath:
+        await handleLogin(ctx);
         break;
       default:
         await handleValidate(ctx, next);

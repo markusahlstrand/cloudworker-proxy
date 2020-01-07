@@ -148,6 +148,75 @@ config = [{
 }];
 ```
 
+### Oauth2
+
+Logs in using standard oauth2 providers. So far tested with Auth0, AWS Cognito and Patreon but should work with any.
+
+It stores a session for each user in KV-storage and adds the access token as bearer to the context. The oauth2 handler does not validate the tokens, the validation is handled by the jwt-handler which typically is added after the oauth2-handler.
+
+The handler supports the following options:
+- cookieName, the name of the cookie set by the handler. Defaults to 'proxy'
+- allowPublicAccess, determines if any requests without valid cookies should be redirected to the login page. Defaults to true
+- kvAccountId, the account id for the KV storage account
+- kvNamespace, the namespace for the KV storage account
+- kvAuthEmail, the email for the KV storage account
+- kvAuthKey, the auth key for the KV storage account
+- kvTtl, the time to live for sessions in the KV storage account. The ttl is reset each time a new access token is fetched. Defaults to 2592000 which is roughly a month
+- oauth2AuthDomain, the base path for the oauth2 provider
+- oauthClientId, the oauth2 client id
+- oauth2ClientSecret, the oauth2 client secret
+- oauth2Audience, the oauth2 audience. This is optional for some providers
+- oauth2Scopes, the oauth2 scopes.
+- oauth2CallbackPath, the path for the callback to the proxy. Defaults to '/callback',
+- oauth2LogoutPath, get requests to this url will causes the session to be closed. Defaults to '/logout',
+- oauth2LoginPath, a url for triggering a new login flow. Defaults to '/login',
+- oauth2ServerTokenPath, the path to the token endpoint on the oauth2 server. Defaults to '/oauth/token',
+- oauth2ServerAuthorizePath, the path for the authorize endpoint on the oauth2 server. Defaults to ''.
+
+An example of the configuration for the oauth2 handler with auth0:
+
+```
+config = [  {
+    handlerName: 'oauth2',
+    path: '/.*',
+    options: {
+      oauthClientId: <OAUTH2_CLIENT_ID>,
+      oauth2ClientSecret: <OAUTH2_CLIENT_SECRET>,
+      oauth2AuthDomain: 'https://<auth0-domain>.<auth0-region>.auth0.com,
+      oauth2CallbackPath: '/callback', // default value
+      oauth2LogoutPath: '/logout', // default value
+      oauth2Scopes: ['openid', 'email', 'profile', 'offline_access'],
+      kvAccountId: <KV_ACCOUNT_ID>,
+      kvNamespace: <KV_NAMESPACE>
+      kvAuthEmail: <KV_AUTH_EMAIL>,
+      kvAuthKey: <KV_AUTH_KEY>,
+    },
+}];
+```
+
+An example of the configuration for the oauth2 handler with patreon:
+
+```
+config = [  {
+    handlerName: 'oauth2',
+    path: '/.*',
+    options: {
+      oauthClientId: <OAUTH2_CLIENT_ID>,
+      oauth2ClientSecret: <OAUTH2_CLIENT_SECRET>,
+      oauth2AuthDomain: 'https://www.patreon.com,
+      oauth2CallbackPath: '/callback', // default value
+      oauth2LogoutPath: '/logout', // default value
+      oauth2ServerAuthorizePath: '/oauth2',
+      oauth2ServerTokenPath: '/api/oauth2/token',
+      oauth2Scopes: ["identity"],
+      kvAccountId: <KV_ACCOUNT_ID>,
+      kvNamespace: <KV_NAMESPACE>
+      kvAuthEmail: <KV_AUTH_EMAIL>,
+      kvAuthKey: <KV_AUTH_KEY>,
+    },
+}];
+```
+
 ### Apikeys
 
 The api keys handler reads the `X-Api-Key` header, with a fallback to `?apikey=..` querystring, and adds a jwt token to the authorizion header if there's a match. The jwt access and refresh tokens are stored in a cloudflare Key Value Storage.
