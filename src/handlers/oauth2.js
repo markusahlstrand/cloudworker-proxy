@@ -1,6 +1,11 @@
 const cookie = require('cookie');
 const KvStorage = require('../services/kvStorage');
 const jwtRefresh = require('./jwt-refresh');
+const get = require('lodash.get');
+
+const _ = {
+  get,
+};
 
 function getCookie({ cookieHeader = '', cookieName }) {
   const cookies = cookie.parse(cookieHeader);
@@ -39,6 +44,7 @@ module.exports = function oauth2Handler({
   oauth2LoginPath = '/login',
   oauth2ServerTokenPath = '/oauth/token',
   oauth2ServerAuthorizePath = '',
+  oauth2ServerLogoutPath,
 }) {
   const kvStorage = new KvStorage({
     accountId: kvAccountId,
@@ -52,6 +58,7 @@ module.exports = function oauth2Handler({
   const callbackPath = oauth2CallbackPath;
   const serverTokenPath = oauth2ServerTokenPath;
   const serverAuthorizePath = oauth2ServerAuthorizePath;
+  const serverLogoutPath = oauth2ServerLogoutPath;
   const clientId = oauthClientId;
   const clientSecret = oauth2ClientSecret;
   const audience = oauth2Audience;
@@ -99,26 +106,59 @@ module.exports = function oauth2Handler({
         'Set-Cookie',
         cookie.serialize(cookieName, '', {
           domain: `.${domain}`,
+          path: '/',
           maxAge: 0,
         }),
       );
     }
 
-    const returnTo = encodeURIComponent(`${ctx.request.protocol}://${ctx.request.host}`);
-    ctx.set('Location', `${authDomain}/v2/logout?client_id=${clientId}&returnTo=${returnTo}`);
+    const returnToPath = getRedirectTo(ctx);
+
+    if (oauth2ServerLogoutPath) {
+      const returnTo = encodeURIComponent(
+        `${ctx.request.protocol}://${ctx.request.host}${returnToPath}`,
+      );
+      // Bounce to remove cookie at the oauth server
+      ctx.set(
+        'Location',
+        `${authDomain}${serverLogoutPath}?client_id=${clientId}&returnTo=${returnTo}`,
+      );
+    } else {
+      ctx.set('Location', returnToPath);
+    }
+
     ctx.status = 302;
   }
 
-  function splitAuthData(authData) {
-    const accessTokenSegments = authData.accessToken.split('.');
-    const refreshSplitIndex = Math.floor(authData.refreshToken.length / 2);
+  function splitKey(key) {
+    const segments = key.split('.');
 
-    const key = `${accessTokenSegments.pop()}.${authData.refreshToken.slice(refreshSplitIndex)}`;
+    // Dirty check to see if it's a jwt
+    if (segments.length === 3) {
+      return {
+        client: accessTokenSegments.pop(),
+        server: `${accessTokenSegments.join('.')}.`,
+      };
+    }
+
+    const keySplitIndex = Math.floor(key.length / 2);
+
+    return {
+      client: key.slice(keySplitIndex),
+      server: key.slice(0, keySplitIndex),
+    };
+  }
+
+  function splitAuthData(authData) {
+    const accessTokenSplit = splitKey(authData.accessToken);
+    const refreshTokenSplit = splitKey(authData.refreshToken);
+
+    const key = `${accessTokenSplit.client}.${refreshTokenSplit.server}`;
 
     return {
       serverAuthData: {
-        accessToken: `${accessTokenSegments.join('.')}.`,
-        refreshToken: authData.refreshToken.slice(0, refreshSplitIndex),
+        accessToken: accessTokenSplit.server,
+        refreshToken: refreshTokenSplit.server,
         expires: authData.expires,
       },
       key,
@@ -209,6 +249,22 @@ module.exports = function oauth2Handler({
     }
   }
 
+  function getRedirectTo(ctx) {
+    const redirectTo = _.get(ctx, 'request.query.redirect-to');
+    if (redirectTo) {
+      return redirectTo;
+    }
+
+    const referer = _.get(ctx, 'request.headers.referer');
+    const baseUrl = `${ctx.request.protocol}://${ctx.request.host}`;
+    if (referer && referer.startsWith(baseUrl)) {
+      return referer.replace(baseUrl, '');
+    }
+
+    // Default to the root
+    return '/';
+  }
+
   /**
    * Explicitly logins a user
    * @param {*} ctx
@@ -219,15 +275,7 @@ module.exports = function oauth2Handler({
     if (ctx.request.method === 'OPTIONS') {
       ctx.status = 200;
     } else {
-      let redirectTo = ctx.request.query['redirect-to'];
-
-      const referer = ctx.request.headers.referer;
-      if (!redirectTo && referer) {
-        const baseUrl = `${ctx.request.protocol}://${ctx.reqhost}`;
-        if (referer.startsWith(baseUrl)) {
-          redirectTo = referer.replace(baseUrl, '');
-        }
-      }
+      const redirectTo = getRedirectTo(ctx);
 
       const state = encodeURIComponent(redirectTo || '/');
       const encodedRedirectUri = encodeURIComponent(
@@ -266,7 +314,7 @@ module.exports = function oauth2Handler({
         await next(ctx);
       } else {
         if (isBrowser(ctx.request.headers.accept)) {
-          // For now we just oode the requested url in the state. Could pass more properties in a serialized object
+          // For now we just code the requested url in the state. Could pass more properties in a serialized object
           const state = encodeURIComponent(ctx.request.href);
           const encodedRedirectUri = encodeURIComponent(
             `${ctx.request.protocol}://${ctx.request.host}${callbackPath}`,

@@ -155,6 +155,7 @@ Logs in using standard oauth2 providers. So far tested with Auth0, AWS Cognito a
 It stores a session for each user in KV-storage and adds the access token as bearer to the context. The oauth2 handler does not validate the tokens, the validation is handled by the jwt-handler which typically is added after the oauth2-handler.
 
 The handler supports the following options:
+
 - cookieName, the name of the cookie set by the handler. Defaults to 'proxy'
 - allowPublicAccess, determines if any requests without valid cookies should be redirected to the login page. Defaults to true
 - kvAccountId, the account id for the KV storage account
@@ -172,6 +173,7 @@ The handler supports the following options:
 - oauth2LoginPath, a url for triggering a new login flow. Defaults to '/login',
 - oauth2ServerTokenPath, the path to the token endpoint on the oauth2 server. Defaults to '/oauth/token',
 - oauth2ServerAuthorizePath, the path for the authorize endpoint on the oauth2 server. Defaults to ''.
+- oauth2ServerLogoutPath, some oauth servers such as auth0 keeps the user logged in using a cookie. By specifying the path the browser will be bounced on the logout endpoint on the oauth provider.
 
 An example of the configuration for the oauth2 handler with auth0:
 
@@ -190,6 +192,7 @@ config = [  {
       kvNamespace: <KV_NAMESPACE>
       kvAuthEmail: <KV_AUTH_EMAIL>,
       kvAuthKey: <KV_AUTH_KEY>,
+      oauth2ServerLogoutPath: '/v2/logout'
     },
 }];
 ```
