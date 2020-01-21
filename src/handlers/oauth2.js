@@ -296,8 +296,13 @@ module.exports = function oauth2Handler({
    * @param {*} next
    */
   async function handleValidate(ctx, next) {
+    // If the request has a auth-header, use this and pass on.
     // Options requests should not be authenticated. Requests with auth headers are passed through
-    if (ctx.request.method === 'OPTIONS' || ctx.request.headers.authorization) {
+    if (ctx.request.headers.authorization || ctx.request.method === 'OPTIONS') {
+      if (ctx.request.headers.authorization.toLowerCase().startsWith('bearer ')) {
+        ctx.state.accessToken = ctx.request.headers.authorization.slice(7);
+      }
+
       await next(ctx);
     } else {
       const sessionCookie = getCookie({
@@ -306,11 +311,11 @@ module.exports = function oauth2Handler({
       });
 
       // If the client didn't supply a bearer token, try to fetch one based on the cookie
-      if (!ctx.request.headers.authorization && sessionCookie) {
+      if (!sessionCookie) {
         await getSession(ctx, sessionCookie);
       }
 
-      if (ctx.request.headers.authorization || allowPublicAccess) {
+      if (allowPublicAccess) {
         await next(ctx);
       } else {
         if (isBrowser(ctx.request.headers.accept)) {
