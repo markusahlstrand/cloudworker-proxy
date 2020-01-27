@@ -43,6 +43,6 @@ module.exports = class KinesisLogger {
       },
     });
 
-    return await this.awsClient.fetch(request);
+    return this.awsClient.fetch(request);
   }
 };

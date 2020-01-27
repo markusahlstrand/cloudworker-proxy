@@ -9,14 +9,12 @@ const countryRegions = {
   AO: 'AF',
   AG: 'NA',
   AZ: 'EU',
-  AZ: 'AS',
   AR: 'SA',
   AU: 'OC',
   AT: 'EU',
   BS: 'NA',
   BH: 'AS',
   BD: 'AS',
-  AM: 'AS',
   AM: 'EU',
   BB: 'NA',
   BE: 'EU',
@@ -59,7 +57,6 @@ const countryRegions = {
   HR: 'EU',
   CU: 'NA',
   CY: 'EU',
-  CY: 'AS',
   CZ: 'EU',
   BJ: 'AF',
   DK: 'EU',
@@ -84,7 +81,6 @@ const countryRegions = {
   DJ: 'AF',
   GA: 'AF',
   GE: 'EU',
-  GE: 'AS',
   GM: 'AF',
   PS: 'AS',
   DE: 'EU',
@@ -117,7 +113,6 @@ const countryRegions = {
   JM: 'NA',
   JP: 'AS',
   KZ: 'EU',
-  KZ: 'AS',
   JO: 'AS',
   KE: 'AF',
   KP: 'AS',
@@ -172,7 +167,6 @@ const countryRegions = {
   NO: 'EU',
   MP: 'OC',
   UM: 'OC',
-  UM: 'NA',
   FM: 'OC',
   MH: 'OC',
   PW: 'OC',
@@ -192,7 +186,6 @@ const countryRegions = {
   RE: 'AF',
   RO: 'EU',
   RU: 'EU',
-  RU: 'AS',
   RW: 'AF',
   BL: 'NA',
   SH: 'AF',
@@ -235,7 +228,6 @@ const countryRegions = {
   AE: 'AS',
   TN: 'AF',
   TR: 'EU',
-  TR: 'AS',
   TM: 'AS',
   TC: 'NA',
   TV: 'OC',
@@ -261,7 +253,7 @@ const countryRegions = {
   XX: 'XX',
 };
 
-module.exports = function corsHandler({ allowedOrigins = ['*'] }) {
+module.exports = function geoHandler() {
   return async (ctx, next) => {
     const country = ctx.request.headers['cf-ipcountry'] || 'XX';
 

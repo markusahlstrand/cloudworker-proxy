@@ -154,6 +154,8 @@ Logs in using standard oauth2 providers. So far tested with Auth0, AWS Cognito a
 
 It stores a session for each user in KV-storage and adds the access token as bearer to the context. The oauth2 handler does not validate the tokens, the validation is handled by the jwt-handler which typically is added after the oauth2-handler.
 
+The redirect back from the oauth2 flow sets a session cookie and stores the access and refresh tokens in KV-storage. By setting the oauth2CallbackType to query the session token will be added to the querystring instead.
+
 The handler supports the following options:
 
 - cookieName, the name of the cookie set by the handler. Defaults to 'proxy'
@@ -169,6 +171,7 @@ The handler supports the following options:
 - oauth2Audience, the oauth2 audience. This is optional for some providers
 - oauth2Scopes, the oauth2 scopes.
 - oauth2CallbackPath, the path for the callback to the proxy. Defaults to '/callback',
+- oauth2CallbackType, the way the sesion info is communicated back to the client. Can be set to 'cookie' or 'query'. Defaults to 'cookie',
 - oauth2LogoutPath, get requests to this url will causes the session to be closed. Defaults to '/logout',
 - oauth2LoginPath, a url for triggering a new login flow. Defaults to '/login',
 - oauth2ServerTokenPath, the path to the token endpoint on the oauth2 server. Defaults to '/oauth/token',
@@ -186,6 +189,7 @@ config = [  {
       oauth2ClientSecret: <OAUTH2_CLIENT_SECRET>,
       oauth2AuthDomain: 'https://<auth0-domain>.<auth0-region>.auth0.com,
       oauth2CallbackPath: '/callback', // default value
+      oauth2CallbackType: 'cookie', // default value
       oauth2LogoutPath: '/logout', // default value
       oauth2Scopes: ['openid', 'email', 'profile', 'offline_access'],
       kvAccountId: <KV_ACCOUNT_ID>,
@@ -208,6 +212,7 @@ config = [  {
       oauth2ClientSecret: <OAUTH2_CLIENT_SECRET>,
       oauth2AuthDomain: 'https://www.patreon.com,
       oauth2CallbackPath: '/callback', // default value
+      oauth2CallbackType: 'cookie', // default value
       oauth2LogoutPath: '/logout', // default value
       oauth2ServerAuthorizePath: '/oauth2',
       oauth2ServerTokenPath: '/api/oauth2/token',

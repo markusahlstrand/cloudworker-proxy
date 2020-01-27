@@ -38,6 +38,9 @@ function getCtx() {
   const ctx = new Context();
   ctx.request.method = 'GET';
   ctx.request.headers.origin = 'http://localhost';
+  ctx.request.hostname = 'example.com';
+  ctx.request.host = 'example.com';
+  ctx.request.protocol = 'http';
 
   return ctx;
 }
