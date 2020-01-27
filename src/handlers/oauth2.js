@@ -1,7 +1,7 @@
 const cookie = require('cookie');
+const get = require('lodash.get');
 const KvStorage = require('../services/kvStorage');
 const jwtRefresh = require('./jwt-refresh');
-const get = require('lodash.get');
 
 const _ = {
   get,
@@ -35,11 +35,12 @@ module.exports = function oauth2Handler({
   kvAuthKey,
   kvTtl = 2592000, // A month
   oauth2AuthDomain,
-  oauthClientId,
+  oauth2ClientId,
   oauth2ClientSecret,
   oauth2Audience,
-  oauth2Scopes,
+  oauth2Scopes = [],
   oauth2CallbackPath = '/callback',
+  oauth2CallbackType = 'cookie',
   oauth2LogoutPath = '/logout',
   oauth2LoginPath = '/login',
   oauth2ServerTokenPath = '/oauth/token',
@@ -56,10 +57,11 @@ module.exports = function oauth2Handler({
 
   const authDomain = oauth2AuthDomain;
   const callbackPath = oauth2CallbackPath;
+  const callbackType = oauth2CallbackType;
   const serverTokenPath = oauth2ServerTokenPath;
   const serverAuthorizePath = oauth2ServerAuthorizePath;
   const serverLogoutPath = oauth2ServerLogoutPath;
-  const clientId = oauthClientId;
+  const clientId = oauth2ClientId;
   const clientSecret = oauth2ClientSecret;
   const audience = oauth2Audience;
   const logoutPath = oauth2LogoutPath;
@@ -136,8 +138,8 @@ module.exports = function oauth2Handler({
     // Dirty check to see if it's a jwt
     if (segments.length === 3) {
       return {
-        client: accessTokenSegments.pop(),
-        server: `${accessTokenSegments.join('.')}.`,
+        client: segments.pop(),
+        server: `${segments.join('.')}.`,
       };
     }
 
@@ -181,15 +183,20 @@ module.exports = function oauth2Handler({
     const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
 
     ctx.status = 302;
-    ctx.set(
-      'Set-Cookie',
-      cookie.serialize(cookieName, key, {
-        domain: `.${domain}`,
-        path: '/',
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-      }),
-    );
-    ctx.set('Location', ctx.request.query.state);
+
+    if (callbackType === 'query') {
+      ctx.set('Location', `${ctx.request.query.state}?auth=${key}`);
+    } else {
+      ctx.set(
+        'Set-Cookie',
+        cookie.serialize(cookieName, key, {
+          domain: `.${domain}`,
+          path: '/',
+          maxAge: 60 * 60 * 24 * 365, // 1 year
+        }),
+      );
+      ctx.set('Location', ctx.request.query.state);
+    }
   }
 
   /**
@@ -317,23 +324,21 @@ module.exports = function oauth2Handler({
 
       if (allowPublicAccess) {
         await next(ctx);
-      } else {
-        if (isBrowser(ctx.request.headers.accept)) {
-          // For now we just code the requested url in the state. Could pass more properties in a serialized object
-          const state = encodeURIComponent(ctx.request.href);
-          const encodedRedirectUri = encodeURIComponent(
-            `${ctx.request.protocol}://${ctx.request.host}${callbackPath}`,
-          );
+      } else if (isBrowser(ctx.request.headers.accept)) {
+        // For now we just code the requested url in the state. Could pass more properties in a serialized object
+        const state = encodeURIComponent(ctx.request.href);
+        const encodedRedirectUri = encodeURIComponent(
+          `${ctx.request.protocol}://${ctx.request.host}${callbackPath}`,
+        );
 
-          ctx.status = 302;
-          ctx.set(
-            'location',
-            `${authDomain}${serverAuthorizePath}/authorize?state=${state}&client_id=${clientId}&response_type=code&scope=${scope}&audience=${audience}&redirect_uri=${encodedRedirectUri}`,
-          );
-        } else {
-          ctx.status = 403;
-          ctx.body = 'Forbidden';
-        }
+        ctx.status = 302;
+        ctx.set(
+          'location',
+          `${authDomain}${serverAuthorizePath}/authorize?state=${state}&client_id=${clientId}&response_type=code&scope=${scope}&audience=${audience}&redirect_uri=${encodedRedirectUri}`,
+        );
+      } else {
+        ctx.status = 403;
+        ctx.body = 'Forbidden';
       }
     }
   }

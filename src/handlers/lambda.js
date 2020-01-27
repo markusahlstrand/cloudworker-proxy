@@ -1,7 +1,3 @@
-const _ = {
-  get: require('lodash.get'),
-  set: require('lodash.set'),
-};
 const { AwsClient } = require('aws4fetch');
 
 function instanceToJson(instance) {
