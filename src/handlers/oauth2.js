@@ -263,9 +263,9 @@ module.exports = function oauth2Handler({
     }
 
     const referer = _.get(ctx, 'request.headers.referer');
-    const baseUrl = `${ctx.request.protocol}://${ctx.request.host}`;
-    if (referer && referer.startsWith(baseUrl)) {
-      return referer.replace(baseUrl, '');
+    // TODO: Add a whitelist with regex
+    if (referer) {
+      return referer;
     }
 
     // Default to the root
