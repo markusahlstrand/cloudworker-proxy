@@ -97,5 +97,39 @@ describe('oauth2Handler', () => {
       expect(ctx.status).to.equal(302);
       expect(ctx.response.headers.get('Location')).to.equal('/?auth=34.56');
     });
+
+    it('should use the auth token from the querystring when validating', async () => {
+      const oauth2Handler = Oauth2Handler({
+        oauth2AuthDomain: 'http://example.com',
+        oauth2ClientId: '1234',
+        oauth2Audience: 'test',
+        oauth2CallbackType: 'query',
+        kvNamespace: 'kvNamespace',
+        kvAccountId: 'kvAccountId',
+      });
+
+      fetchMock.get(
+        'https://api.cloudflare.com/client/v4/accounts/kvAccountId/storage/kv/namespaces/kvNamespace/values/12.34',
+        {
+          accessToken: '1234',
+          refreshToken: '5678',
+          expires: Date.now() + 100000,
+        },
+      );
+
+      const ctx = helpers.getCtx();
+      ctx.request.path = '/test';
+      ctx.request.href = 'http://example.com/test';
+      ctx.request.query = {
+        auth: '12.34',
+      };
+
+      await oauth2Handler(ctx, (ctx) => {
+        ctx.status = 200;
+        ctx.bocy = 'Hello world';
+      });
+
+      expect(ctx.status).to.equal(200);
+    });
   });
 });
