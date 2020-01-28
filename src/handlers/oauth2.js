@@ -312,17 +312,20 @@ module.exports = function oauth2Handler({
 
       await next(ctx);
     } else {
-      const sessionCookie = getCookie({
-        cookieHeader: ctx.request.headers.cookie,
-        cookieName,
-      });
+      // Check for the token in the querystring first and fallback to the cookie
+      const sessionToken =
+        _.get(ctx, 'request.query.auth') ||
+        getCookie({
+          cookieHeader: ctx.request.headers.cookie,
+          cookieName,
+        });
 
       // If the client didn't supply a bearer token, try to fetch one based on the cookie
-      if (!sessionCookie) {
-        await getSession(ctx, sessionCookie);
+      if (sessionToken) {
+        await getSession(ctx, sessionToken);
       }
 
-      if (allowPublicAccess) {
+      if (ctx.state.accessToken || allowPublicAccess) {
         await next(ctx);
       } else if (isBrowser(ctx.request.headers.accept)) {
         // For now we just code the requested url in the state. Could pass more properties in a serialized object
