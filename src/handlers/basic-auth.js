@@ -1,3 +1,9 @@
+const get = require('lodash.get');
+
+const _ = {
+  get,
+};
+
 function setUnauthorizedResponse(ctx) {
   ctx.status = 401;
   ctx.body = 'Unauthorized';
@@ -16,7 +22,7 @@ function basicAuth(options) {
       return setUnauthorizedResponse(ctx);
     }
 
-    const authHeaders = ctx.request.headers.get('authorization');
+    const authHeaders = _.get(ctx, 'request.headers.authorization');
     if (!authHeaders || !authHeaders.startsWith('Basic ')) {
       return setUnauthorizedResponse(ctx);
     }

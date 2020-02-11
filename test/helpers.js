@@ -3,8 +3,8 @@ const stream = require('stream');
 class Context {
   constructor() {
     this.request = {
-      query: new Map(),
-      headers: new Map(),
+      query: {},
+      headers: {},
     };
     this.event = {};
     this.state = {};
