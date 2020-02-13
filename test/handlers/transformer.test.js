@@ -24,6 +24,27 @@ describe('transform', () => {
     expect(ctx.status).to.equal(200);
   });
 
+  it('should replace multiple instances', async () => {
+    const regexHandler = transformFactory({
+      transforms: [
+        {
+          regex: 'foo',
+          replace: 'bar',
+        },
+      ],
+    });
+
+    const ctx = helpers.getCtx();
+
+    ctx.status = 200;
+    ctx.body = 'foo-foo';
+
+    await regexHandler(ctx, () => {});
+
+    expect(ctx.body).to.equal('bar-bar');
+    expect(ctx.status).to.equal(200);
+  });
+
   it('should add text after the body tag', async () => {
     const transformHandler = transformFactory({
       transforms: [

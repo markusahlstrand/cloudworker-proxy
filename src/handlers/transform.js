@@ -45,7 +45,7 @@ function transformChunk(chunk, regexes) {
 function transformFactory({ transforms = [], statusCodes = [200] }) {
   const regexes = transforms.map((transform) => {
     return {
-      regex: new RegExp(transform.regex),
+      regex: new RegExp(transform.regex, 'g'),
       replace: transform.replace,
     };
   });
