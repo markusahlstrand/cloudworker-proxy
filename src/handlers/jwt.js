@@ -1,4 +1,4 @@
-const cachedFetch = require('../services/cachedFetch');
+const cachedFetch = require('../services/cached-fetch');
 
 /**
  * Parse and decode a JWT.

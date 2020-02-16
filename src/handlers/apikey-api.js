@@ -1,7 +1,7 @@
 const shortId = require('shortid');
 
 const hash = require('../encryption/hash');
-const KvStorage = require('../services/kvStorage');
+const KvStorage = require('../services/kv-storage');
 
 module.exports = function apikeyApiHandler({
   createPath = '/apikeys',

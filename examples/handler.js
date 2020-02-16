@@ -204,6 +204,17 @@ const rules = [
     },
   },
   {
+    handlerName: 'kvStorage',
+    path: '/kvStorage/:file*',
+    options: {
+      kvAccountId: process.env.KV_ACCOUNT_ID,
+      kvNamespace: process.env.KV_NAMESPACE_TEMPLATES,
+      kvAuthEmail: process.env.KV_AUTH_EMAIL,
+      kvAuthKey: process.env.KV_AUTH_KEY,
+      kvKey: '{file}',
+    },
+  },
+  {
     handlerName: 'transform',
     path: '/google/.*',
     options: {

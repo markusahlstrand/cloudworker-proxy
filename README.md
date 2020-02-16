@@ -292,7 +292,7 @@ Returns a static response to the request.
 
 The response handler is configured using a options object that contains the status, body and headers of the response. The body could either be a string or an object.
 
-An example of configuration for a static handler:
+An example of configuration for a response handler:
 
 ```
 const rules = [
@@ -304,6 +304,31 @@ const rules = [
       headers: {
           'Content-Type': 'text/html'
       }
+    }
+  }
+];
+```
+
+### KV-STORAGE
+
+The kv-storage handler serves static pages straight from kv-storage.
+The kvKey property specifies which key is used to fetch the data from the key value store. It supports template variables which makes it possible to serve a complete static site with a single rule.
+
+There is a script in the script folder to push files to KV-storage.
+
+An example of configuration for a kv-storage handler:
+
+```
+const rules = [
+  {
+    name: "kvStorage",
+    path: /kvStorage/:file*
+    options: {
+    kvAccountId: <KV_ACCOUNT_ID>,
+      kvNamespace: <KV_NAMESPACE>
+      kvAuthEmail: <KV_AUTH_EMAIL>,
+      kvAuthKey: <KV_AUTH_KEY>,
+      kvKey: 'templates/{file}',
     }
   }
 ];
