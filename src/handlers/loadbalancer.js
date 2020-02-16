@@ -1,6 +1,6 @@
 const lodashGet = require('lodash.get');
 const lodashSet = require('lodash.set');
-const cachedFetch = require('../services/cachedFetch');
+const cachedFetch = require('../services/cached-fetch');
 const constants = require('../constants');
 
 const _ = {

@@ -1,6 +1,6 @@
 const cookie = require('cookie');
 const get = require('lodash.get');
-const KvStorage = require('../services/kvStorage');
+const KvStorage = require('../services/kv-storage');
 const jwtRefresh = require('./jwt-refresh');
 
 const _ = {

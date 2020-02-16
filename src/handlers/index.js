@@ -4,6 +4,7 @@ const basicAuth = require('./basic-auth');
 const cors = require('./cors');
 const geoDecorator = require('./geo-decorator');
 const jwt = require('./jwt');
+const kvStorage = require('./kv-storage');
 const lambda = require('./lambda');
 const loadbalancer = require('./loadbalancer');
 const logger = require('./logger');
@@ -21,6 +22,7 @@ module.exports = {
   cors,
   geoDecorator,
   jwt,
+  kvStorage,
   lambda,
   loadbalancer,
   logger,

@@ -1,4 +1,4 @@
-const KvStorage = require('../services/kvStorage');
+const KvStorage = require('../services/kv-storage');
 const jwtRefresh = require('./jwt-refresh');
 
 module.exports = function apikeyHandler({
