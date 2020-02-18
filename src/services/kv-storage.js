@@ -33,13 +33,15 @@ module.exports = class KvStorage {
     const url = this.getUrlForKey(key);
     const ttlQueryString = this.ttl ? `?expiration_ttl=${this.ttl}` : '';
 
+    const headers = {
+      'X-Auth-Email': this.authEmail,
+      'X-Auth-Key': this.authKey,
+    };
+
     // eslint-disable-next-line no-undef
     const response = await fetch(url + ttlQueryString, {
       method: 'PUT',
-      headers: {
-        'X-Auth-Email': this.authEmail,
-        'X-Auth-Key': this.authKey,
-      },
+      headers,
       body: value,
     });
 
