@@ -11,6 +11,7 @@ module.exports = function kvStorageHandler({
   kvAuthEmail,
   kvAuthKey,
   kvKey,
+  mime = {},
 }) {
   const kvStorage = new KvStorage({
     accountId: kvAccountId,
@@ -19,6 +20,8 @@ module.exports = function kvStorageHandler({
     authKey: kvAuthKey,
   });
 
+  const mimeMappings = { ...constants.mime, ...mime };
+
   return async (ctx) => {
     const key = resolveParams(kvKey, ctx.params);
     const result = await kvStorage.get(key);
@@ -26,7 +29,7 @@ module.exports = function kvStorageHandler({
     if (result) {
       ctx.status = 200;
       ctx.body = result;
-      ctx.set('Content-Type', constants.mime[key.split('.').pop()] || 'text/plain');
+      ctx.set('Content-Type', mimeMappings[key.split('.').pop()] || 'text/plain');
     } else {
       ctx.status = 404;
       ctx.body = constants.http.statusMessages['404'];
