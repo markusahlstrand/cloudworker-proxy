@@ -13,7 +13,7 @@
   "devDependencies": {
     "dotenv": "8.2.0",
     "node-cloudworker": "1.1.3",
-    "serverless": "1.63.0",
+    "serverless": "1.64.0",
     "serverless-cloudflare-workers": "1.2.0",
     "serverless-dotenv-plugin": "2.3.2",
     "serverless-scriptable-plugin": "1.0.5",
