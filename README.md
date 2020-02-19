@@ -314,7 +314,7 @@ const rules = [
 The kv-storage handler serves static pages straight from kv-storage.
 The kvKey property specifies which key is used to fetch the data from the key value store. It supports template variables which makes it possible to serve a complete static site with a single rule.
 
-There is a script in the script folder to push files to KV-storage.
+There is a sample script in the script folder to push files to KV-storage.
 
 An example of configuration for a kv-storage handler:
 
@@ -329,6 +329,7 @@ const rules = [
       kvAuthEmail: <KV_AUTH_EMAIL>,
       kvAuthKey: <KV_AUTH_KEY>,
       kvKey: 'templates/{file}',
+      defaultExtention: '.html',  // The default value. Appends .html if no extention is specified on the file
     }
   }
 ];
