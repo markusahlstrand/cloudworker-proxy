@@ -230,6 +230,25 @@ config = [  {
 }];
 ```
 
+### JWT
+
+The jwt handler validates any bearer tokens passed in the authencation headers.
+
+The handler base64 decodes the access token and adds it to the context state as a user object.
+
+An example of the configuration for the jwt handler:
+
+```
+config = [  {
+    handlerName: 'jwt',
+    path: '/.*',
+    options: {
+        jwksUri: <url>,
+        allowPublicAccess: false, // defaults to false
+    },
+}];
+```
+
 ### Apikeys
 
 The api keys handler reads the `X-Api-Key` header, with a fallback to `?apikey=..` querystring, and adds a jwt token to the authorizion header if there's a match. The jwt access and refresh tokens are stored in a cloudflare Key Value Storage.

@@ -28,7 +28,7 @@ function decodeJwt(token) {
   };
 }
 
-module.exports = function jwtHandler({ jwksUri }) {
+module.exports = function jwtHandler({ jwksUri, allowPublicAccess = false }) {
   async function getJwk() {
     // TODO: override jwksTtl..
     const response = await cachedFetch(jwksUri);
@@ -85,11 +85,14 @@ module.exports = function jwtHandler({ jwksUri }) {
 
         return next(ctx);
       }
-
-      ctx.status = 403;
-      ctx.body = 'Forbidden';
     }
 
+    if (allowPublicAccess) {
+      return next(ctx);
+    }
+
+    ctx.status = 403;
+    ctx.body = 'Forbidden';
     return ctx;
   }
 

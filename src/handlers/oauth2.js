@@ -180,22 +180,24 @@ module.exports = function oauth2Handler({
       const aesKey = await aes.deriveAesGcmKey(key, salt);
       const authData = await aes.decrypt(aesKey, data);
 
-      ctx.state.user = JSON.parse(authData);
+      let tokens = JSON.parse(authData);
 
-      if (ctx.state.user.expires < Date.now()) {
-        ctx.state.user = await jwtRefresh({
-          refreshToken: ctx.state.user.refreshToken,
+      if (tokens.expires < Date.now()) {
+        tokens = await jwtRefresh({
+          refreshToken: tokens.refresh_token,
           clientId,
           authDomain,
           clientSecret,
         });
 
-        await kvStorage.put(key, JSON.stringify(ctx.state.user));
+        const encryptedAuthData = await aes.encrypt(aesKey, JSON.stringify(tokens));
+
+        await kvStorage.put(key, encryptedAuthData);
       }
 
-      const accessToken = _.get(ctx, 'state.user.access_token');
-      if (accessToken) {
-        ctx.request.headers.authorization = `bearer ${accessToken}`;
+      ctx.state.accessToken = tokens.access_token;
+      if (ctx.state.accessToken) {
+        ctx.request.headers.authorization = `bearer ${ctx.state.accessToken}`;
       }
     } else {
       // Remove the cookie if the session can't be found in the kv-store
@@ -258,13 +260,16 @@ module.exports = function oauth2Handler({
    * @param {*} next
    */
   async function handleValidate(ctx, next) {
-    // If the request has a auth-header, use this and pass on.
     // Options requests should not be authenticated. Requests with auth headers are passed through
-    if (ctx.request.headers.authorization || ctx.request.method === 'OPTIONS') {
-      if (ctx.request.headers.authorization.toLowerCase().startsWith('bearer ')) {
-        _.set(ctx, 'state.user.access_token', ctx.request.headers.authorization.slice(7));
-      }
-
+    if (ctx.request.method === 'OPTIONS') {
+      await next(ctx);
+    } else if (
+      _.get(ctx, 'request.headers.authorization', '')
+        .toLowerCase()
+        .startsWith('bearer ')
+    ) {
+      // If the request has a auth-header, use this and pass on.
+      _.set(ctx, 'state.access_token', ctx.request.headers.authorization.slice(7));
       await next(ctx);
     } else {
       // Check for the token in the querystring first and fallback to the cookie
@@ -280,7 +285,7 @@ module.exports = function oauth2Handler({
         await getSession(ctx, sessionToken);
       }
 
-      const accessToken = _.get(ctx, 'state.user.access_token');
+      const accessToken = _.get(ctx, 'state.accessToken');
 
       if (accessToken || allowPublicAccess) {
         await next(ctx);
