@@ -1,7 +1,9 @@
 const cookie = require('cookie');
 const get = require('lodash.get');
+const shortid = require('shortid');
 const KvStorage = require('../services/kv-storage');
 const jwtRefresh = require('./jwt-refresh');
+const aes = require('../encryption/aes');
 
 const _ = {
   get,
@@ -100,9 +102,9 @@ module.exports = function oauth2Handler({
       cookieName,
     });
 
-    const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
-
     if (sessionCookie) {
+      const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
+
       // Remove the cookie
       ctx.set(
         'Set-Cookie',
@@ -132,64 +134,30 @@ module.exports = function oauth2Handler({
     ctx.status = 302;
   }
 
-  function splitKey(key) {
-    const segments = key.split('.');
-
-    // Dirty check to see if it's a jwt
-    if (segments.length === 3) {
-      return {
-        client: segments.pop(),
-        server: `${segments.join('.')}.`,
-      };
-    }
-
-    const keySplitIndex = Math.floor(key.length / 2);
-
-    return {
-      client: key.slice(keySplitIndex),
-      server: key.slice(0, keySplitIndex),
-    };
-  }
-
-  function splitAuthData(authData) {
-    const accessTokenSplit = splitKey(authData.accessToken);
-    const refreshTokenSplit = splitKey(authData.refreshToken);
-
-    const key = `${accessTokenSplit.client}.${refreshTokenSplit.server}`;
-
-    return {
-      serverAuthData: {
-        accessToken: accessTokenSplit.server,
-        refreshToken: refreshTokenSplit.server,
-        expires: authData.expires,
-      },
-      key,
-    };
-  }
-
   async function handleCallback(ctx) {
     const redirectUrl = ctx.request.href.split('?')[0];
 
     const body = await getTokenFromCode(ctx.request.query.code, redirectUrl);
 
-    const { serverAuthData, key } = splitAuthData({
-      accessToken: body.access_token,
-      refreshToken: body.refresh_token,
-      expires: Date.now() + body.expires_in * 1000,
-    });
+    const key = shortid.generate();
+    const salt = await aes.getSalt();
+    const sessionToken = `${key}.${salt}`;
 
-    await kvStorage.put(key, JSON.stringify(serverAuthData));
+    const aesKey = await aes.deriveAesGcmKey(key, salt);
+    const data = await aes.encrypt(aesKey, JSON.stringify(body));
+
+    await kvStorage.put(key, data);
 
     const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
 
     ctx.status = 302;
 
     if (callbackType === 'query') {
-      ctx.set('Location', `${ctx.request.query.state}?auth=${key}`);
+      ctx.set('Location', `${ctx.request.query.state}?auth=${sessionToken}`);
     } else {
       ctx.set(
         'Set-Cookie',
-        cookie.serialize(cookieName, key, {
+        cookie.serialize(cookieName, sessionToken, {
           domain: `.${domain}`,
           path: '/',
           maxAge: 60 * 60 * 24 * 365, // 1 year
@@ -202,46 +170,33 @@ module.exports = function oauth2Handler({
   /**
    * Try to set a bearer based on the session cookie
    * @param {*} ctx
-   * @param {*} sessionCookie
+   * @param {*} sessionToken
    */
-  async function getSession(ctx, sessionCookie) {
-    const session = await kvStorage.get(sessionCookie);
+  async function getSession(ctx, sessionToken) {
+    const [key, salt] = sessionToken.split('.');
+    const data = await kvStorage.get(key);
 
-    if (session) {
-      let authData = JSON.parse(session);
-      const [accessPart, refreshPart] = sessionCookie.split('.');
+    if (data) {
+      const aesKey = await aes.deriveAesGcmKey(key, salt);
+      const authData = await aes.decrypt(aesKey, data);
 
-      // Store this in the state as other handlers might need it..
-      ctx.state.refreshToken = authData.refreshToken + refreshPart;
+      ctx.state.user = JSON.parse(authData);
 
-      if (authData.expires < Date.now()) {
-        const refreshedJwt = await jwtRefresh({
-          refreshToken: ctx.state.refreshToken,
+      if (ctx.state.user.expires < Date.now()) {
+        ctx.state.user = await jwtRefresh({
+          refreshToken: ctx.state.user.refreshToken,
           clientId,
           authDomain,
           clientSecret,
         });
 
-        const { key, serverAuthData } = splitAuthData(refreshedJwt);
-
-        authData = serverAuthData;
-
-        const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
-
-        await kvStorage.put(key, JSON.stringify(serverAuthData));
-        ctx.set(
-          'Set-Cookie',
-          cookie.serialize(cookieName, key, {
-            domain: `.${domain}`,
-            maxAge: 60 * 60 * 24 * 365, // 1 year
-          }),
-        );
+        await kvStorage.put(key, JSON.stringify(ctx.state.user));
       }
 
-      ctx.state.accessToken = authData.accessToken + accessPart;
-      ctx.state.accessTokenExpires = authData.expires;
-
-      ctx.request.headers.authorization = `bearer ${ctx.state.accessToken}`;
+      const accessToken = _.get(ctx, 'state.user.access_token');
+      if (accessToken) {
+        ctx.request.headers.authorization = `bearer ${accessToken}`;
+      }
     } else {
       // Remove the cookie if the session can't be found in the kv-store
       const domain = ctx.request.hostname.match(/[^.]+\.[^.]+$/i)[0];
@@ -307,7 +262,7 @@ module.exports = function oauth2Handler({
     // Options requests should not be authenticated. Requests with auth headers are passed through
     if (ctx.request.headers.authorization || ctx.request.method === 'OPTIONS') {
       if (ctx.request.headers.authorization.toLowerCase().startsWith('bearer ')) {
-        ctx.state.accessToken = ctx.request.headers.authorization.slice(7);
+        _.set(ctx, 'state.user.access_token', ctx.request.headers.authorization.slice(7));
       }
 
       await next(ctx);
@@ -325,7 +280,9 @@ module.exports = function oauth2Handler({
         await getSession(ctx, sessionToken);
       }
 
-      if (ctx.state.accessToken || allowPublicAccess) {
+      const accessToken = _.get(ctx, 'state.user.access_token');
+
+      if (accessToken || allowPublicAccess) {
         await next(ctx);
       } else if (isBrowser(ctx.request.headers.accept)) {
         // For now we just code the requested url in the state. Could pass more properties in a serialized object
