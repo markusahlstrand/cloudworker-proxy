@@ -34,9 +34,7 @@ module.exports = function jwtHandler({ jwksUri, allowPublicAccess = false }) {
     const response = await cachedFetch(jwksUri);
 
     const body = await response.json();
-    const [jwk] = body.keys;
-
-    return jwk;
+    return body.keys;
   }
 
   async function isValidJwtSignature(token) {
@@ -44,18 +42,25 @@ module.exports = function jwtHandler({ jwksUri, allowPublicAccess = false }) {
     const data = encoder.encode([token.raw.header, token.raw.payload].join('.'));
     const signature = new Uint8Array(Array.from(token.signature).map((c) => c.charCodeAt(0)));
 
-    const jwk = await getJwk();
-    // eslint-disable-next-line no-undef
-    const key = await crypto.subtle.importKey(
-      'jwk',
-      jwk,
-      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-      false,
-      ['verify'],
+    const jwkKeys = await getJwk();
+
+    const validations = await Promise.all(
+      jwkKeys.map(async (jwkKey) => {
+        // eslint-disable-next-line no-undef
+        const key = await crypto.subtle.importKey(
+          'jwk',
+          jwkKey,
+          { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+          false,
+          ['verify'],
+        );
+
+        // eslint-disable-next-line no-undef
+        return crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, signature, data);
+      }),
     );
 
-    // eslint-disable-next-line no-undef
-    return crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, signature, data);
+    return validations.some((result) => result);
   }
 
   /**
@@ -81,7 +86,7 @@ module.exports = function jwtHandler({ jwksUri, allowPublicAccess = false }) {
       }
 
       if (await isValidJwtSignature(token)) {
-        ctx.user = token.payload;
+        ctx.state.user = token.payload;
 
         return next(ctx);
       }
