@@ -122,7 +122,7 @@ describe('oauth2Handler', () => {
 
       await oauth2Handler(ctx, (ctx) => {
         ctx.status = 200;
-        ctx.bocy = 'Hello world';
+        ctx.body = 'Hello world';
       });
 
       expect(ctx.status).to.equal(200);
