@@ -25,7 +25,7 @@ module.exports = function apikeyApiHandler({
       return next(ctx);
     }
 
-    const userHash = await hash(ctx.user.sub);
+    const userHash = await hash(ctx.state.user.sub);
     const kvKey = kvPrefix + userHash;
     const apiKeys = JSON.parse((await kvStorage.get(kvKey)) || '{}');
 
