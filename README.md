@@ -4,14 +4,17 @@ An api gateway for cloudflare workers with configurable handlers for:
 
 - Routing
   - Load balancing of http endpoints
+  - Routing based on client Geo
   - Invoking AWS lambdas and google cloud functions
-  - Static responses
+  - Static responses from config or Cloudflare KV-Storage
+  - Splitting requests to multiple endpoints
 - Logging (http, kinesis)
 - Authentication (basic, oauth2)
 - Rate limiting
 - Rewrite
   - Modifying headers
   - Adding cors headers
+  - Replacing or inserting content
 
 ## Installing
 
@@ -43,7 +46,7 @@ A simple hello world proxy:
 const Proxy = require('cloudworker-proxy');
 
 const config = [{
-    name: "static",
+    handlerName: "static",
     options: {
     body: "Hello world"
     }
@@ -83,7 +86,7 @@ An example of the configuration for ratelimit handler:
 
 ```
 rules = [{
-    name: 'ratelimit',
+    handlerName: 'ratelimit',
     options: {
         limit: 1000, // The default allowed calls
         scope: 'default',
@@ -102,7 +105,7 @@ An example of configuration for a http logger:
 
 ```
 config = [{
-    name: 'logger',
+    handlerName: 'logger',
     options: {
         type: 'http',
         url: process.env.LOGZ_URL,
@@ -116,7 +119,7 @@ An example of configuration for a kinesis logger:
 
 ```
 config = [{
-    name: 'logger',
+    handlerName: 'logger',
     options: {
       type: 'kinesis',
       region: 'us-east-1',
@@ -135,7 +138,7 @@ An example of the configuration for the basic auth middleware:
 
 ```
 config = [{
-    name: 'basicAuth',
+    handlerName: 'basicAuth',
     path: '/basic',
     options: {
         users: [
@@ -155,6 +158,8 @@ Logs in using standard oauth2 providers. So far tested with Auth0, AWS Cognito a
 It stores a session for each user in KV-storage and adds the access token as bearer to the context. The oauth2 handler does not validate the tokens, the validation is handled by the jwt-handler which typically is added after the oauth2-handler.
 
 The redirect back from the oauth2 flow sets a session cookie and stores the access and refresh tokens in KV-storage. By setting the oauth2CallbackType to query the session token will be added to the querystring instead.
+
+The handler by default automaticly redirect the client when it requests any matching resources. If login is optional the allowPublicAccess property can be set to true in which case the login needs to be explicitly triggered using the `oauth2LoginPath` which defaults to `/login`. The login endpoint takes a `redirectTo` query string parameter to determine where the user if redirected after the login flow.
 
 The handler supports the following options:
 
@@ -181,22 +186,22 @@ The handler supports the following options:
 An example of the configuration for the oauth2 handler with auth0:
 
 ```
-config = [  {
+config = [{
     handlerName: 'oauth2',
     path: '/.*',
     options: {
-      oauthClientId: <OAUTH2_CLIENT_ID>,
+      oauth2ClientId: <OAUTH2_CLIENT_ID>,
       oauth2ClientSecret: <OAUTH2_CLIENT_SECRET>,
       oauth2AuthDomain: 'https://<auth0-domain>.<auth0-region>.auth0.com,
       oauth2CallbackPath: '/callback', // default value
       oauth2CallbackType: 'cookie', // default value
       oauth2LogoutPath: '/logout', // default value
       oauth2Scopes: ['openid', 'email', 'profile', 'offline_access'],
+      oauth2ServerLogoutPath: '/v2/logout',
       kvAccountId: <KV_ACCOUNT_ID>,
       kvNamespace: <KV_NAMESPACE>
       kvAuthEmail: <KV_AUTH_EMAIL>,
-      kvAuthKey: <KV_AUTH_KEY>,
-      oauth2ServerLogoutPath: '/v2/logout'
+      kvAuthKey: <KV_AUTH_KEY>
     },
 }];
 ```
@@ -237,7 +242,7 @@ An example of the configuration for the apikey handler:
 
 ```
 config = [{
-    name: 'apikeys',
+    handlerName: 'apikeys',
     options: {
         oauthClientId: <OAUTH2_CLIENT_ID>,
         oauth2ClientSecret: <OAUTH2_CLIENT_SECRET>,
@@ -258,7 +263,7 @@ An example of the configuration for the apikey api handler:
 
 ```
 config = [{
-    name: 'apikeysApi',
+    handlerName: 'apikeysApi',
     options: {
         createPath: '/apikeys',
         kvAccountId: <KV_ACCOUNT_ID>,
@@ -279,7 +284,7 @@ An example of the configuration for the split handler:
 
 ```
 config = [{
-    name: 'split',
+    handlerName: 'split',
     options: {
         host: 'test.example.com',
     },
@@ -297,7 +302,7 @@ An example of configuration for a response handler:
 ```
 const rules = [
   {
-    name: "response",
+    handlerName: "response",
     options: {
       body: "Hello world",
       status: 200,
@@ -309,7 +314,7 @@ const rules = [
 ];
 ```
 
-### KV-STORAGE
+### Kv-Storage
 
 The kv-storage handler serves static pages straight from kv-storage.
 The kvKey property specifies which key is used to fetch the data from the key value store. It supports template variables which makes it possible to serve a complete static site with a single rule.
@@ -321,7 +326,7 @@ An example of configuration for a kv-storage handler:
 ```
 const rules = [
   {
-    name: "kvStorage",
+    handlerName: "kvStorage",
     path: /kvStorage/:file*
     options: {
     kvAccountId: <KV_ACCOUNT_ID>,
@@ -343,7 +348,7 @@ An example of the configuration for cors handler:
 
 ```
 config = [{
-    name: 'cors',
+    handlerName: 'cors',
     options: {
         allowedOrigins: ['http://domain.com'],
     }
@@ -399,7 +404,7 @@ An example of the configuration for loadbalancer with a single source on google 
 
 ```
 config = [{
-    name: 'loadbalancer',
+    handlerName: 'loadbalancer',
     options: {
         sources: [
             {
@@ -414,7 +419,7 @@ An example of the configuration for loadbalancing traffic between two ingresses 
 
 ```
 config = [{
-    name: 'loadbalancer',
+    handlerName: 'loadbalancer',
     path: '/:file*',
     options: {
         "resolveOverride": "www.ahlstrand.es",
@@ -434,7 +439,7 @@ Using path and host parameters the handler can be more generic:
 
 ```
 config = [{
-    name: 'loadbalancer',
+    handlerName: 'loadbalancer',
     path: '/:file*',
     host: ':host.ahlstrand.es',
     options: {
@@ -463,7 +468,7 @@ An example of the configuration for the origin handler:
 
 ```
 config = [{
-    name: 'origin',
+    handlerName: 'origin',
     options: {
         localOriginOverride: 'https://some.origin.com',
     }
@@ -478,7 +483,7 @@ An example of the configuration for the lambda handler:
 
 ```
 config = [{
-    name: 'lambda',
+    handlerName: 'lambda',
     options: {
       region: 'us-east-1',
       lambdaName: 'lambda-hello-dev-hello',
@@ -505,7 +510,7 @@ An example of the configuration for the origin handler:
 
 ```
 config = [{
-    name: 'tranform',
+    handlerName: 'tranform',
     options: {
         tranforms: [
             {

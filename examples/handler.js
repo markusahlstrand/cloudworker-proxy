@@ -241,7 +241,7 @@ const rules = [
     handlerName: 'apiKey',
     path: '/oauth2/.*',
     options: {
-      oauthClientId: process.env.OAUTH2_CLIENT_ID,
+      oauth2ClientId: process.env.OAUTH2_CLIENT_ID,
       oauth2ClientSecret: process.env.OAUTH2_CLIENT_SECRET,
       oauth2AuthDomain: process.env.OAUTH2_AUTH_DOMAIN,
       kvAccountId: process.env.KV_ACCOUNT_ID,
@@ -254,12 +254,13 @@ const rules = [
     handlerName: 'oauth2',
     path: '/oauth2/.*',
     options: {
-      oauthClientId: process.env.OAUTH2_CLIENT_ID,
+      oauth2ClientId: process.env.OAUTH2_CLIENT_ID,
       oauth2ClientSecret: process.env.OAUTH2_CLIENT_SECRET,
       oauth2AuthDomain: process.env.OAUTH2_AUTH_DOMAIN,
       oauth2Audience: process.env.OAUTH2_AUDIENCE,
       oauth2CallbackPath: '/oauth2/callback',
       oauth2LogoutPath: '/oauth2/logout',
+      oauth2LoginPath: '/oauth2/login',
       oauth2Scopes: ['openid', 'email', 'profile', 'offline_access'],
       kvAccountId: process.env.KV_ACCOUNT_ID,
       kvNamespace: process.env.KV_NAMESPACE,
