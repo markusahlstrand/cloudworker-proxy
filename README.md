@@ -86,7 +86,7 @@ An example of the configuration for ratelimit handler:
 
 ```
 rules = [{
-    handlerName: 'ratelimit',
+    handlerName: 'rateLimit',
     options: {
         limit: 1000, // The default allowed calls
         scope: 'default',
