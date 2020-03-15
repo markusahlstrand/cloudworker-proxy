@@ -5,7 +5,7 @@ module.exports = function corsHandler(
     allowCredentials = true,
     allowedHeaders = ['Content-Type'],
     allowedExposeHeaders = ['WWW-Authenticate', 'Server-Authorization'],
-    maxAge = '600',
+    maxAge = 600,
     optionsSuccessStatus = 204,
     terminatePreflight = false
   }) {
@@ -15,23 +15,20 @@ module.exports = function corsHandler(
     const requestHeaders = ctx.request.headers['access-control-request-headers']
 
 
+    configureOrigin(ctx, origin, allowedOrigins);
+    configureCredentials(ctx, allowCredentials);
+    configureExposedHeaders(ctx, allowedExposeHeaders);
+    //handle preflight requests
     if (method === 'OPTIONS') {
-      configureOrigin(ctx, origin, allowedOrigins);
-      configureCredentials(ctx, allowCredentials);
       configureMethods(ctx, allowedMethods);
       configureAllowedHeaders(ctx, requestHeaders, allowedHeaders);
       configureMaxAge(ctx, maxAge);
-      configureExposedHeaders(ctx, allowedExposeHeaders);
       if (terminatePreflight) {
         ctx.status = optionsSuccessStatus;
         ctx.set('Content-Length', '0');
         ctx.body = '';
         return;
       }
-    } else {
-      configureOrigin(ctx, origin, allowedOrigins);
-      configureCredentials(ctx, allowCredentials);
-      configureExposedHeaders(ctx, allowedExposeHeaders);
     }
     await next(ctx);
   };
@@ -39,19 +36,18 @@ module.exports = function corsHandler(
 
 
 function configureOrigin (ctx, origin, allowedOrigins) {
-  if (allowedOrigins === '*' || allowedOrigins.length && allowedOrigins[0] === '*') {
-    ctx.set('Access-Control-Allow-Origin', '*');
-  } else if (typeof allowedOrigins === 'string' && origin === allowedOrigins) {
-    ctx.set('Access-Control-Allow-Origin', origin);
-    ctx.set('Vary', 'Origin');
-  } else if (Array.isArray(allowedOrigins) && allowedOrigins.indexOf(origin) !== -1) {
-    ctx.set('Access-Control-Allow-Origin', origin);
-    ctx.set('Vary', 'Origin');
+  if (Array.isArray(allowedOrigins)) {
+    if (allowedOrigins[0] === '*') {
+      ctx.set('Access-Control-Allow-Origin', '*');
+    } else if (allowedOrigins.indexOf(origin) !== -1) {
+      ctx.set('Access-Control-Allow-Origin', origin);
+      ctx.set('Vary', 'Origin');
+    }
   }
 }
 
 function configureCredentials (ctx, allowCredentials) {
-  ctx.set('Access-Control-Allow-Credentials', allowCredentials?'true':'false');
+  ctx.set('Access-Control-Allow-Credentials', allowCredentials);
 }
 
 function configureMethods (ctx, allowedMethods) {
@@ -68,7 +64,7 @@ function configureAllowedHeaders (ctx, requestHeaders, allowedHeaders) {
 
 function configureMaxAge (ctx, maxAge) {
   if (maxAge) {
-    ctx.set('Access-Control-Max-Age', ""+maxAge)
+    ctx.set('Access-Control-Max-Age', maxAge)
   }
 }
 
