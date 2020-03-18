@@ -8,7 +8,7 @@ const RAW = 'raw';
 
 function base64ToArraybuffer(base64) {
   // eslint-disable-next-line no-undef
-  const binary = atob(base64);
+  const binary = atob(base64.replace(/_/g, '/').replace(/-/g, '+'));
   const len = binary.length;
   const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i += 1) {
@@ -26,7 +26,9 @@ function arraybufferTobase64(buffer) {
   }
 
   // eslint-disable-next-line no-undef
-  return btoa(binary);
+  return btoa(binary)
+    .replace(/\//g, '_')
+    .replace(/\+/g, '-');
 }
 
 function arraybufferToString(buf) {
@@ -52,7 +54,7 @@ async function deriveAesGcmKey(seed, salt) {
   const key = await getKeyMaterial(seed);
   const textEncoder = new TextEncoder();
 
-  const saltBuffer = textEncoder.encode(salt);
+  const saltBuffer = textEncoder.encode(salt.replace(/_/g, '/').replace(/-/g, '+'));
 
   //   eslint-disable-next-line no-undef
   return crypto.subtle.deriveKey(
