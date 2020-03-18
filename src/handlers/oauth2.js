@@ -30,6 +30,7 @@ function isBrowser(accept = '') {
 
 module.exports = function oauth2Handler({
   cookieName = 'proxy',
+  cookieHttpOnly = true,
   allowPublicAccess = false,
   kvAccountId,
   kvNamespace,
@@ -158,6 +159,7 @@ module.exports = function oauth2Handler({
       ctx.set(
         'Set-Cookie',
         cookie.serialize(cookieName, sessionToken, {
+          httpOnly: cookieHttpOnly,
           domain: `.${domain}`,
           path: '/',
           maxAge: 60 * 60 * 24 * 365, // 1 year
