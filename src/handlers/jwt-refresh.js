@@ -1,5 +1,6 @@
 module.exports = async function refreshAccessToken({
-  refreshToken,
+  // eslint-disable-next-line camelcase
+  refresh_token,
   authDomain,
   clientId,
   clientSecret,
@@ -16,7 +17,7 @@ module.exports = async function refreshAccessToken({
       grant_type: 'refresh_token',
       client_id: clientId,
       client_secret: clientSecret,
-      refresh_token: refreshToken,
+      refresh_token,
     }),
   });
 
@@ -27,8 +28,8 @@ module.exports = async function refreshAccessToken({
   const body = await response.json();
 
   return {
-    accessToken: body.access_token,
-    refreshToken,
+    ...body,
     expires: Date.now() + body.expires_in * 1000,
+    refresh_token,
   };
 };
