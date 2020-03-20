@@ -94,7 +94,12 @@ module.exports = function oauth2Handler({
       throw new Error('Authentication failed');
     }
 
-    return response.json();
+    const body = await response.json();
+
+    return {
+      ...body,
+      expires: Date.now() + body.expires_in * 1000,
+    };
   }
 
   async function handleLogout(ctx) {
@@ -186,7 +191,7 @@ module.exports = function oauth2Handler({
 
       if (tokens.expires < Date.now()) {
         tokens = await jwtRefresh({
-          refreshToken: tokens.refresh_token,
+          refresh_token: tokens.refresh_token,
           clientId,
           authDomain,
           clientSecret,
