@@ -1,24 +1,22 @@
-module.exports = function corsHandler(
-  {
-    allowedOrigins = ['*'],
-    allowedMethods = ['GET','PUT','POST','PATCH','DELETE','HEAD','OPTIONS'],
-    allowCredentials = true,
-    allowedHeaders = ['Content-Type'],
-    allowedExposeHeaders = ['WWW-Authenticate', 'Server-Authorization'],
-    maxAge = 600,
-    optionsSuccessStatus = 204,
-    terminatePreflight = false
-  }) {
+module.exports = function corsHandler({
+  allowedOrigins = ['*'],
+  allowedMethods = ['GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+  allowCredentials = true,
+  allowedHeaders = ['Content-Type'],
+  allowedExposeHeaders = ['WWW-Authenticate', 'Server-Authorization'],
+  maxAge = 600,
+  optionsSuccessStatus = 204,
+  terminatePreflight = false,
+}) {
   return async (ctx, next) => {
-    const method = ctx.request.method
-    const origin = ctx.request.headers.origin
-    const requestHeaders = ctx.request.headers['access-control-request-headers']
-
+    const { method } = ctx.request;
+    const { origin } = ctx.request.headers;
+    const requestHeaders = ctx.request.headers['access-control-request-headers'];
 
     configureOrigin(ctx, origin, allowedOrigins);
     configureCredentials(ctx, allowCredentials);
     configureExposedHeaders(ctx, allowedExposeHeaders);
-    //handle preflight requests
+    // handle preflight requests
     if (method === 'OPTIONS') {
       configureMethods(ctx, allowedMethods);
       configureAllowedHeaders(ctx, requestHeaders, allowedHeaders);
@@ -34,8 +32,7 @@ module.exports = function corsHandler(
   };
 };
 
-
-function configureOrigin (ctx, origin, allowedOrigins) {
+function configureOrigin(ctx, origin, allowedOrigins) {
   if (Array.isArray(allowedOrigins)) {
     if (allowedOrigins[0] === '*') {
       ctx.set('Access-Control-Allow-Origin', '*');
@@ -46,29 +43,31 @@ function configureOrigin (ctx, origin, allowedOrigins) {
   }
 }
 
-function configureCredentials (ctx, allowCredentials) {
-  ctx.set('Access-Control-Allow-Credentials', allowCredentials);
+function configureCredentials(ctx, allowCredentials) {
+  if (allowCredentials) {
+    ctx.set('Access-Control-Allow-Credentials', allowCredentials);
+  }
 }
 
-function configureMethods (ctx, allowedMethods) {
+function configureMethods(ctx, allowedMethods) {
   ctx.set('Access-Control-Allow-Methods', allowedMethods.join(','));
 }
 
-function configureAllowedHeaders (ctx, requestHeaders, allowedHeaders) {
+function configureAllowedHeaders(ctx, requestHeaders, allowedHeaders) {
   if (allowedHeaders.length === 0 && requestHeaders) {
-    ctx.set('Access-Control-Allow-Headers', requestHeaders) //allowedHeaders wasn't specified, so reflect the request headers
+    ctx.set('Access-Control-Allow-Headers', requestHeaders); // allowedHeaders wasn't specified, so reflect the request headers
   } else if (allowedHeaders.length) {
-    ctx.set('Access-Control-Allow-Headers', allowedHeaders.join(','))
+    ctx.set('Access-Control-Allow-Headers', allowedHeaders.join(','));
   }
 }
 
-function configureMaxAge (ctx, maxAge) {
+function configureMaxAge(ctx, maxAge) {
   if (maxAge) {
-    ctx.set('Access-Control-Max-Age', maxAge)
+    ctx.set('Access-Control-Max-Age', maxAge);
   }
 }
 
-function configureExposedHeaders (ctx, allowedExposeHeaders) {
+function configureExposedHeaders(ctx, allowedExposeHeaders) {
   if (allowedExposeHeaders.length) {
     ctx.set('Access-Control-Expose-Headers', allowedExposeHeaders.join(','));
   }

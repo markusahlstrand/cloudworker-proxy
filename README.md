@@ -363,16 +363,31 @@ const rules = [
 
 Adds cross origin request headers for a path. The cors handler can optionally take an array of allowed origins to enable cors for.
 
-An example of the configuration for cors handler:
+This is the default configuration for the cors handler
 
 ```
 config = [{
     handlerName: 'cors',
     options: {
-        allowedOrigins: ['http://domain.com'],
+        allowedOrigins = ['*'],
+        allowedMethods = ['GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+        allowCredentials = true,
+        allowedHeaders = ['Content-Type'],
+        allowedExposeHeaders = ['WWW-Authenticate', 'Server-Authorization'],
+        maxAge = 600,
+        optionsSuccessStatus = 204,
+        terminatePreflight = false
     }
 }];
 ```
+- `allowedOrigins` - Controls [`Access-Control-Allow-Origin` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin). Array of allowed Origin domains, or a single item `['*']` if any Origin is allowed.
+- `allowedMethods` - Controls [`Access-Control-Allow-Methods` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods). Array of allowed methods. `['*']` is a valid value.
+- `allowCredentials` - Controls [`Access-Control-Allow-Credentials` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials). Boolean value.
+- `allowedHeaders` - Controls [`Access-Control-Allow-Headers` header]. Array of allowed request headers. `['*']` is a valid value.
+- `allowedExposeHeaders` - Controls [`Access-Control-Expose-Headers` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers). Array of allowed exposed headers. Set to `['*']` to allow exposing any headers. Set to `[]` to allow only the default 7 headers allowed by HTTP spec (see link).
+- `maxAge` - Constrols [`Access-Control-Max-Age` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age). Number of seconds that the CORS headers (`Access-Control-*`) should be cached by the client. Int value.
+- `terminatePreflight` - Set to true if you want `OPTIONS` requests to not be forwarded to origin.
+- `optionsSuccessStatus` - The HTTP status that should be returned in a preflight request. Only used if `terminatePreflight` is set to `true`
 
 ### Geo-decorator
 
