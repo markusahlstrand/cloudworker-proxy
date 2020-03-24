@@ -164,6 +164,7 @@ The handler by default automaticly redirect the client when it requests any matc
 The handler supports the following options:
 
 - cookieName, the name of the cookie set by the handler. Defaults to 'proxy'
+- cookieHttpOnly, optional property to set if the cookies should be http only (https://owasp.org/www-community/HttpOnly). Defaults to true
 - allowPublicAccess, determines if any requests without valid cookies should be redirected to the login page. Defaults to true
 - kvAccountId, the account id for the KV storage account
 - kvNamespace, the namespace for the KV storage account
@@ -573,7 +574,7 @@ const proxy = new Proxy(rules, {
 
 ## Security
 
-The handlers for oauth2 only stores half of the access and refresh-tokens in key-value storage. The other part of the keys are sent as part of the cookie from the user, so in order to get a valid token you need to have access both to the storage and a request from a user.
+The handlers for oauth2 stores the encrypted tokens (AES-GCM) in KV-Storage. The key for the encryption is stored in the cookie so that both access to the storage and the cookie is needed to get any tokens.
 
 The tokens entries have a ttl of one month by default, so any token that hasn't been accessed in a month will automatically be removed.
 
