@@ -77,6 +77,7 @@ module.exports = function logger(options) {
           headers: _.get(ctx, 'request.headers'),
           method: _.get(ctx, 'request.method'),
           url: _.get(ctx, 'request.href'),
+          protocol: _.get(ctx, 'request.protocol'),
           body,
         },
         response: {

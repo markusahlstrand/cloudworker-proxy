@@ -1,5 +1,6 @@
 const cookie = require('cookie');
 const get = require('lodash.get');
+const set = require('lodash.set');
 const shortid = require('shortid');
 const KvStorage = require('../services/kv-storage');
 const jwtRefresh = require('./jwt-refresh');
@@ -7,6 +8,7 @@ const aes = require('../encryption/aes');
 
 const _ = {
   get,
+  set,
 };
 
 function getCookie({ cookieHeader = '', cookieName }) {

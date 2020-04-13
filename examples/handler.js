@@ -39,6 +39,18 @@ const rules = [
   },
   {
     handlerName: 'response',
+    protocol: 'http',
+    host: 'proxy.cloudproxy.io',
+    options: {
+      status: 302,
+      body: 'Redirect to https',
+      headers: {
+        location: 'https://proxy.cloudproxy.io',
+      },
+    },
+  },
+  {
+    handlerName: 'response',
     path: '/',
     options: {
       body: {
