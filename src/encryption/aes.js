@@ -26,9 +26,7 @@ function arraybufferTobase64(buffer) {
   }
 
   // eslint-disable-next-line no-undef
-  return btoa(binary)
-    .replace(/\//g, '_')
-    .replace(/\+/g, '-');
+  return btoa(binary).replace(/\//g, '_').replace(/\+/g, '-');
 }
 
 function arraybufferToString(buf) {

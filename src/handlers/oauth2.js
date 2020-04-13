@@ -271,9 +271,7 @@ module.exports = function oauth2Handler({
     if (ctx.request.method === 'OPTIONS') {
       await next(ctx);
     } else if (
-      _.get(ctx, 'request.headers.authorization', '')
-        .toLowerCase()
-        .startsWith('bearer ')
+      _.get(ctx, 'request.headers.authorization', '').toLowerCase().startsWith('bearer ')
     ) {
       // If the request has a auth-header, use this and pass on.
       _.set(ctx, 'state.access_token', ctx.request.headers.authorization.slice(7));

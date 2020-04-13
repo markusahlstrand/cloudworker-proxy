@@ -4,7 +4,7 @@ An api gateway for cloudflare workers with configurable handlers for:
 
 - Routing
   - Load balancing of http endpoints
-  - Routing based on client Geo
+  - Routing based on client Geo, host, path and protocol
   - Invoking AWS lambdas and google cloud functions
   - Static responses from config or Cloudflare KV-Storage
   - Splitting requests to multiple endpoints
@@ -381,6 +381,7 @@ config = [{
     }
 }];
 ```
+
 - `allowedOrigins` - Controls [`Access-Control-Allow-Origin` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin). Array of allowed Origin domains, or a single item `['*']` if any Origin is allowed.
 - `allowedMethods` - Controls [`Access-Control-Allow-Methods` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods). Array of allowed methods. `['*']` is a valid value.
 - `allowCredentials` - Controls [`Access-Control-Allow-Credentials` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials). Boolean value.
