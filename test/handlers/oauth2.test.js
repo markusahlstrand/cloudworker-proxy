@@ -127,5 +127,32 @@ describe('oauth2Handler', () => {
 
       expect(ctx.status).to.equal(200);
     });
+
+    it('should use the auth token from headers', async () => {
+      const oauth2Handler = Oauth2Handler({
+        oauth2AuthDomain: 'http://example.com',
+        oauth2ClientId: '1234',
+        oauth2Audience: 'test',
+        oauth2CallbackType: 'query',
+        kvNamespace: 'kvNamespace',
+        kvAccountId: 'kvAccountId',
+      });
+
+      const ctx = helpers.getCtx();
+      ctx.request.path = '/test';
+      ctx.request.href = 'http://example.com/test';
+      ctx.request.query = {
+        auth: 'should-not-be-used',
+      };
+      ctx.request.headers.authorization = 'Bearer header-token';
+
+      await oauth2Handler(ctx, (ctx) => {
+        ctx.status = 200;
+        ctx.body = 'Hello world';
+        expect(ctx.request.headers.authorization).to.equal('Bearer header-token');
+      });
+
+      expect(ctx.status).to.equal(200);
+    });
   });
 });
