@@ -250,50 +250,6 @@ config = [  {
 }];
 ```
 
-### Apikeys
-
-The api keys handler reads the `X-Api-Key` header, with a fallback to `?apikey=..` querystring, and adds a jwt token to the authorizion header if there's a match. The jwt access and refresh tokens are stored in a cloudflare Key Value Storage.
-
-The handler renews the access tokens once they expire using the refresh token. It doesn't validate the access token but only ads it to the request headers so that it can be validated using the jwt handler.
-
-There's a separate api-key-api handler to add, remove or list a api keys.
-
-An example of the configuration for the apikey handler:
-
-```
-config = [{
-    handlerName: 'apikeys',
-    options: {
-        oauthClientId: <OAUTH2_CLIENT_ID>,
-        oauth2ClientSecret: <OAUTH2_CLIENT_SECRET>,
-        oauth2AuthDomain: <OAUTH2_AUTH_DOMAIN>,
-        kvAccountId: <KV_ACCOUNT_ID>,
-        kvNamespace: <KV_NAMESPACE>,
-        kvAuthEmail: <KV_AUTH_EMAIL>,
-        kvAuthKey: <KV_AUTH_KEY>,
-    },
-}];
-```
-
-### Apikeys api
-
-Exposes an POST endpoint to create a new api key based on the current oauth2 session and hence the handler must be added after the jwt handler. The handler stores a document for each user in cloudflare Key Value Storage with the api keys and their corresponding access/refesh tokens.
-
-An example of the configuration for the apikey api handler:
-
-```
-config = [{
-    handlerName: 'apikeysApi',
-    options: {
-        createPath: '/apikeys',
-        kvAccountId: <KV_ACCOUNT_ID>,
-        kvNamespace: <KV_NAMESPACE>,
-        kvAuthEmail: <KV_AUTH_EMAIL>,
-        kvAuthKey: <KV_AUTH_KEY>,
-    },
-}];
-```
-
 ### Split
 
 Splits the request in two separate requests. The duplicated request will not return any results to the client, but can for instance be used to sample the traffic on a live website or to get webhooks to post to multiple endpoints.
@@ -353,8 +309,30 @@ const rules = [
       kvNamespace: <KV_NAMESPACE>
       kvAuthEmail: <KV_AUTH_EMAIL>,
       kvAuthKey: <KV_AUTH_KEY>,
-      kvKey: 'templates/{file}',
-      defaultExtention: '.html',  // The default value. Appends .html if no extention is specified on the file
+      kvKey: '{file}', // Default value assuming that the path will use provide a file parameter
+      kvBasePath: 'app/', // Fetches the files in the app folder in kv-storage
+      defaultExtention: '',  // The default value. Appends .html if no extention is specified on the file
+      defaultIndexFile: null, // The file to fetch if the request is made to the root.
+      defaultErrorFile: null, // The file to serve if the requested file can't be found in kv-storage
+    }
+  }
+];
+```
+
+It's possible to serve for instance a React app from kv-storage with the following config. The index.html file in the root will be served if a request is made to the root or to any other url where no file can be found in kv-storage.
+
+```
+const rules = [
+  {
+    handlerName: "kvStorage",
+    path: /kvStorage/:file*
+    options: {
+    kvAccountId: <KV_ACCOUNT_ID>,
+      kvNamespace: <KV_NAMESPACE>
+      kvAuthEmail: <KV_AUTH_EMAIL>,
+      kvAuthKey: <KV_AUTH_KEY>,
+      defaultIndexFile: 'index.html', // The file to fetch if the request is made to the root.
+      defaultErrorFile: 'index.html', // The file to serve if the requested file can't be found in kv-storage
     }
   }
 ];

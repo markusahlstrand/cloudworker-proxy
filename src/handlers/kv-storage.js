@@ -5,7 +5,11 @@ function resolveParams(url, params = {}) {
   return Object.keys(params).reduce((acc, key) => acc.replace(`{${key}}`, params[key]), url);
 }
 
-function setDefaultLocation(url, defaultExtension) {
+function setDefaultLocation(url, defaultExtension, defaultIndexDocument) {
+  if (url === '/' && defaultIndexDocument) {
+    return defaultIndexDocument;
+  }
+
   const file = url.split('/').pop();
   const extention = file.split('.').pop();
   if (extention !== url) {
@@ -20,8 +24,11 @@ module.exports = function kvStorageHandler({
   kvNamespace,
   kvAuthEmail,
   kvAuthKey,
-  kvKey,
+  kvBasePath = '',
+  kvKey = '{file}',
   defaultExtension = 'html',
+  defaultIndexDocument,
+  defaultErrorDocument,
   mime = {},
 }) {
   const kvStorage = new KvStorage({
@@ -34,9 +41,18 @@ module.exports = function kvStorageHandler({
   const mimeMappings = { ...constants.mime, ...mime };
 
   return async (ctx) => {
-    const key = setDefaultLocation(resolveParams(kvKey, ctx.params), defaultExtension);
+    const path = resolveParams(kvKey, ctx.params);
 
-    const result = await kvStorage.get(key);
+    const key =
+      path === '' && defaultIndexDocument
+        ? defaultIndexDocument
+        : setDefaultLocation(path, defaultExtension);
+
+    let result = await kvStorage.get(kvBasePath + key);
+
+    if (!result && defaultErrorDocument) {
+      result = await kvStorage.get(kvBasePath + defaultErrorDocument);
+    }
 
     if (result) {
       ctx.status = 200;
