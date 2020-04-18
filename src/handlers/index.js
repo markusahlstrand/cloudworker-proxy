@@ -1,5 +1,3 @@
-const apiKey = require('./apikey');
-const apiKeyApi = require('./apikey-api');
 const basicAuth = require('./basic-auth');
 const cors = require('./cors');
 const geoDecorator = require('./geo-decorator');
@@ -16,8 +14,6 @@ const split = require('./split');
 const transform = require('./transform');
 
 module.exports = {
-  apiKey,
-  apiKeyApi,
   basicAuth,
   cors,
   geoDecorator,
