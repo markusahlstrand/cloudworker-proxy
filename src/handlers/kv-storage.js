@@ -12,7 +12,7 @@ function setDefaultLocation(url, defaultExtension, defaultIndexDocument) {
 
   const file = url.split('/').pop();
   const extention = file.split('.').pop();
-  if (extention !== url) {
+  if (extention !== file) {
     return url;
   }
 
