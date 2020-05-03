@@ -38,7 +38,7 @@ The examples are deployed at https://proxy.cloudproxy.io
 
 ## Usage
 
-A proxy is instantiated with a set of middlewares, origins and transforms that are matched against each request based on hostname, method, path and headers. Each rule is configured to execute one of the predefined handlers. The handlers could either terminate the request and send the response to the client or pass on the request to the following handlers matching the request.
+A proxy is instantiated with a set of middlewares, origins and transforms that are matched against each request based on hostname, method, path, protocol and headers. Each rule is configured to execute one of the predefined handlers. The handlers could either terminate the request and send the response to the client or pass on the request to the following handlers matching the request.
 
 A simple hello world proxy:
 
@@ -46,9 +46,9 @@ A simple hello world proxy:
 const Proxy = require('cloudworker-proxy');
 
 const config = [{
-    handlerName: "static",
+    handlerName: "response",
     options: {
-    body: "Hello world"
+        body: "Hello world"
     }
 }];
 
@@ -62,6 +62,27 @@ addEventListener('fetch', (event) => {
   event.respondWith(fetchAndApply(event));
 });
 
+```
+
+A handler can use path, method, host, protocol and headers to match a request. It's also possible to exclude certain paths from matching.
+
+The parameters from the request are resolved in the options, so simpler rewrites like this are possible:
+
+```
+const config = [{
+    path: "/hello/:name",
+    excludePath: "/hello/markus",
+    headers: {
+        'Accect': 'text/html',
+    },
+    protocol: 'https',
+    method: ['GET', 'OPTIONS'],
+    host: "example.com",
+    handlerName: "response",
+    options: {
+        body: "Hello {name}"
+    }
+}];
 ```
 
 ## Default Handlers
