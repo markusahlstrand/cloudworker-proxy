@@ -2,6 +2,7 @@ const lodashGet = require('lodash.get');
 const lodashSet = require('lodash.set');
 const cachedFetch = require('../services/cached-fetch');
 const constants = require('../constants');
+const utils = require('../utils');
 
 const _ = {
   get: lodashGet,
@@ -25,19 +26,6 @@ function getSource(sources) {
   return sources[Math.floor(Math.random() * sources.length)];
 }
 
-function resolveParams(url, params = {}) {
-  return Object.keys(params).reduce((acc, key) => acc.replace(`{${key}}`, params[key]), url);
-}
-
-function instanceToJson(instance) {
-  return [...instance].reduce((obj, item) => {
-    const prop = {};
-    // eslint-disable-next-line prefer-destructuring
-    prop[item[0]] = item[1];
-    return { ...obj, ...prop };
-  }, {});
-}
-
 module.exports = function loadbalancerHandler({ sources = [], cacheOverride }) {
   return async (ctx) => {
     const source = getSource(sources);
@@ -57,10 +45,10 @@ module.exports = function loadbalancerHandler({ sources = [], cacheOverride }) {
       options.body = clonedRequest.body;
     }
 
-    const url = resolveParams(source.url, ctx.params);
+    const url = utils.resolveParams(source.url, ctx.params);
 
     if (source.resolveOverride) {
-      const resolveOverride = resolveParams(source.resolveOverride, ctx.request.params);
+      const resolveOverride = utils.resolveParams(source.resolveOverride, ctx.request.params);
       // Cloudflare header to change host.
       // Only possible to add proxied cf dns within the same account.
       _.set(options, 'cf.resolveOverride', resolveOverride);
@@ -70,7 +58,7 @@ module.exports = function loadbalancerHandler({ sources = [], cacheOverride }) {
 
     ctx.body = response.body;
     ctx.status = response.status;
-    const responseHeaders = instanceToJson(response.headers);
+    const responseHeaders = utils.instanceToJson(response.headers);
     Object.keys(responseHeaders).forEach((key) => {
       ctx.set(key, responseHeaders[key]);
     });

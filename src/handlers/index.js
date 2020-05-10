@@ -10,6 +10,7 @@ const oauth2 = require('./oauth2');
 const origin = require('./origin');
 const response = require('./response');
 const rateLimit = require('./rate-limit');
+const s3 = require('./s3');
 const split = require('./split');
 const transform = require('./transform');
 
@@ -26,6 +27,7 @@ module.exports = {
   origin,
   rateLimit,
   response,
+  s3,
   split,
   transform,
 };

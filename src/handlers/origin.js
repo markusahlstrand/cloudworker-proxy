@@ -1,5 +1,6 @@
 const lodashGet = require('lodash.get');
 const constants = require('../constants');
+const utils = require('../utils');
 
 const _ = {
   get: lodashGet,
@@ -15,15 +16,6 @@ function filterCfHeaders(headers) {
   });
 
   return result;
-}
-
-function instanceToJson(instance) {
-  return [...instance].reduce((obj, item) => {
-    const prop = {};
-    // eslint-disable-next-line prefer-destructuring
-    prop[item[0]] = item[1];
-    return { ...obj, ...prop };
-  }, {});
 }
 
 module.exports = function originHandler(options) {
@@ -53,7 +45,7 @@ module.exports = function originHandler(options) {
 
     ctx.body = response.body;
     ctx.status = response.status;
-    const responseHeaders = instanceToJson(response.headers);
+    const responseHeaders = utils.instanceToJson(response.headers);
     Object.keys(responseHeaders).forEach((key) => {
       ctx.set(key, responseHeaders[key]);
     });

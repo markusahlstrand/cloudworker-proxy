@@ -172,6 +172,17 @@ const rules = [
     },
   },
   {
+    handlerName: 's3',
+    path: '/s3/:file*',
+    options: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: 'eu-north-1',
+      bucket: 'cloudproxy-test',
+      path: '{file}',
+    },
+  },
+  {
     handlerName: 'response',
     path: '/edge',
     options: {
@@ -249,19 +260,19 @@ const rules = [
       ],
     },
   },
-  {
-    handlerName: 'apiKey',
-    path: '/oauth2/.*',
-    options: {
-      oauth2ClientId: process.env.OAUTH2_CLIENT_ID,
-      oauth2ClientSecret: process.env.OAUTH2_CLIENT_SECRET,
-      oauth2AuthDomain: process.env.OAUTH2_AUTH_DOMAIN,
-      kvAccountId: process.env.KV_ACCOUNT_ID,
-      kvNamespace: process.env.KV_NAMESPACE,
-      kvAuthEmail: process.env.KV_AUTH_EMAIL,
-      kvAuthKey: process.env.KV_AUTH_KEY,
-    },
-  },
+  // {
+  //   handlerName: 'apiKey',
+  //   path: '/oauth2/.*',
+  //   options: {
+  //     oauth2ClientId: process.env.OAUTH2_CLIENT_ID,
+  //     oauth2ClientSecret: process.env.OAUTH2_CLIENT_SECRET,
+  //     oauth2AuthDomain: process.env.OAUTH2_AUTH_DOMAIN,
+  //     kvAccountId: process.env.KV_ACCOUNT_ID,
+  //     kvNamespace: process.env.KV_NAMESPACE,
+  //     kvAuthEmail: process.env.KV_AUTH_EMAIL,
+  //     kvAuthKey: process.env.KV_AUTH_KEY,
+  //   },
+  // },
   {
     handlerName: 'oauth2',
     path: '/oauth2/.*',
@@ -285,17 +296,6 @@ const rules = [
     path: '/oauth2/.*',
     options: {
       jwksUri: process.env.JWKS_URI,
-    },
-  },
-  {
-    handlerName: 'apiKeyApi',
-    path: '/oauth2/apikeys',
-    options: {
-      createPath: '/oauth2/apikeys',
-      kvAccountId: process.env.KV_ACCOUNT_ID,
-      kvNamespace: process.env.KV_NAMESPACE,
-      kvAuthEmail: process.env.KV_AUTH_EMAIL,
-      kvAuthKey: process.env.KV_AUTH_KEY,
     },
   },
   {
