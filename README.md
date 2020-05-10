@@ -510,6 +510,26 @@ config = [{
 }];
 ```
 
+### S3
+
+Fetches the files from a private S3 bucket using the AWS v4 signatures.
+
+An example of the configuration for the S3 handler:
+
+```
+config = [{
+    handlerName: 's3',
+    path: '/:file*',
+    options: {
+      region: 'us-east-1',
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      path: '{file}'
+    }
+}];
+```
+
+
 ### Lambda
 
 Invoke a AWS lambda using http without the AWS api gateway. The API Gateway from AWS is rather expensive for high load scenarios and using workers as a gateway is almost 10 times cheaper and much more flexible.
