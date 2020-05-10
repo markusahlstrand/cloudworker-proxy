@@ -1,9 +1,6 @@
 const KvStorage = require('../services/kv-storage');
 const constants = require('../constants');
-
-function resolveParams(url, params = {}) {
-  return Object.keys(params).reduce((acc, key) => acc.replace(`{${key}}`, params[key]), url);
-}
+const utils = require('../utils');
 
 function setDefaultLocation(url, defaultExtension, defaultIndexDocument) {
   if (url === '/' && defaultIndexDocument) {
@@ -41,7 +38,7 @@ module.exports = function kvStorageHandler({
   const mimeMappings = { ...constants.mime, ...mime };
 
   return async (ctx) => {
-    const path = resolveParams(kvKey, ctx.params);
+    const path = utils.resolveParams(kvKey, ctx.params);
 
     const key =
       path === '' && defaultIndexDocument

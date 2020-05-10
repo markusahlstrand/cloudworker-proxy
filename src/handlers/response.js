@@ -1,6 +1,4 @@
-function resolveParams(data, params = {}) {
-  return Object.keys(params).reduce((acc, key) => acc.replace(`{${key}}`, params[key]), data);
-}
+const utils = require('../utils');
 
 module.exports = function responseHandler({ body = '', headers = {}, status = 200 }) {
   return async (ctx) => {
@@ -8,13 +6,13 @@ module.exports = function responseHandler({ body = '', headers = {}, status = 20
       ctx.body = JSON.stringify(body);
       ctx.set('Content-Type', 'application/json');
     } else {
-      ctx.body = resolveParams(body, ctx.params);
+      ctx.body = utils.resolveParams(body, ctx.params);
     }
 
     ctx.status = status;
 
     Object.keys(headers).forEach((key) => {
-      ctx.set(key, resolveParams(headers[key], ctx.params));
+      ctx.set(key, utils.resolveParams(headers[key], ctx.params));
     });
   };
 };

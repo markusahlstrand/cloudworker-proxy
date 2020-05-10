@@ -1,13 +1,5 @@
 const { AwsClient } = require('aws4fetch');
-
-function instanceToJson(instance) {
-  return [...instance].reduce((obj, item) => {
-    const prop = {};
-    // eslint-disable-next-line prefer-destructuring
-    prop[item[0]] = item[1];
-    return { ...obj, ...prop };
-  }, {});
-}
+const utils = require('../utils');
 
 function lambdaHandlerFactory({ accessKeyId, secretAccessKey, region, lambdaName }) {
   const aws = new AwsClient({
@@ -25,7 +17,7 @@ function lambdaHandlerFactory({ accessKeyId, secretAccessKey, region, lambdaName
 
     ctx.status = response.status;
     ctx.body = response.body;
-    const responseHeaders = instanceToJson(response.headers);
+    const responseHeaders = utils.instanceToJson(response.headers);
     Object.keys(responseHeaders).forEach((key) => {
       ctx.set(key, responseHeaders[key]);
     });
