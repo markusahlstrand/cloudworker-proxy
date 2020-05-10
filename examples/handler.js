@@ -57,7 +57,7 @@ const rules = [
         description: 'Sample endpoints for the cloudworker-proxy',
         links: [
           {
-            name: '/split',
+            name: 'split',
             description: 'Splits the request pipeline into two separate pipelines',
             url: 'https://proxy.cloudproxy.io/split',
           },
@@ -67,7 +67,7 @@ const rules = [
             url: 'https://proxy.cloudproxy.io/basic/test',
           },
           {
-            name: '/geo',
+            name: 'geo',
             description: 'Routes to different pages depending on geo',
             url: 'https://proxy.cloudproxy.io/geo',
           },
@@ -75,6 +75,11 @@ const rules = [
             name: 'Response',
             description: 'Generates a static response straight from the edge',
             url: 'https://proxy.cloudproxy.io/edge',
+          },
+          {
+            name: 'S3 + cache',
+            description: 'Fetches file from S3 and caches using cloudflare cache',
+            url: 'https://proxy.cloudproxy.io/s3/logo.png',
           },
           {
             name: 'Basic auth',
@@ -169,6 +174,13 @@ const rules = [
           replace: '{{$0}} with a transformed result',
         },
       ],
+    },
+  },
+  {
+    handlerName: 'cache',
+    path: '/s3/:file*',
+    options: {
+      cacheDuration: 60,
     },
   },
   {

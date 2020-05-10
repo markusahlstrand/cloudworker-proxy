@@ -402,7 +402,7 @@ Adds a `proxy-continent` header to the request that can be used to route traffic
 - OC, oceania
 - SA, south america
 
-An example of the configuration for geo decoration handler in combinatin with a response handler targeting Europe:
+An example of the configuration for geo decoration handler in combination with a response handler targeting Europe:
 
 ```
 config = [{
@@ -422,6 +422,33 @@ config = [{
 }];
 ```
 
+### Cache
+
+Wrapps the origin with cloudflare caching and works independent of what origin handler is used. It uses the caching headers set by the origin, but it's also possible to override the cache duration with the cacheDuration option.
+
+The cache handler respects Range headers. It also support If-Modified-Since and If-None-Match headers to return 304's.
+
+An example of the configuration for cache handler in combination with a S3 handler:
+
+```
+config = [{
+    handlerName: 'cache',
+    options: {
+        cacheDuration: 60,
+    },
+},
+{
+    handlerName: 's3',
+    path: '/:file',
+    options: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: 'eu-north-1',
+      bucket: 'cloudproxy-test',
+      path: '{file}',
+    },
+}];
+
 ### Load balancer
 
 Load balances requests between one or many endpoints.
@@ -438,57 +465,63 @@ In some cases it is necessary to resolve the IP of the endpoint based on a diffe
 An example of the configuration for loadbalancer with a single source on google cloud functions:
 
 ```
+
 config = [{
-    handlerName: 'loadbalancer',
-    options: {
-        sources: [
-            {
-                url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
-            }
-        ]
-    }
+handlerName: 'loadbalancer',
+options: {
+sources: [
+{
+url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
+}
+]
+}
 }];
+
 ```
 
 An example of the configuration for loadbalancing traffic between two ingresses for multiple hosts, with an override of the host header:
 
 ```
+
 config = [{
-    handlerName: 'loadbalancer',
-    path: '/:file*',
-    options: {
-        "resolveOverride": "www.ahlstrand.es",
-        "sources": [
-            {
-                "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
-            },
-            {
-                "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
-            },
-        ]
-    }
+handlerName: 'loadbalancer',
+path: '/:file\*',
+options: {
+"resolveOverride": "www.ahlstrand.es",
+"sources": [
+{
+"url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+},
+{
+"url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+},
+]
+}
 }];
+
 ```
 
 Using path and host parameters the handler can be more generic:
 
 ```
+
 config = [{
-    handlerName: 'loadbalancer',
-    path: '/:file*',
-    host: ':host.ahlstrand.es',
-    options: {
-        "resolveOverride": "{host}.ahlstrand.es",
-        "sources": [
-            {
-                "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
-            },
-            {
-                "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
-            },
-        ]
-    }
+handlerName: 'loadbalancer',
+path: '/:file\*',
+host: ':host.ahlstrand.es',
+options: {
+"resolveOverride": "{host}.ahlstrand.es",
+"sources": [
+{
+"url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+},
+{
+"url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+},
+]
+}
 }];
+
 ```
 
 Requests made by the loadbalancer handler would not be cached when using standard fetch-calls as the source isn't proxied by cloudflare. Instead the handler uses the cache-api to manually store the response in the cloudflare cache. The responses are cached according to the cache-headers. If the ´cacheOverride`-option is added to the loadbalancer it will bypass the cache api and use standard fetch requests.
@@ -502,12 +535,14 @@ As this wouldn't work when running locall it's possible to specify another host 
 An example of the configuration for the origin handler:
 
 ```
+
 config = [{
-    handlerName: 'origin',
-    options: {
-        localOriginOverride: 'https://some.origin.com',
-    }
+handlerName: 'origin',
+options: {
+localOriginOverride: 'https://some.origin.com',
+}
 }];
+
 ```
 
 ### S3
@@ -517,16 +552,18 @@ Fetches the files from a private S3 bucket using the AWS v4 signatures.
 An example of the configuration for the S3 handler:
 
 ```
+
 config = [{
-    handlerName: 's3',
-    path: '/:file*',
-    options: {
-      region: 'us-east-1',
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      path: '{file}'
-    }
+handlerName: 's3',
+path: '/:file*',
+options: {
+region: 'us-east-1',
+accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+path: '{file}'
+}
 }];
+
 ```
 
 
@@ -537,15 +574,17 @@ Invoke a AWS lambda using http without the AWS api gateway. The API Gateway from
 An example of the configuration for the lambda handler:
 
 ```
+
 config = [{
-    handlerName: 'lambda',
-    options: {
-      region: 'us-east-1',
-      lambdaName: 'lambda-hello-dev-hello',
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    },
+handlerName: 'lambda',
+options: {
+region: 'us-east-1',
+lambdaName: 'lambda-hello-dev-hello',
+accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+},
 }];
+
 ```
 
 ### Transform
@@ -564,17 +603,19 @@ The current implementation of tranforms have a few limitations:
 An example of the configuration for the origin handler:
 
 ```
+
 config = [{
-    handlerName: 'tranform',
-    options: {
-        tranforms: [
-            {
-                regex: 'foo',
-                replace: 'bar'
-            }
-        ]
-    }
+handlerName: 'tranform',
+options: {
+tranforms: [
+{
+regex: 'foo',
+replace: 'bar'
+}
+]
+}
 }];
+
 ```
 
 ## Custom handlers
@@ -582,14 +623,16 @@ config = [{
 It's possible to register custom handlers with new handler names or overriding default handlers by passing an object containing the handlers as second paramter of the proxy constructor:
 
 ```
+
 const proxy = new Proxy(rules, {
-  custom: (options) => {
-    return async (ctx) => {
-      ctx.status = 200;
-      ctx.body = 'Custom handler';
-    };
-  },
+custom: (options) => {
+return async (ctx) => {
+ctx.status = 200;
+ctx.body = 'Custom handler';
+};
+},
 });
+
 ```
 
 ## Security
@@ -601,3 +644,4 @@ The tokens entries have a ttl of one month by default, so any token that hasn't 
 ## Examples
 
 For more examples of usage see the example folder which contains a complete solution deployed using serverless
+```

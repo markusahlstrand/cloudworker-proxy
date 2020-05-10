@@ -1,4 +1,5 @@
 const basicAuth = require('./basic-auth');
+const cache = require('./cache');
 const cors = require('./cors');
 const geoDecorator = require('./geo-decorator');
 const jwt = require('./jwt');
@@ -16,6 +17,7 @@ const transform = require('./transform');
 
 module.exports = {
   basicAuth,
+  cache,
   cors,
   geoDecorator,
   jwt,
