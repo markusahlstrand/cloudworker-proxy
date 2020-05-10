@@ -24,12 +24,12 @@ function cacheFactory({ cacheDuration }) {
         let clonedBody;
 
         if (ctx.body.tee) {
-          const bodyStreams = ctx.body.tee();
-          [ctx.body, clonedBody] = bodyStreams;
+          [ctx.body, clonedBody] = ctx.body.tee();
         } else {
           clonedBody = ctx.body;
         }
 
+        // eslint-disable-next-line no-undef
         const response = new Response(clonedBody, {
           status: ctx.status,
           headers: {

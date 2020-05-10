@@ -8,8 +8,7 @@ async function get(req) {
 }
 
 async function set(req, res) {
-  // eslint-disable-next-line no-undef
-  return await cache.put(req.href, res);
+  return cache.put(req.href, res);
 }
 
 module.exports = {
