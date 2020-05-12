@@ -271,6 +271,33 @@ config = [  {
 }];
 ```
 
+### Signature
+
+Validates a hmac signature that should be available as a sign querystring parameter at the end of the url. If this parameter is not available or incorrect the handler will return a 403 error back to the client.
+
+The signature handler creates a signature based on the path so that a signed url will be valid even if the host changes. So if the `https://example.com/foo?bar=test` is signed, only the `/foo?bar=test` is signed and the result would be something like: `https://example.com/foo?bar=test&sign=4LQn8AjrvX6NogZ8KDEumw5UClOmE906WmE6vQZdwZU`
+
+An example of the configuration for the signature handler:
+
+```
+config = [  {
+    handlerName: 'signature',
+    path: '/.*',
+    options: {
+      secret: 'shhhhh....'
+    },
+}];
+```
+
+The signature can be added in using the following snippet:
+
+```
+  const nodeSignature = nodeCrypto
+    .createHmac('SHA256', 'shhhhh....')
+    .update('path')
+    .digest('base64');
+```
+
 ### Split
 
 Splits the request in two separate requests. The duplicated request will not return any results to the client, but can for instance be used to sample the traffic on a live website or to get webhooks to post to multiple endpoints.

@@ -195,6 +195,13 @@ const rules = [
     },
   },
   {
+    handlerName: 'signature',
+    path: '/ae5ac453-f76e-4f95-a9d9-ecd865844990/:file*',
+    options: {
+      secret: process.env.SIGNATURE_SECRET,
+    },
+  },
+  {
     handlerName: 'response',
     path: '/edge',
     options: {
