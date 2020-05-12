@@ -475,6 +475,7 @@ config = [{
       path: '{file}',
     },
 }];
+```
 
 ### Load balancer
 
@@ -593,7 +594,6 @@ path: '{file}'
 
 ```
 
-
 ### Lambda
 
 Invoke a AWS lambda using http without the AWS api gateway. The API Gateway from AWS is rather expensive for high load scenarios and using workers as a gateway is almost 10 times cheaper and much more flexible.
@@ -671,4 +671,7 @@ The tokens entries have a ttl of one month by default, so any token that hasn't 
 ## Examples
 
 For more examples of usage see the example folder which contains a complete solution deployed using serverless
+
+```
+
 ```
