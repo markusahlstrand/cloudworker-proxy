@@ -1,6 +1,11 @@
-const KvStorage = require('../services/kv-storage');
+const lodashGet = require('lodash.get');
+
 const constants = require('../constants');
 const utils = require('../utils');
+
+const _ = {
+  get: lodashGet,
+};
 
 function setDefaultLocation(url, defaultExtension, defaultIndexDocument) {
   if (url === '/' && defaultIndexDocument) {
@@ -16,28 +21,30 @@ function setDefaultLocation(url, defaultExtension, defaultIndexDocument) {
   return `${url}.${defaultExtension}`;
 }
 
+function validateEtag(request, response) {
+  const requestEtag = _.get(request, 'headers.if-none-match');
+  const responseEtag = _.get(response, 'metadata.headers.etag');
+
+  if (!requestEtag) {
+    return false;
+  }
+
+  return requestEtag === responseEtag;
+}
+
 module.exports = function kvStorageHandler({
-  kvAccountId,
-  kvNamespace,
-  kvAuthEmail,
-  kvAuthKey,
+  kvNamespaceBinding,
   kvBasePath = '',
   kvKey = '{file}',
   defaultExtension = 'html',
   defaultIndexDocument,
   defaultErrorDocument,
-  mime = {},
-  mode = 'rest',
 }) {
-  const kvStorage = new KvStorage({
-    accountId: kvAccountId,
-    namespace: kvNamespace,
-    authEmail: kvAuthEmail,
-    authKey: kvAuthKey,
-    mode,
-  });
+  async function get(key) {
+    const response = await global[kvNamespaceBinding].getWithMetadata(key);
 
-  const mimeMappings = { ...constants.mime, ...mime };
+    return response;
+  }
 
   return async (ctx) => {
     const path = utils.resolveParams(kvKey, ctx.params);
@@ -47,16 +54,25 @@ module.exports = function kvStorageHandler({
         ? defaultIndexDocument
         : setDefaultLocation(path, defaultExtension);
 
-    let result = await kvStorage.get(kvBasePath + key);
+    let result = await get(kvBasePath + key);
 
     if (!result && defaultErrorDocument) {
-      result = await kvStorage.get(kvBasePath + defaultErrorDocument);
+      result = await get(kvBasePath + defaultErrorDocument);
     }
 
     if (result) {
-      ctx.status = 200;
-      ctx.body = result;
-      ctx.set('Content-Type', mimeMappings[key.split('.').pop()] || 'text/plain');
+      if (validateEtag(ctx.request, result)) {
+        ctx.status = 304;
+      } else {
+        ctx.status = result.status;
+        ctx.body = result.value;
+
+        const headers = _.get(result, 'metadata.headers', {});
+
+        Object.keys(headers).forEach((header) => {
+          ctx.set(header, headers[header]);
+        });
+      }
     } else {
       ctx.status = 404;
       ctx.body = constants.http.statusMessages['404'];

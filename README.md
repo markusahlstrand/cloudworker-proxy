@@ -6,11 +6,13 @@ An api gateway for cloudflare workers with configurable handlers for:
   - Load balancing of http endpoints
   - Routing based on client Geo, host, path and protocol
   - Invoking AWS lambdas and google cloud functions
+  - S3 buckets
   - Static responses from config or Cloudflare KV-Storage
   - Splitting requests to multiple endpoints
 - Logging (http, kinesis)
-- Authentication (basic, oauth2)
+- Authentication (basic, oauth2, signature)
 - Rate limiting
+- Caching
 - Rewrite
   - Modifying headers
   - Adding cors headers
@@ -289,7 +291,7 @@ config = [  {
 }];
 ```
 
-The signature can be added in using the following snippet:
+The signature can be added in NodeJs using the following snippet:
 
 ```
   const nodeSignature = nodeCrypto
@@ -340,7 +342,7 @@ const rules = [
 
 ### Kv-Storage
 
-The kv-storage handler serves static pages straight from kv-storage.
+The kv-storage handler serves static pages straight from kv-storage using the REST api.
 The kvKey property specifies which key is used to fetch the data from the key value store. It supports template variables which makes it possible to serve a complete static site with a single rule.
 
 There is a sample script in the script folder to push files to KV-storage.
@@ -381,6 +383,70 @@ const rules = [
       kvAuthKey: <KV_AUTH_KEY>,
       defaultIndexFile: 'index.html', // The file to fetch if the request is made to the root.
       defaultErrorFile: 'index.html', // The file to serve if the requested file can't be found in kv-storage
+    }
+  }
+];
+```
+
+### Kv-Storage-Binding
+
+The kv-storage handler serves static pages straight from kv-storage using the in-worker javascript api. This should be slighly faster and should always fetch the data from the closest KV-storage node.
+
+The kvKey property specifies which key is used to fetch the data from the key value store. It supports template variables which makes it possible to serve a complete static site with a single rule.
+
+The in-worker api has support for fetching metadata as part of the Get-request which makes it possible to store Etags, Content-Type and other headers together with the data.
+
+There is a sample script in the script folder to push files to KV-storage.
+
+The handler requires a binding of the KV-Namespace which can be done by adding the following config to the serverless file:
+
+```
+functions:
+  cloudworker-proxy-examples:
+    name: cloudworker-proxy-examples
+    script: 'dist/bundle'
+    webpack: false
+    resources:
+      kv:
+        - variable: TEST_NAMESPACE
+          namespace: test
+```
+
+When running locally the node-cloudworker shim will make an additional request to the rest-api to fetch the metadata which should give the same result. For this to work the shim needs to be configured with the KV-Storage binding information:
+
+```
+const ncw = require('node-cloudworker');
+
+ncw.applyShims({
+  kv: {
+    accountId: process.env.KV_ACCOUNT_ID,
+    authEmail: process.env.KV_AUTH_EMAIL,
+    authKey: process.env.KV_AUTH_KEY,
+    bindings: [
+      {
+        variable: 'TEST_NAMESPACE',
+        namespace: process.env.KV_NAMESPACE_TEST,
+      },
+    ],
+  },
+});
+```
+
+An example of configuration for a kv-storage handler:
+
+```
+const rules = [
+  {
+    handlerName: "kvStorage",
+    path: /kvStorage/:file*
+    options: {
+    kvAccountId: <KV_ACCOUNT_ID>,
+      kvNamespaceBinding: 'TEST_NAMESPACE',
+      kvKey: '{file}', // Default value assuming that the path will use provide a file parameter
+      kvBasePath: 'app/', // Fetches the files in the app folder in kv-storage
+      defaultExtention: '',  // The default value. Appends .html if no extention is specified on the file
+      defaultIndexFile: null, // The file to fetch if the request is made to the root.
+      defaultErrorFile: null, // The file to serve if the requested file can't be found in kv-storage
     }
   }
 ];
@@ -495,14 +561,14 @@ An example of the configuration for loadbalancer with a single source on google 
 ```
 
 config = [{
-handlerName: 'loadbalancer',
-options: {
-sources: [
-{
-url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
-}
-]
-}
+  handlerName: 'loadbalancer',
+  options: {
+    sources: [
+        {
+          url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
+        }
+      ]
+    }
 }];
 
 ```
@@ -510,21 +576,20 @@ url: 'https://europe-west1-ahlstrand.cloudfunctions.net/hello/{file}'
 An example of the configuration for loadbalancing traffic between two ingresses for multiple hosts, with an override of the host header:
 
 ```
-
 config = [{
-handlerName: 'loadbalancer',
-path: '/:file\*',
-options: {
-"resolveOverride": "www.ahlstrand.es",
-"sources": [
-{
-"url": "https://rancher-ingress-1.ahlstrand.es/{file}"
-},
-{
-"url": "https://rancher-ingress-2.ahlstrand.es/{file}"
-},
-]
-}
+  handlerName: 'loadbalancer',
+  path: '/:file\*',
+  options: {
+    "resolveOverride": "www.ahlstrand.es",
+    "sources": [
+      {
+        "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+      },
+      {
+        "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+      },
+    ]
+  }
 }];
 
 ```
@@ -534,20 +599,20 @@ Using path and host parameters the handler can be more generic:
 ```
 
 config = [{
-handlerName: 'loadbalancer',
-path: '/:file\*',
-host: ':host.ahlstrand.es',
-options: {
-"resolveOverride": "{host}.ahlstrand.es",
-"sources": [
-{
-"url": "https://rancher-ingress-1.ahlstrand.es/{file}"
-},
-{
-"url": "https://rancher-ingress-2.ahlstrand.es/{file}"
-},
-]
-}
+  handlerName: 'loadbalancer',
+  path: '/:file\*',
+  host: ':host.ahlstrand.es',
+  options: {
+    "resolveOverride": "{host}.ahlstrand.es",
+    "sources": [
+      {
+        "url": "https://rancher-ingress-1.ahlstrand.es/{file}"
+      },
+      {
+        "url": "https://rancher-ingress-2.ahlstrand.es/{file}"
+      },
+    ]
+  }
 }];
 
 ```
@@ -565,10 +630,10 @@ An example of the configuration for the origin handler:
 ```
 
 config = [{
-handlerName: 'origin',
-options: {
-localOriginOverride: 'https://some.origin.com',
-}
+  handlerName: 'origin',
+  options: {
+    localOriginOverride: 'https://some.origin.com',
+  }
 }];
 
 ```
@@ -580,16 +645,15 @@ Fetches the files from a private S3 bucket using the AWS v4 signatures.
 An example of the configuration for the S3 handler:
 
 ```
-
 config = [{
-handlerName: 's3',
-path: '/:file*',
-options: {
-region: 'us-east-1',
-accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-path: '{file}'
-}
+  handlerName: 's3',
+  path: '/:file*',
+  options: {
+    region: 'us-east-1',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    path: '{file}'
+  }
 }];
 
 ```
@@ -603,13 +667,13 @@ An example of the configuration for the lambda handler:
 ```
 
 config = [{
-handlerName: 'lambda',
-options: {
-region: 'us-east-1',
-lambdaName: 'lambda-hello-dev-hello',
-accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-},
+  handlerName: 'lambda',
+  options: {
+    region: 'us-east-1',
+    lambdaName: 'lambda-hello-dev-hello',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 }];
 
 ```
@@ -632,15 +696,15 @@ An example of the configuration for the origin handler:
 ```
 
 config = [{
-handlerName: 'tranform',
-options: {
-tranforms: [
-{
-regex: 'foo',
-replace: 'bar'
-}
-]
-}
+  handlerName: 'tranform',
+  options: {
+    tranforms: [
+      {
+        regex: 'foo',
+        replace: 'bar'
+      }
+    ]
+  }
 }];
 
 ```
@@ -650,14 +714,13 @@ replace: 'bar'
 It's possible to register custom handlers with new handler names or overriding default handlers by passing an object containing the handlers as second paramter of the proxy constructor:
 
 ```
-
 const proxy = new Proxy(rules, {
-custom: (options) => {
-return async (ctx) => {
-ctx.status = 200;
-ctx.body = 'Custom handler';
-};
-},
+  custom: (options) => {
+    return async (ctx) => {
+      ctx.status = 200;
+      ctx.body = 'Custom handler';
+    };
+  },
 });
 
 ```
@@ -671,7 +734,3 @@ The tokens entries have a ttl of one month by default, so any token that hasn't 
 ## Examples
 
 For more examples of usage see the example folder which contains a complete solution deployed using serverless
-
-```
-
-```

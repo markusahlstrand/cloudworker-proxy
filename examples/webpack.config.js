@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const parsedEnv = require('dotenv').config().parsed;
+const parsedEnv = require('dotenv').config({ path: '../.env' }).parsed;
 
 const envJson = {};
 

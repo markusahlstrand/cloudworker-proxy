@@ -257,6 +257,14 @@ const rules = [
     },
   },
   {
+    handlerName: 'kvStorageBinding',
+    path: '/kvStorageBinding/:file*',
+    options: {
+      kvNamespaceBinding: 'TEST_NAMESPACE',
+      kvKey: '{file}',
+    },
+  },
+  {
     handlerName: 'transform',
     path: '/google/.*',
     options: {

@@ -4,6 +4,7 @@ const cors = require('./cors');
 const geoDecorator = require('./geo-decorator');
 const jwt = require('./jwt');
 const kvStorage = require('./kv-storage');
+const kvStorageBinding = require('./kv-storage-binding');
 const lambda = require('./lambda');
 const loadbalancer = require('./loadbalancer');
 const logger = require('./logger');
@@ -23,6 +24,7 @@ module.exports = {
   geoDecorator,
   jwt,
   kvStorage,
+  kvStorageBinding,
   lambda,
   loadbalancer,
   logger,
