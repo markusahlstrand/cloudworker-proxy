@@ -18,7 +18,7 @@ custom:
   scriptHooks:
     package:createDeploymentArtifacts: npm run build
   dotenv:
-    path: ./.env
+    path: ../.env
 
 functions:
   cloudworker-proxy-examples:
@@ -27,6 +27,10 @@ functions:
     # The name of the script on your machine, omitting the .js file extension
     script: 'dist/bundle'
     webpack: false
+    resources:
+      kv:
+        - variable: TEST_NAMESPACE
+          namespace: test
     events:
       - http:
           url: 'proxy.cloudproxy.io/*'

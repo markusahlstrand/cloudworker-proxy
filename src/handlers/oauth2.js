@@ -183,7 +183,8 @@ module.exports = function oauth2Handler({
    */
   async function getSession(ctx, sessionToken) {
     const [key, salt] = sessionToken.split('.');
-    const data = await kvStorage.get(key);
+    const response = await kvStorage.get(key);
+    const data = await response.text();
 
     if (data) {
       const aesKey = await aes.deriveAesGcmKey(key, salt);
