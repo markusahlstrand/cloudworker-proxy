@@ -77,7 +77,6 @@ module.exports = function oauth2Handler({
   async function getTokenFromCode(code, redirectUrl) {
     const tokenUrl = `${authDomain}${serverTokenPath}`;
 
-    // eslint-disable-next-line no-undef
     const response = await fetch(tokenUrl, {
       method: 'POST',
       headers: {
@@ -183,8 +182,7 @@ module.exports = function oauth2Handler({
    */
   async function getSession(ctx, sessionToken) {
     const [key, salt] = sessionToken.split('.');
-    const response = await kvStorage.get(key);
-    const data = await response.text();
+    const data = await kvStorage.get(key);
 
     if (data) {
       const aesKey = await aes.deriveAesGcmKey(key, salt);

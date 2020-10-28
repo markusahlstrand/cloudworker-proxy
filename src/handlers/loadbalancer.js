@@ -1,6 +1,5 @@
 const lodashGet = require('lodash.get');
 const lodashSet = require('lodash.set');
-const cachedFetch = require('../services/cached-fetch');
 const constants = require('../constants');
 const utils = require('../utils');
 
@@ -26,7 +25,7 @@ function getSource(sources) {
   return sources[Math.floor(Math.random() * sources.length)];
 }
 
-module.exports = function loadbalancerHandler({ sources = [], cacheOverride }) {
+module.exports = function loadbalancerHandler({ sources = [] }) {
   return async (ctx) => {
     const source = getSource(sources);
 
@@ -34,7 +33,8 @@ module.exports = function loadbalancerHandler({ sources = [], cacheOverride }) {
       method: ctx.request.method,
       headers: filterCfHeaders(ctx.request.headers),
       redirect: 'manual',
-      cacheOverride,
+      // Allow other handlers to add cloudflare headers to the request
+      cf: ctx.request.cf,
     };
 
     if (
@@ -54,7 +54,7 @@ module.exports = function loadbalancerHandler({ sources = [], cacheOverride }) {
       _.set(options, 'cf.resolveOverride', resolveOverride);
     }
 
-    const response = await cachedFetch(url + ctx.request.search, options);
+    const response = await fetch(url + ctx.request.search, options);
 
     ctx.body = response.body;
     ctx.status = response.status;

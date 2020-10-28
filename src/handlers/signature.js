@@ -11,7 +11,6 @@ function str2ab(str) {
 
 async function getKey(secret) {
   if (!keyCache) {
-    // eslint-disable-next-line no-undef
     keyCache = await crypto.subtle.importKey(
       'raw',
       str2ab(secret),
@@ -26,9 +25,7 @@ async function getKey(secret) {
 async function sign(path, secret) {
   const key = await getKey(secret);
 
-  // eslint-disable-next-line no-undef
   const sig = await crypto.subtle.sign({ name: 'HMAC' }, key, str2ab(path));
-  // eslint-disable-next-line no-undef
   return btoa(String.fromCharCode.apply(null, new Uint8Array(sig)))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')

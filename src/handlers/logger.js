@@ -11,7 +11,6 @@ const KinesisLogger = require('../loggers/kinesis');
 async function streamToString(readable, maxSize) {
   const results = [];
   const reader = readable.getReader();
-  // eslint-disable-next-line no-undef
   const textDecoder = new TextDecoder();
   let bytesCount = 0;
 

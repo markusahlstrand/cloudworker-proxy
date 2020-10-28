@@ -2,7 +2,8 @@ module.exports = {
   methodsMethodsWithBody: ['POST', 'PUT', 'PATCH'],
   http: {
     statusMessages: {
-      '404': 'Not Found',
+      // eslint-disable-next-line
+      404: 'Not Found',
     },
   },
   mime: {

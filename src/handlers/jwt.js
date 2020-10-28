@@ -1,5 +1,3 @@
-const cachedFetch = require('../services/cached-fetch');
-
 /**
  * Parse and decode a JWT.
  * A JWT is three, base64 encoded, strings concatenated with ‘.’:
@@ -13,11 +11,8 @@ const cachedFetch = require('../services/cached-fetch');
  */
 function decodeJwt(token) {
   const parts = token.split('.');
-  // eslint-disable-next-line no-undef
   const header = JSON.parse(atob(parts[0]));
-  // eslint-disable-next-line no-undef
   const payload = JSON.parse(atob(parts[1]));
-  // eslint-disable-next-line no-undef
   const signature = atob(parts[2].replace(/-/g, '+').replace(/_/g, '/'));
 
   return {
@@ -31,7 +26,7 @@ function decodeJwt(token) {
 module.exports = function jwtHandler({ jwksUri, allowPublicAccess = false }) {
   async function getJwk() {
     // TODO: override jwksTtl..
-    const response = await cachedFetch(jwksUri);
+    const response = await fetch(jwksUri);
 
     const body = await response.json();
     return body.keys;
@@ -46,7 +41,6 @@ module.exports = function jwtHandler({ jwksUri, allowPublicAccess = false }) {
 
     const validations = await Promise.all(
       jwkKeys.map(async (jwkKey) => {
-        // eslint-disable-next-line no-undef
         const key = await crypto.subtle.importKey(
           'jwk',
           jwkKey,
@@ -55,7 +49,6 @@ module.exports = function jwtHandler({ jwksUri, allowPublicAccess = false }) {
           ['verify'],
         );
 
-        // eslint-disable-next-line no-undef
         return crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, signature, data);
       }),
     );

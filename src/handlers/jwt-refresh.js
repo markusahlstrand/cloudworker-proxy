@@ -7,7 +7,6 @@ module.exports = async function refreshAccessToken({
 }) {
   const tokenUrl = `${authDomain}/oauth/token`;
 
-  // eslint-disable-next-line no-undef
   const response = await fetch(tokenUrl, {
     method: 'POST',
     headers: {

@@ -1,6 +1,17 @@
 {
   "extends": ["airbnb-base", "plugin:prettier/recommended"],
   "plugins": [],
+  "globals":  {
+    "atob": "readonly",
+    "btoa": "readonly",
+    "crypto": "readonly",
+    "fetch": "readonly",
+    "FormData": "readonly",
+    "Request": "readonly", 
+    "Response": "readonly",
+    "TextDecoder": "readonly",
+    "TextEncoder": "readonly"
+  },
   "rules": {
     "no-use-before-define": ["error", { "functions": false }],
     "comma-dangle": ["error", "always-multiline"],

@@ -16,7 +16,6 @@ module.exports = class HttpLogger {
   }
 
   async sendMessage(data) {
-    // eslint-disable-next-line no-undef
     return fetch(this.url, {
       body: data,
       method: 'POST',

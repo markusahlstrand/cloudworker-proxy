@@ -23,7 +23,6 @@ module.exports = class KinesisLogger {
   }
 
   async sendMessage(message) {
-    // eslint-disable-next-line no-undef
     const data = btoa(`${JSON.stringify(message)}\n`);
     const body = JSON.stringify({
       DeliveryStreamName: this.streamName,
@@ -33,7 +32,6 @@ module.exports = class KinesisLogger {
     });
 
     const url = `https://firehose.${this.region}.amazonaws.com`;
-    // eslint-disable-next-line no-undef
     const request = new Request(url, {
       method: 'POST',
       body,

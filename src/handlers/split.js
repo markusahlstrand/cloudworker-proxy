@@ -13,7 +13,6 @@ module.exports = function splitHandler({ host }) {
       host,
     };
 
-    // eslint-disable-next-line no-undef
     ctx.event.waitUntil(next(duplicateContext));
     await next(ctx);
   };

@@ -8,7 +8,6 @@ async function fetchAndApply(event) {
   try {
     return await handler(event);
   } catch (err) {
-    // eslint-disable-next-line no-undef
     return new Response(err.message);
   }
 }

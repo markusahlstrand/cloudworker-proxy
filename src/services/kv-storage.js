@@ -29,7 +29,6 @@ module.exports = class KvStorage {
   async list(prefix, limit = 10) {
     const url = `${this.getNamespaceUrl()}/keys?prefix=${prefix}&limit=${limit}`;
 
-    // eslint-disable-next-line no-undef
     const response = await fetch(url, {
       headers: {
         'X-Auth-Email': this.authEmail,
@@ -46,7 +45,6 @@ module.exports = class KvStorage {
   async get(key, type) {
     const url = this.getUrlForKey(key);
 
-    // eslint-disable-next-line no-undef
     const response = await fetch(url, {
       headers: {
         'X-Auth-Email': this.authEmail,
@@ -95,12 +93,10 @@ module.exports = class KvStorage {
 
     url.search = searchParams.toString();
 
-    // eslint-disable-next-line no-undef
     const formData = new FormData();
     formData.append('value', value);
     formData.append('metadata', JSON.stringify(metadata));
 
-    // eslint-disable-next-line no-undef
     const response = await fetch(url.toString(), {
       method: 'PUT',
       headers: { ...formData.headers, ...headers },
@@ -113,7 +109,6 @@ module.exports = class KvStorage {
   async delete(key) {
     const url = this.getUrlForKey(key);
 
-    // eslint-disable-next-line no-undef
     return fetch(url, {
       method: 'DELETE',
       headers: {

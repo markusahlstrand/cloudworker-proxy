@@ -7,7 +7,6 @@ const SHA256 = 'SHA-256';
 const RAW = 'raw';
 
 function base64ToArraybuffer(base64) {
-  // eslint-disable-next-line no-undef
   const binary = atob(base64.replace(/_/g, '/').replace(/-/g, '+'));
   const len = binary.length;
   const bytes = new Uint8Array(len);
@@ -25,7 +24,6 @@ function arraybufferTobase64(buffer) {
     binary += String.fromCharCode(bytes[i]);
   }
 
-  // eslint-disable-next-line no-undef
   return btoa(binary).replace(/\//g, '_').replace(/\+/g, '-');
 }
 
@@ -44,7 +42,6 @@ function stringToArraybuffer(str) {
 
 async function getKeyMaterial(password) {
   const enc = new TextEncoder();
-  // eslint-disable-next-line no-undef
   return crypto.subtle.importKey(RAW, enc.encode(password), { name: PBKDF2 }, false, ['deriveKey']);
 }
 
@@ -54,7 +51,6 @@ async function deriveAesGcmKey(seed, salt) {
 
   const saltBuffer = textEncoder.encode(salt.replace(/_/g, '/').replace(/-/g, '+'));
 
-  //   eslint-disable-next-line no-undef
   return crypto.subtle.deriveKey(
     {
       name: PBKDF2,
@@ -73,7 +69,6 @@ async function deriveAesGcmKey(seed, salt) {
 }
 
 async function getSalt() {
-  // eslint-disable-next-line no-undef
   const salt = crypto.getRandomValues(new Uint8Array(8));
   return arraybufferTobase64(salt);
 }
@@ -83,7 +78,6 @@ async function decrypt(key, message) {
   const iv = bytes.slice(0, 16);
   const data = bytes.slice(16);
 
-  // eslint-disable-next-line no-undef
   const array = await crypto.subtle.decrypt(
     {
       name: AESGCM,
@@ -97,10 +91,8 @@ async function decrypt(key, message) {
 }
 
 async function encrypt(key, message) {
-  // eslint-disable-next-line no-undef
   const iv = crypto.getRandomValues(new Uint8Array(16));
 
-  // eslint-disable-next-line no-undef
   const encrypted = await crypto.subtle.encrypt(
     {
       name: AESGCM,

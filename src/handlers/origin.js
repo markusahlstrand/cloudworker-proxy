@@ -40,7 +40,6 @@ module.exports = function originHandler(options) {
       requestOptions.body = clonedRequest.body;
     }
 
-    // eslint-disable-next-line no-undef
     const response = await fetch(url, requestOptions);
 
     ctx.body = response.body;

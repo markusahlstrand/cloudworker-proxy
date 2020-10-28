@@ -2,9 +2,7 @@ async function streamBody(readable, writable, regexes) {
   const reader = readable.getReader();
   const writer = writable.getWriter();
 
-  // eslint-disable-next-line no-undef
   const textDecoder = new TextDecoder();
-  // eslint-disable-next-line no-undef
   const textEncoder = new TextEncoder();
 
   // eslint-disable-next-line no-constant-condition

@@ -29,7 +29,6 @@ function cacheFactory({ cacheDuration }) {
           clonedBody = ctx.body;
         }
 
-        // eslint-disable-next-line no-undef
         const response = new Response(clonedBody, {
           status: ctx.status,
           headers: {
