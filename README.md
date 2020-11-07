@@ -517,7 +517,17 @@ config = [{
 
 ### Cache
 
-Wrapps the origin with cloudflare caching and works independent of what origin handler is used. It uses the caching headers set by the origin, but it's also possible to override the cache duration with the cacheDuration option.
+Wraps the origin with cloudflare caching and works independent of what origin handler is used. It uses the caching headers set by the origin, but it's also possible to override the cache duration with the cacheDuration option.
+
+It is possible to define a custom cache key template. This makes it possible to vary the cache by for instance user-agent or posted body. The cache key template that can contain the following keys:
+
+- path
+- metod
+- header:<headername>
+- bodyHash
+
+This cache key template will cache seperate entries for requests with diferent origin headers:
+`{method}-{path}-{header:origin}`
 
 The cache handler respects Range headers. It also support If-Modified-Since and If-None-Match headers to return 304's.
 
@@ -541,6 +551,33 @@ config = [{
       path: '{file}',
     },
 }];
+```
+
+This example would cache post requests to a query endpoint:
+
+```
+ config = [{
+    handlerName: "cache",
+    path: "/query",
+    method: ["OPTIONS", "POST"],
+    options: {
+      cacheKeyTemplate: "{method}-{path}-{header:referer}-{bodyHash}",
+      cacheDuration: 3600,
+    },
+  },
+  {
+    handlerName: "loadbalancer",
+    path: "/query",
+    method: ["OPTIONS", "POST"],
+    options: {
+      sources: [
+        {
+          url:
+            "https://example.com/query",
+        },
+      ],
+    },
+  }]
 ```
 
 ### Load balancer
