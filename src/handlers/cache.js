@@ -32,10 +32,8 @@ async function getCacheKey(ctx, cacheKeyTemplate) {
         cacheKeyValues[cacheKey] = ctx.request.path;
         break;
       case 'bodyHash':
-        const body = await getBody(ctx.event.request);
-
-        // const body = await ctx.text();
-        cacheKeyValues[cacheKey] = await hash(body);
+        // eslint-disable-next-line no-await-in-loop
+        cacheKeyValues[cacheKey] = await hash(await getBody(ctx.event.request));
         break;
       case 'header':
         cacheKeyValues[cacheKey] = ctx.request.headers[segments[1]] || '';
