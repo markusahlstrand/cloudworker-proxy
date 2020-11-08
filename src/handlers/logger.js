@@ -8,31 +8,6 @@ const _ = {
 const HttpLogger = require('../loggers/http');
 const KinesisLogger = require('../loggers/kinesis');
 
-async function streamToString(readable, maxSize) {
-  const results = [];
-  const reader = readable.getReader();
-  const textDecoder = new TextDecoder();
-  let bytesCount = 0;
-
-  while (maxSize && bytesCount < maxSize) {
-    // eslint-disable-next-line no-await-in-loop
-    const { done, value } = await reader.read();
-
-    if (done) {
-      break;
-    }
-
-    bytesCount += value.byteLength;
-    results.push(textDecoder.decode(value));
-  }
-
-  const result = results.join('');
-  if (maxSize) {
-    return result.substring(0, maxSize);
-  }
-  return result;
-}
-
 /**
  * Returns the first 10 KB of the body
  * @param {*} ctx
@@ -42,9 +17,7 @@ async function getBody(request) {
     return null;
   }
 
-  const clonedRequest = request.clone();
-
-  return streamToString(clonedRequest.body, 1024 * 10);
+  return request.text();
 }
 
 module.exports = function logger(options) {
