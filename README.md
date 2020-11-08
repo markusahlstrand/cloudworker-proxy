@@ -529,6 +529,13 @@ It is possible to define a custom cache key template. This makes it possible to 
 This cache key template will cache seperate entries for requests with diferent origin headers:
 `{method}-{path}-{header:origin}`
 
+It is possible to remove certain headers from the cached response by using the headerBlacklist property. By default the following headers are remove from the cached response:
+
+- x-ratelimit-count
+- x-ratelimit-limit
+- x-ratelimit-reset
+- x-cache-hit
+
 The cache handler respects Range headers. It also support If-Modified-Since and If-None-Match headers to return 304's.
 
 An example of the configuration for cache handler in combination with a S3 handler:
@@ -538,6 +545,7 @@ config = [{
     handlerName: 'cache',
     options: {
         cacheDuration: 60,
+        headerBlacklist: ['x-my-header']
     },
 },
 {
@@ -553,7 +561,7 @@ config = [{
 }];
 ```
 
-This example would cache post requests to a query endpoint:
+This example would cache post requests to a query endpoint using a hash of the query bodys:
 
 ```
  config = [{
