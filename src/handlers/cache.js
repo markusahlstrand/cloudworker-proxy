@@ -2,7 +2,12 @@ const cacheService = require('../services/cache');
 const hash = require('../encryption/hash');
 const { instanceToJson } = require('../utils');
 
-const defaultHeaderBlacklist = ['x-ratelimit-count', 'x-ratelimit-limit', 'x-ratelimit-reset'];
+const defaultHeaderBlacklist = [
+  'x-ratelimit-count',
+  'x-ratelimit-limit',
+  'x-ratelimit-reset',
+  'x-cache-hit',
+];
 
 async function getBody(request) {
   if (['POST', 'PATCH'].indexOf(request.method) === -1) {
@@ -33,7 +38,7 @@ async function getCacheKey(ctx, cacheKeyTemplate) {
         break;
       case 'bodyHash':
         // eslint-disable-next-line no-await-in-loop
-        cacheKeyValues[cacheKey] = await hash(await getBody(ctx.event.request));
+        cacheKeyValues[cacheKey] = await hash(await getBody(ctx.request));
         break;
       case 'header':
         cacheKeyValues[cacheKey] = ctx.request.headers[segments[1]] || '';

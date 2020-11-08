@@ -36,7 +36,7 @@ module.exports = function logger(options) {
 
   return async (ctx, next) => {
     ctx.state['logger-startDate'] = new Date();
-    const body = await getBody(ctx.event.request);
+    const body = await getBody(ctx.request);
 
     try {
       await next(ctx);
