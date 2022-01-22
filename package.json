@@ -45,7 +45,7 @@
     "fetch-mock": "9.10.7",
     "mocha": "8.2.1",
     "node-cloudworker": "1.4.3",
-    "node-fetch": "2.6.1",
+    "node-fetch": "3.1.1",
     "prettier": "2.1.2"
   }
 }
