@@ -15,7 +15,7 @@
     "dotenv": "8.2.0",
     "formdata-node": "2.2.1",
     "node-cloudworker": "1.2.0",
-    "serverless": "1.74.1",
+    "serverless": "3.25.1",
     "serverless-cloudflare-workers": "1.2.0",
     "serverless-dotenv-plugin": "2.4.2",
     "serverless-scriptable-plugin": "1.0.5",
