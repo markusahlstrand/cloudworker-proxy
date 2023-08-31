@@ -1,5 +1,3 @@
-const stream = require('stream');
-
 class Context {
   constructor() {
     this.request = {
