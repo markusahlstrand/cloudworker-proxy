@@ -18,7 +18,7 @@ function s3HandlerFactory({ accessKeyId, secretAccessKey, bucket, region }) {
     }
 
     const response = await aws.fetch(url, {
-      method: ctx.method,
+      method: ctx.method || ctx.request.method,
       headers,
     });
 
