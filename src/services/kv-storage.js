@@ -1,120 +1,120 @@
-const lodashGet = require('lodash.get');
+// const lodashGet = require('lodash.get');
 
-const _ = {
-  get: lodashGet,
-};
+// const _ = {
+//   get: lodashGet,
+// };
 
-/**
- * This replaces the in-worker api calls for kv-storage with rest-api calls.
- */
+// /**
+//  * This replaces the in-worker api calls for kv-storage with rest-api calls.
+//  */
 
-module.exports = class KvStorage {
-  constructor({ accountId, namespace, authEmail, authKey }) {
-    this.accountId = accountId;
-    this.namespace = namespace;
-    this.authEmail = authEmail;
-    this.authKey = authKey;
-  }
+// module.exports = class KvStorage {
+//   constructor({ accountId, namespace, authEmail, authKey }) {
+//     this.accountId = accountId;
+//     this.namespace = namespace;
+//     this.authEmail = authEmail;
+//     this.authKey = authKey;
+//   }
 
-  getNamespaceUrl() {
-    return new URL(
-      `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/storage/kv/namespaces/${this.namespace}`,
-    );
-  }
+//   getNamespaceUrl() {
+//     return new URL(
+//       `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/storage/kv/namespaces/${this.namespace}`,
+//     );
+//   }
 
-  getUrlForKey(key) {
-    return new URL(`${this.getNamespaceUrl()}/values/${key}`);
-  }
+//   getUrlForKey(key) {
+//     return new URL(`${this.getNamespaceUrl()}/values/${key}`);
+//   }
 
-  async list(prefix, limit = 10) {
-    const url = `${this.getNamespaceUrl()}/keys?prefix=${prefix}&limit=${limit}`;
+//   async list(prefix, limit = 10) {
+//     const url = `${this.getNamespaceUrl()}/keys?prefix=${prefix}&limit=${limit}`;
 
-    const response = await fetch(url, {
-      headers: {
-        'X-Auth-Email': this.authEmail,
-        'X-Auth-Key': this.authKey,
-      },
-    });
+//     const response = await fetch(url, {
+//       headers: {
+//         'X-Auth-Email': this.authEmail,
+//         'X-Auth-Key': this.authKey,
+//       },
+//     });
 
-    if (response.ok) {
-      return response.json();
-    }
-    return null;
-  }
+//     if (response.ok) {
+//       return response.json();
+//     }
+//     return null;
+//   }
 
-  async get(key, type) {
-    const url = this.getUrlForKey(key);
+//   async get(key, type) {
+//     const url = this.getUrlForKey(key);
 
-    const response = await fetch(url, {
-      headers: {
-        'X-Auth-Email': this.authEmail,
-        'X-Auth-Key': this.authKey,
-      },
-    });
+//     const response = await fetch(url, {
+//       headers: {
+//         'X-Auth-Email': this.authEmail,
+//         'X-Auth-Key': this.authKey,
+//       },
+//     });
 
-    if (response.ok) {
-      switch (type) {
-        case 'json':
-          return response.json();
-        case 'stream':
-          return response;
-        case 'arrayBuffer':
-          return response.arrayBuffer();
-        default:
-          return response.text();
-      }
-    }
+//     if (response.ok) {
+//       switch (type) {
+//         case 'json':
+//           return response.json();
+//         case 'stream':
+//           return response;
+//         case 'arrayBuffer':
+//           return response.arrayBuffer();
+//         default:
+//           return response.text();
+//       }
+//     }
 
-    return null;
-  }
+//     return null;
+//   }
 
-  async getWithMetadata(key, type) {
-    const [value, keys] = await Promise.all([this.get(key, type), this.list(key)]);
+//   async getWithMetadata(key, type) {
+//     const [value, keys] = await Promise.all([this.get(key, type), this.list(key)]);
 
-    const metadata = _.get(keys, 'result.0.metadata', {});
-    return {
-      value,
-      metadata,
-    };
-  }
+//     const metadata = _.get(keys, 'result.0.metadata', {});
+//     return {
+//       value,
+//       metadata,
+//     };
+//   }
 
-  async put(key, value, metadata = {}) {
-    const url = this.getUrlForKey(key);
-    const searchParams = new URLSearchParams();
+//   async put(key, value, metadata = {}) {
+//     const url = this.getUrlForKey(key);
+//     const searchParams = new URLSearchParams();
 
-    if (this.ttl) {
-      searchParams.append('expiration_ttl', this.ttl);
-    }
+//     if (this.ttl) {
+//       searchParams.append('expiration_ttl', this.ttl);
+//     }
 
-    const headers = {
-      'X-Auth-Email': this.authEmail,
-      'X-Auth-Key': this.authKey,
-    };
+//     const headers = {
+//       'X-Auth-Email': this.authEmail,
+//       'X-Auth-Key': this.authKey,
+//     };
 
-    url.search = searchParams.toString();
+//     url.search = searchParams.toString();
 
-    const formData = new FormData();
-    formData.append('value', value);
-    formData.append('metadata', JSON.stringify(metadata));
+//     const formData = new FormData();
+//     formData.append('value', value);
+//     formData.append('metadata', JSON.stringify(metadata));
 
-    const response = await fetch(url.toString(), {
-      method: 'PUT',
-      headers: { ...formData.headers, ...headers },
-      body: value,
-    });
+//     const response = await fetch(url.toString(), {
+//       method: 'PUT',
+//       headers: { ...formData.headers, ...headers },
+//       body: value,
+//     });
 
-    return response.ok;
-  }
+//     return response.ok;
+//   }
 
-  async delete(key) {
-    const url = this.getUrlForKey(key);
+//   async delete(key) {
+//     const url = this.getUrlForKey(key);
 
-    return fetch(url, {
-      method: 'DELETE',
-      headers: {
-        'X-Auth-Email': this.authEmail,
-        'X-Auth-Key': this.authKey,
-      },
-    });
-  }
-};
+//     return fetch(url, {
+//       method: 'DELETE',
+//       headers: {
+//         'X-Auth-Email': this.authEmail,
+//         'X-Auth-Key': this.authKey,
+//       },
+//     });
+//   }
+// };
