@@ -254,6 +254,16 @@ config = [  {
 }];
 ```
 
+### Api Key
+
+The api key handler resolves api key passed in headers, querystring or cookie.
+
+The api keys are stored in KV-Storage.
+
+A valid api-key can be used for:
+
+- Add the user data to the context state
+
 ### JWT
 
 The jwt handler validates any bearer tokens passed in the authencation headers.
