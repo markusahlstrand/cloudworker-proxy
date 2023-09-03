@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint src",
     "test": "npm run unit && npm run lint",
-    "unit": "mocha test/**/*.test.js --require test/bootstrap.js",
+    "unit": "bun run mocha test/**/*.test.js --require test/bootstrap.js",
     "package": "rm -rf node_modules && rm -rf examples/node_modules && npm install --prod"
   },
   "repository": {
@@ -35,6 +35,7 @@
     "shortid": "2.2.16"
   },
   "devDependencies": {
+    "bun": "^0.8.1",
     "chai": "4.2.0",
     "dotenv": "8.2.0",
     "eslint": "7.13.0",
