@@ -20,7 +20,7 @@ describe('s3', () => {
       secretAccessKey: 'DERP',
     });
 
-    const ctx = helpers.getCtx();
+    const ctx: any = helpers.getCtx();
     ctx.params = {
       file: 'doesnoteexist',
     };
