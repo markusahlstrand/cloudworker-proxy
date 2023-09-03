@@ -1,5 +1,4 @@
-// module.exports = {
-//   methodsMethodsWithBody: ['POST', 'PUT', 'PATCH'],
+export const methodsMethodsWithBody = ['POST', 'PUT', 'PATCH'];
 //   http: {
 //     statusMessages: {
 //       // eslint-disable-next-line

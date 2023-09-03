@@ -6,6 +6,14 @@ export function registerRoutes(router: Hono, rules: Rule[]) {
     switch (rule.methods) {
       case 'GET':
         router.get(rule.path, rule.handler);
+      case 'POST':
+        router.put(rule.path, rule.handler);
+      case 'PATCH':
+        router.patch(rule.path, rule.handler);
+      case 'DELETE':
+        router.delete(rule.path, rule.handler);
+      case 'OPTIONS':
+        router.options(rule.path, rule.handler);
     }
     //       const handler = handlers[rule.handlerName] || defaultHandlers[rule.handlerName];
     //       if (!handler) {

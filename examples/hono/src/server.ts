@@ -5,6 +5,7 @@ import { Env } from './types/Env';
 import { registerRoutes } from '../../../src/';
 import { basicAuth } from 'hono/basic-auth';
 import { cache } from 'hono/cache';
+import { originHandler } from '../../../src/handlers';
 
 const app = new Hono<Env>();
 
@@ -42,6 +43,26 @@ registerRoutes(app, [
           'Cache-Control': 'max-age=10',
         },
       }),
+  },
+  {
+    path: '/origin',
+    methods: 'GET',
+    handler: originHandler({
+      baseUrl: 'https://wordpress.com',
+      proxyUrl: 'http://localhost:8787',
+      skipPath: '/origin',
+      rewriteLinks: true,
+    }),
+  },
+  {
+    path: '/origin/*',
+    methods: 'GET',
+    handler: originHandler({
+      baseUrl: 'https://wordpress.com',
+      proxyUrl: 'http://localhost:8787',
+      skipPath: '/origin',
+      rewriteLinks: true,
+    }),
   },
 ]);
 
