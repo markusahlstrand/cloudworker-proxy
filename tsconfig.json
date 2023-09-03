@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "esnext",
+    "target": "esnext",
+    "lib": ["esnext"],
+    "alwaysStrict": true,
+    "strict": true,
+    "preserveConstEnums": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "types": ["@cloudflare/workers-types", "@types/jest", "@types/service-worker-mock"]
+  },
+  "include": [
+    "src/**/*",
+    "examples/cloudworker-router/src/server.ts",
+    "examples/cloudworker-router/src/app.ts"
+  ],
+  "exclude": ["node_modules", "dist", "test"]
+}
