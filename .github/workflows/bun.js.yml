@@ -15,14 +15,13 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        bun-version: [0.8.1]
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: oven-sh/setup-bun@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          bun-version: ${{ matrix.bun-version }}
       - run: npm ci
       - run: npm test
       - run: npm run lint
