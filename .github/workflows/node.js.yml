@@ -1,0 +1,24 @@
+name: Node.js CI # This is a lie, we are running bun so the CI checks pass
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        bun-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 0.8.1
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
