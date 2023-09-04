@@ -44,7 +44,9 @@ function s3HandlerFactory({
   });
 
   return async (ctx) => {
-    const url = utils.resolveParams(`${resolvedEndpoint}/{file}`, ctx.params);
+    const url = ctx.params.file
+      ? utils.resolveParams(`${resolvedEndpoint}/{file}`, ctx.params)
+      : resolvedEndpoint;
 
     const headers = {};
 
