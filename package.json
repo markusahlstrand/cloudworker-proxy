@@ -2,18 +2,16 @@
   "name": "cloudworker-proxy",
   "version": "1.16.1",
   "description": "An api gateway for cloudflare workers",
-  "main": "src/index.js",
-  "scripts": {
-    "lint": "eslint src",
-    "test": "npm run unit && npm run lint",
-    "unit": "bun test",
-    "test:integration": "node integration/run.js",
-    "package": "rm -rf node_modules && rm -rf examples/node_modules && npm install --prod"
-  },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/markusahlstrand/cloudworker-proxy.git"
   },
+  "bugs": {
+    "url": "https://github.com/markusahlstrand/cloudworker-proxy/issues"
+  },
+  "homepage": "https://github.com/markusahlstrand/cloudworker-proxy#readme",
+  "author": "Markus Ahlstrand",
   "keywords": [
     "cloudflare",
     "workers",
@@ -21,26 +19,32 @@
     "gateway",
     "proxy"
   ],
-  "author": "Markus Ahlstrand",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/markusahlstrand/cloudworker-proxy/issues"
+  "main": "dist/index.js",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "esbuild --bundle src/index.ts  --format=cjs --outdir=dist --sourcemap --minify",
+    "lint": "eslint src",
+    "package": "rm -rf node_modules && rm -rf examples/node_modules && npm install --prod",
+    "test": "npm run unit && npm run lint",
+    "test:integration": "node integration/run.js",
+    "unit": "bun test"
   },
-  "homepage": "https://github.com/markusahlstrand/cloudworker-proxy#readme",
-  "dependencies": {
+  "devDependencies": {
     "aws4fetch": "1.0.13",
     "cloudworker-router": "1.11.2",
     "cookie": "0.4.1",
     "lodash.get": "4.4.2",
     "lodash.set": "4.3.2",
-    "shortid": "2.2.16"
-  },
-  "devDependencies": {
+    "shortid": "2.2.16",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.5.9",
     "bun": "1.0.0",
     "chai": "4.2.0",
     "dotenv": "8.2.0",
+    ".comment": "esbuild is required to build CJS modules until https://github.com/oven-sh/bun/blob/d48ff53e4ec4cb49172e0e96ca9890446f971a0e/docs/bundler/vs-esbuild.md?plain=1#L568",
+    "esbuild": "^0.19.2",
     "eslint": "7.13.0",
     "eslint-config-airbnb-base": "14.2.1",
     "eslint-config-prettier": "6.15.0",
