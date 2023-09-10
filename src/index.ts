@@ -1,8 +1,17 @@
 import Router from 'cloudworker-router';
 import defaultHandlers from './handlers';
 
-module.exports = class Proxy {
-  constructor(rules = [], handlers = {}) {
+interface Rule {
+  path: string;
+  method: string;
+  handlerName: string;
+  options?: object;
+}
+
+export default class Proxy {
+  router: Router;
+
+  constructor(rules: Rule[] = [], handlers = {}) {
     this.router = new Router();
 
     rules.forEach((rule) => {
@@ -19,4 +28,4 @@ module.exports = class Proxy {
   async resolve(event) {
     return this.router.resolve(event);
   }
-};
+}
