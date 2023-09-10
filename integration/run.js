@@ -21,7 +21,7 @@ async function test() {
   if (res.status !== 200) {
     fail(`Unexpected status ${res.status}`);
   }
-  if (response !== 'Hello world FAIL') {
+  if (response !== 'Hello world') {
     fail(`Unexpected response ${response}`);
   }
 
