@@ -21,4 +21,4 @@ jobs:
         with:
           bun-version: 1.0.0
       - run: bun install
-      - run: npm test
+      - run: npm run unit
