@@ -22,7 +22,7 @@ async function test() {
     fail(`Unexpected status ${res.status}`);
   }
   if (response !== 'Hello world') {
-    fail(`Unexpected response ${response}`);
+    fail(`Unexpected response FAIL ${response}`);
   }
 
   console.log('Tests pass');
