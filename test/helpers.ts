@@ -53,7 +53,7 @@ function getNext() {
   };
 }
 
-module.exports = {
+export default {
   getCtx,
   getNext,
 };

@@ -1,8 +1,8 @@
-const { expect } = require('chai');
-const s3Factory = require('../../src/handlers/s3');
-const helpers = require('../helpers');
+import { expect } from 'chai';
+import s3Factory from '../../src/handlers/s3';
+import helpers from '../helpers';
 
-const fetchMock = require('fetch-mock');
+import fetchMock from 'fetch-mock';
 Object.assign(fetchMock.config, { Headers, Request, Response, fetch });
 
 describe('s3', () => {

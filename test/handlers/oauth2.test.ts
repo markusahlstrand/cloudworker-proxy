@@ -1,7 +1,7 @@
-const { expect } = require('chai');
-const fetchMock = require('fetch-mock');
-const Oauth2Handler = require('../../src/handlers/oauth2');
-const helpers = require('../helpers');
+import { expect } from 'chai';
+import fetchMock from 'fetch-mock';
+import Oauth2Handler from '../../src/handlers/oauth2';
+import helpers from '../helpers';
 
 describe('oauth2Handler', () => {
   afterEach(() => {

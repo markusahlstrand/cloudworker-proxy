@@ -1,6 +1,6 @@
-const { expect } = require('chai');
-const basicAuthFactory = require('../../src/handlers/basic-auth');
-const helpers = require('../helpers');
+import { expect } from 'chai';
+import basicAuthFactory from '../../src/handlers/basic-auth';
+import helpers from '../helpers';
 
 describe('basicAuth', () => {
   it('should return a 401 if the basic auth headers are not available', async () => {

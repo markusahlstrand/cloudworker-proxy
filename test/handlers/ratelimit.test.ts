@@ -1,6 +1,6 @@
-const { expect } = require('chai');
-const rateLimitFactory = require('../../src/handlers/rate-limit');
-const helpers = require('../helpers');
+import { expect } from 'chai';
+import rateLimitFactory from '../../src/handlers/rate-limit';
+import helpers from '../helpers';
 
 describe('ratelimit', () => {
   it('should add ratelimit headers to the response', async () => {

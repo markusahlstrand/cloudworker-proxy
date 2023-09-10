@@ -1,6 +1,6 @@
-const { expect } = require('chai');
-const responseFactory = require('../../src/handlers/response');
-const helpers = require('../helpers');
+import { expect } from 'chai';
+import responseFactory from '../../src/handlers/response';
+import helpers from '../helpers';
 
 describe('response', () => {
   it('should return a static response', async () => {

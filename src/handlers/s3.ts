@@ -1,7 +1,10 @@
 import { AwsClient } from 'aws4fetch';
 import utils from '../utils';
 
-function getEndpoint(endpoint, options) {
+function getEndpoint(
+  endpoint?: string,
+  options: { region?: string; bucket?: string; forcePathStyle?: boolean } = {},
+) {
   // See https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-bucket-intro.html
   if (endpoint && options.forcePathStyle) {
     const url = new URL(endpoint);
@@ -30,6 +33,13 @@ export default function s3HandlerFactory({
   region,
   endpoint,
   forcePathStyle,
+}: {
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucket: string;
+  region?: string;
+  endpoint?: string;
+  forcePathStyle?: boolean;
 }) {
   const aws = new AwsClient({
     accessKeyId,

@@ -1,6 +1,6 @@
-const { expect } = require('chai');
-const transformFactory = require('../../src/handlers/transform');
-const helpers = require('../helpers');
+import { expect } from 'chai';
+import transformFactory from '../../src/handlers/transform';
+import helpers from '../helpers';
 
 describe('transform', () => {
   it('should do a simple text replace', async () => {

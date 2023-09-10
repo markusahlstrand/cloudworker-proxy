@@ -13,7 +13,7 @@ export default {
     ico: 'image/microsoft.vnd.icon',
     jpeg: 'image/jpeg',
     js: 'application/javascript',
-    json: 'appliation/json',
+    json: 'application/json',
     png: 'image/png',
     svg: 'image/svg+xml',
     xml: 'application/xml',

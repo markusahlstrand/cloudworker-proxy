@@ -1,7 +1,7 @@
-const { expect } = require('chai');
-const kvStorageFactory = require('../../src/handlers/kv-storage');
-const helpers = require('../helpers');
-const fetchMock = require('fetch-mock');
+import { expect } from 'chai';
+import kvStorageFactory from '../../src/handlers/kv-storage';
+import helpers from '../helpers';
+import fetchMock from 'fetch-mock';
 
 function mockCall(key) {
   fetchMock.mock(

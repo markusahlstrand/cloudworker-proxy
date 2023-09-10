@@ -1,7 +1,7 @@
 import Router from 'cloudworker-router';
 import defaultHandlers from './handlers';
 
-interface Rule {
+export interface Rule {
   path: string;
   method: string;
   handlerName: string;

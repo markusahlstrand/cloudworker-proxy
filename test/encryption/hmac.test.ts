@@ -1,5 +1,5 @@
-const nodeCrypto = require('crypto');
-const { expect } = require('chai');
+import nodeCrypto from 'crypto';
+import { expect } from 'chai';
 
 function str2ab(str) {
   const uintArray = new Uint8Array(
