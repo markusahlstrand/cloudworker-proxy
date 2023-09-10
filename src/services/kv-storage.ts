@@ -9,6 +9,16 @@ const _ = {
  */
 
 export default class KvStorage {
+  accountId: string;
+
+  namespace: string;
+
+  authEmail: string;
+
+  authKey: string;
+
+  ttl: string;
+
   constructor({ accountId, namespace, authEmail, authKey }) {
     this.accountId = accountId;
     this.namespace = namespace;
@@ -99,7 +109,7 @@ export default class KvStorage {
 
     const response = await fetch(url.toString(), {
       method: 'PUT',
-      headers: { ...formData.headers, ...headers },
+      headers,
       body: value,
     });
 

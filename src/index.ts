@@ -8,7 +8,7 @@ export interface Rule {
   options?: object;
 }
 
-export default class Proxy {
+module.exports = class Proxy {
   router: Router;
 
   constructor(rules: Rule[] = [], handlers = {}) {
@@ -28,4 +28,4 @@ export default class Proxy {
   async resolve(event) {
     return this.router.resolve(event);
   }
-}
+};

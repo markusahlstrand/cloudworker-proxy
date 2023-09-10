@@ -56,7 +56,7 @@ export default function s3HandlerFactory({
   return async (ctx) => {
     const url = utils.resolveParams(`${resolvedEndpoint}/{file}`, ctx.params);
 
-    const headers = {};
+    const headers: Record<string, string> = {};
 
     if (ctx.request.headers.range) {
       headers.range = ctx.request.headers.range;

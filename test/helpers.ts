@@ -1,6 +1,25 @@
 class Context {
+  request: {
+    method: string;
+    query: {};
+    hostname: string;
+    host: string;
+    protocol: string;
+    headers: Record<string, string>;
+  };
+  event: {};
+  state: {};
+  response: { headers: Map<any, any> };
+  body: object | string;
+  status: number;
+  query: any;
+
   constructor() {
     this.request = {
+      method: 'GET',
+      host: 'example.com',
+      hostname: 'example.com',
+      protocol: 'http',
       query: {},
       headers: {},
     };
@@ -16,16 +35,11 @@ class Context {
     this.query = this.request.query;
   }
 
-  /**
-   * Gets a header from the request
-   * @param {string} key
-   */
-  header(key) {
-    return this.request.headers.get(key);
-  }
-
-  set(key, value) {
+  set(key: string, value: string) {
     this.response.headers.set(key, value);
+  }
+  header(key: string) {
+    return this.response.headers.get(key);
   }
 }
 
@@ -34,12 +48,7 @@ class Context {
  */
 function getCtx() {
   const ctx = new Context();
-  ctx.request.method = 'GET';
   ctx.request.headers.origin = 'localhost';
-  ctx.request.hostname = 'example.com';
-  ctx.request.host = 'example.com';
-  ctx.request.protocol = 'http';
-
   return ctx;
 }
 
