@@ -1,6 +1,7 @@
 class Context {
   request: {
     method: string;
+    path: string;
     query: {};
     hostname: string;
     host: string;
@@ -9,14 +10,16 @@ class Context {
   };
   event: {};
   state: {};
-  response: { headers: Map<any, any> };
-  body: object | string;
+  response: { headers: Map<any, any>; body: string | undefined };
+  body: object | string | undefined;
   status: number;
   query: any;
+  params: Record<string, string> = {};
 
   constructor() {
     this.request = {
       method: 'GET',
+      path: '/',
       host: 'example.com',
       hostname: 'example.com',
       protocol: 'http',
@@ -27,8 +30,9 @@ class Context {
     this.state = {};
     this.response = {
       headers: new Map(),
+      body: undefined,
     };
-    this.body = '';
+    this.body = undefined;
     this.status = 404;
 
     // Shortcuts directly on the context

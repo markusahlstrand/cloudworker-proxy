@@ -23,7 +23,7 @@ describe('s3', () => {
     ctx.params = {
       file: 'doesnoteexist',
     };
-    await s3(ctx, []);
+    await s3(ctx);
     expect(ctx.status).to.equal(403);
   });
 
@@ -43,7 +43,7 @@ describe('s3', () => {
     ctx.params = {
       file: 'doesnoteexist',
     };
-    await s3(ctx, []);
+    await s3(ctx);
     expect(ctx.status).to.equal(200);
   });
 });

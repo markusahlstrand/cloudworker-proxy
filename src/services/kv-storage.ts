@@ -17,13 +17,26 @@ export default class KvStorage {
 
   authKey: string;
 
-  ttl: string;
+  ttl: number;
 
-  constructor({ accountId, namespace, authEmail, authKey }) {
+  constructor({
+    accountId,
+    namespace,
+    authEmail,
+    authKey,
+    ttl,
+  }: {
+    accountId: string;
+    namespace: string;
+    authEmail: string;
+    authKey: string;
+    ttl: number;
+  }) {
     this.accountId = accountId;
     this.namespace = namespace;
     this.authEmail = authEmail;
     this.authKey = authKey;
+    this.ttl = ttl;
   }
 
   getNamespaceUrl() {
@@ -52,7 +65,7 @@ export default class KvStorage {
     return null;
   }
 
-  async get(key, type) {
+  async get(key, type?: string) {
     const url = this.getUrlForKey(key);
 
     const response = await fetch(url, {
@@ -93,7 +106,7 @@ export default class KvStorage {
     const searchParams = new URLSearchParams();
 
     if (this.ttl) {
-      searchParams.append('expiration_ttl', this.ttl);
+      searchParams.append('expiration_ttl', this.ttl.toString());
     }
 
     const headers = {
