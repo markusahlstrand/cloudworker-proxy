@@ -7,6 +7,7 @@
     "lint": "eslint src",
     "test": "npm run unit && npm run lint",
     "unit": "bun test",
+    "test:integration": "node integration/run.js",
     "package": "rm -rf node_modules && rm -rf examples/node_modules && npm install --prod"
   },
   "repository": {
@@ -37,7 +38,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.5.9",
-    "bun": "^0.8.1",
+    "bun": "1.0.0",
     "chai": "4.2.0",
     "dotenv": "8.2.0",
     "eslint": "7.13.0",
@@ -47,6 +48,7 @@
     "eslint-plugin-prettier": "3.1.4",
     "fetch-mock": "9.11.0",
     "node-fetch": "2.6.1",
-    "prettier": "2.1.2"
+    "prettier": "2.1.2",
+    "wrangler": "^3.7.0"
   }
 }

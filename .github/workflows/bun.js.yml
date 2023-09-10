@@ -1,6 +1,3 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 name: bun.js CI
 
 on:
@@ -15,13 +12,14 @@ jobs:
 
     strategy:
       matrix:
-        bun-version: [0.8.1]
+        bun-version: [1.0.0]
 
     steps:
       - uses: actions/checkout@v2
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: ${{ matrix.bun-version }}
-      - run: npm ci
-      - run: npm test
+      - run: bun install
+      - run: bun test
       - run: npm run lint
+      - run: npm run test:integration
