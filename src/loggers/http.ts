@@ -1,7 +1,7 @@
-const Chunker = require('./chunker');
-const flatten = require('./flatten');
+import Chunker from './chunker';
+import flatten from './flatten';
 
-module.exports = class HttpLogger {
+export default class HttpLogger {
   constructor(options) {
     this.url = options.url;
     this.contentType = options.contentType;
@@ -24,4 +24,4 @@ module.exports = class HttpLogger {
       },
     });
   }
-};
+}

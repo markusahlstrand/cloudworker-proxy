@@ -1,5 +1,5 @@
-const { AwsClient } = require('aws4fetch');
-const utils = require('../utils');
+import { AwsClient } from 'aws4fetch';
+import utils from '../utils';
 
 function getEndpoint(endpoint, options) {
   // See https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-bucket-intro.html

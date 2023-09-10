@@ -1,4 +1,4 @@
-const get = require('lodash.get');
+import get from 'lodash.get';
 
 const _ = {
   get,

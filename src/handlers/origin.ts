@@ -1,6 +1,6 @@
-const lodashGet = require('lodash.get');
-const constants = require('../constants');
-const utils = require('../utils');
+import lodashGet from 'lodash.get';
+import constants from '../constants';
+import utils from '../utils';
 
 const _ = {
   get: lodashGet,

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   methodsMethodsWithBody: ['POST', 'PUT', 'PATCH'],
   http: {
     statusMessages: {

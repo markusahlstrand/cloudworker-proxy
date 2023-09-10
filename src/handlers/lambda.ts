@@ -1,5 +1,5 @@
-const { AwsClient } = require('aws4fetch');
-const utils = require('../utils');
+import { AwsClient } from 'aws4fetch';
+import utils from '../utils';
 
 function lambdaHandlerFactory({ accessKeyId, secretAccessKey, region, lambdaName }) {
   const aws = new AwsClient({

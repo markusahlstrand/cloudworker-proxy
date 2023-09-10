@@ -1,6 +1,6 @@
-const cacheService = require('../services/cache');
-const hash = require('../encryption/hash');
-const { instanceToJson } = require('../utils');
+import cacheService from '../services/cache';
+import hash from '../encryption/hash';
+import { instanceToJson } from '../utils';
 
 const defaultHeaderBlacklist = [
   'x-ratelimit-count',

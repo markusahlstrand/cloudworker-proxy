@@ -1,4 +1,4 @@
-module.exports = function flatten(obj, delimiter = '.', path = '') {
+function flatten(obj, delimiter = '.', path = '') {
   if (!(obj instanceof Object)) {
     // Remove the last delimiter
     if (path.endsWith(delimiter)) {
@@ -14,4 +14,6 @@ module.exports = function flatten(obj, delimiter = '.', path = '') {
 
     return { ...output, ...flatten(obj[key], delimiter, path + key + delimiter) };
   }, {});
-};
+}
+
+export default flatten;

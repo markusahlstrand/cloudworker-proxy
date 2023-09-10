@@ -1,12 +1,11 @@
-const lodashGet = require('lodash.get');
-const packageJson = require('../../package.json');
+import lodashGet from 'lodash.get';
+import packageJson from '../../package.json';
+import HttpLogger from '../loggers/http';
+import KinesisLogger from '../loggers/kinesis';
 
 const _ = {
   get: lodashGet,
 };
-
-const HttpLogger = require('../loggers/http');
-const KinesisLogger = require('../loggers/kinesis');
 
 /**
  * Returns the first 10 KB of the body

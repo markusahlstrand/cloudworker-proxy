@@ -1,5 +1,5 @@
-const lodashGet = require('lodash.get');
-const lodashSet = require('lodash.set');
+import lodashGet from 'lodash.get';
+import lodashSet from 'lodash.set';
 
 const _ = {
   get: lodashGet,

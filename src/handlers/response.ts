@@ -1,4 +1,4 @@
-const utils = require('../utils');
+import utils from '../utils';
 
 module.exports = function responseHandler({ body = '', headers = {}, status = 200 }) {
   return async (ctx) => {

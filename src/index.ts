@@ -1,5 +1,5 @@
-const Router = require('cloudworker-router');
-const defaultHandlers = require('./handlers');
+import Router from 'cloudworker-router';
+import defaultHandlers from './handlers';
 
 module.exports = class Proxy {
   constructor(rules = [], handlers = {}) {

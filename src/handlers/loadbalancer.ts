@@ -1,7 +1,7 @@
-const lodashGet = require('lodash.get');
-const lodashSet = require('lodash.set');
-const constants = require('../constants');
-const utils = require('../utils');
+import lodashGet from 'lodash.get';
+import lodashSet from 'lodash.set';
+import constants from '../constants';
+import utils from '../utils';
 
 const _ = {
   get: lodashGet,

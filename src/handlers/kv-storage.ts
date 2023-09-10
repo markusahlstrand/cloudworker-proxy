@@ -1,6 +1,6 @@
-const KvStorage = require('../services/kv-storage');
-const constants = require('../constants');
-const utils = require('../utils');
+import KvStorage from '../services/kv-storage';
+import constants from '../constants';
+import utils from '../utils';
 
 function setDefaultLocation(url, defaultExtension, defaultIndexDocument) {
   if (url === '/' && defaultIndexDocument) {
