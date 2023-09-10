@@ -6,7 +6,7 @@ describe('loadbalancer', () => {
   let fetch;
   let fetchedUrl;
 
-  before(() => {
+  beforeEach(() => {
     fetch = global.fetch;
     global.fetch = async (url, options) => {
       fetchedUrl = url;
@@ -17,7 +17,7 @@ describe('loadbalancer', () => {
     };
   });
 
-  after(() => {
+  afterEach(() => {
     global.fetch = fetch;
     delete global.fetch;
     delete global.caches;
