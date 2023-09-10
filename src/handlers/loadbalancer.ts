@@ -25,7 +25,7 @@ function getSource(sources) {
   return sources[Math.floor(Math.random() * sources.length)];
 }
 
-module.exports = function loadbalancerHandler({ sources = [] }) {
+export default function loadbalancerHandler({ sources = [] }) {
   return async (ctx) => {
     const source = getSource(sources);
 
@@ -63,4 +63,4 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
       ctx.set(key, responseHeaders[key]);
     });
   };
-};
+}

@@ -40,7 +40,7 @@ function transformChunk(chunk, regexes) {
   }, chunk);
 }
 
-function transformFactory({ transforms = [], statusCodes = [200] }) {
+export default function transformFactory({ transforms = [], statusCodes = [200] }) {
   const regexes = transforms.map((transform) => {
     return {
       regex: new RegExp(transform.regex, 'g'),
@@ -65,5 +65,3 @@ function transformFactory({ transforms = [], statusCodes = [200] }) {
     }
   };
 }
-
-module.exports = transformFactory;

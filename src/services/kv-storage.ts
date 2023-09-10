@@ -8,7 +8,7 @@ const _ = {
  * This replaces the in-worker api calls for kv-storage with rest-api calls.
  */
 
-module.exports = class KvStorage {
+export default class KvStorage {
   constructor({ accountId, namespace, authEmail, authKey }) {
     this.accountId = accountId;
     this.namespace = namespace;
@@ -117,4 +117,4 @@ module.exports = class KvStorage {
       },
     });
   }
-};
+}

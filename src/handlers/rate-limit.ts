@@ -6,7 +6,7 @@ const _ = {
   set: lodashSet,
 };
 
-module.exports = function rateLimitHandler({ type = 'IP', scope = 'default', limit = 1000 }) {
+export default function rateLimitHandler({ type = 'IP', scope = 'default', limit = 1000 }) {
   const buckets = {};
 
   function getKey(currentMinute, headers) {
@@ -56,4 +56,4 @@ module.exports = function rateLimitHandler({ type = 'IP', scope = 'default', lim
 
     await next(ctx);
   };
-};
+}

@@ -1,4 +1,4 @@
-module.exports = async function refreshAccessToken({
+export default async function refreshAccessToken({
   // eslint-disable-next-line camelcase
   refresh_token,
   authDomain,
@@ -31,4 +31,4 @@ module.exports = async function refreshAccessToken({
     expires: Date.now() + body.expires_in * 1000,
     refresh_token,
   };
-};
+}

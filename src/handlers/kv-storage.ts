@@ -16,7 +16,7 @@ function setDefaultLocation(url, defaultExtension, defaultIndexDocument) {
   return `${url}.${defaultExtension}`;
 }
 
-module.exports = function kvStorageHandler({
+export default function kvStorageHandler({
   kvAccountId,
   kvNamespace,
   kvAuthEmail,
@@ -63,4 +63,4 @@ module.exports = function kvStorageHandler({
       ctx.set('Content-Type', 'text/plain');
     }
   };
-};
+}

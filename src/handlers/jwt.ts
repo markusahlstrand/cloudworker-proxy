@@ -23,7 +23,7 @@ function decodeJwt(token) {
   };
 }
 
-module.exports = function jwtHandler({ jwksUri, allowPublicAccess = false }) {
+export default function jwtHandler({ jwksUri, allowPublicAccess = false }) {
   async function getJwk() {
     // TODO: override jwksTtl..
     const response = await fetch(jwksUri);
@@ -95,4 +95,4 @@ module.exports = function jwtHandler({ jwksUri, allowPublicAccess = false }) {
   }
 
   return handleValidate;
-};
+}

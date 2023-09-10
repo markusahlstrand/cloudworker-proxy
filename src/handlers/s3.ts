@@ -23,7 +23,7 @@ function getEndpoint(endpoint, options) {
   return `https://${options.bucket}.s3.amazonaws.com`;
 }
 
-function s3HandlerFactory({
+export default function s3HandlerFactory({
   accessKeyId,
   secretAccessKey,
   bucket,
@@ -65,5 +65,3 @@ function s3HandlerFactory({
     });
   };
 }
-
-module.exports = s3HandlerFactory;

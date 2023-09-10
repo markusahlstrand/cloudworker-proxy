@@ -19,7 +19,7 @@ async function getBody(request) {
   return request.text();
 }
 
-module.exports = function logger(options) {
+export default function logger(options) {
   let logService;
 
   switch (options.type) {
@@ -84,4 +84,4 @@ module.exports = function logger(options) {
       ctx.event.waitUntil(logService.log(errData));
     }
   };
-};
+}

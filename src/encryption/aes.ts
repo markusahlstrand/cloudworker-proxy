@@ -109,7 +109,7 @@ async function encrypt(key, message) {
   return arraybufferTobase64(bytes);
 }
 
-module.exports = {
+export default {
   decrypt,
   deriveAesGcmKey,
   encrypt,

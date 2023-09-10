@@ -30,7 +30,7 @@ function isBrowser(accept = '') {
   return accept.split(',').indexOf('text/html') !== -1;
 }
 
-module.exports = function oauth2Handler({
+export default function oauth2Handler({
   cookieName = 'proxy',
   cookieHttpOnly = true,
   allowPublicAccess = false,
@@ -329,4 +329,4 @@ module.exports = function oauth2Handler({
         await handleValidate(ctx, next);
     }
   };
-};
+}

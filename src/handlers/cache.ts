@@ -57,7 +57,7 @@ async function getCacheKey(ctx, cacheKeyTemplate) {
   return new Request(`http://${ctx.request.hostname}/${cacheKeyPath}`);
 }
 
-function cacheFactory({
+export default function cacheFactory({
   cacheDuration,
   cacheKeyTemplate,
   headerBlacklist = defaultHeaderBlacklist,
@@ -107,5 +107,3 @@ function cacheFactory({
     }
   };
 }
-
-module.exports = cacheFactory;

@@ -18,7 +18,7 @@ function filterCfHeaders(headers) {
   return result;
 }
 
-module.exports = function originHandler(options) {
+export default function originHandler(options) {
   const { localOriginOverride } = options;
 
   return async (ctx) => {
@@ -49,4 +49,4 @@ module.exports = function originHandler(options) {
       ctx.set(key, responseHeaders[key]);
     });
   };
-};
+}

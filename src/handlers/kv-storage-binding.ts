@@ -31,7 +31,7 @@ function validateEtag(request, response) {
   return requestEtag === responseEtag;
 }
 
-module.exports = function kvStorageHandler({
+export default function kvStorageHandler({
   kvNamespaceBinding,
   kvBasePath = '',
   kvKey = '{file}',
@@ -78,4 +78,4 @@ module.exports = function kvStorageHandler({
       ctx.set('Content-Type', 'text/plain');
     }
   };
-};
+}

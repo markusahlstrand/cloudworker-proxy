@@ -17,7 +17,7 @@ import signature from './signature';
 import split from './split';
 import transform from './transform';
 
-module.exports = {
+export default {
   basicAuth,
   cache,
   cors,

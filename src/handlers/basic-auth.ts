@@ -15,7 +15,7 @@ function setUnauthorizedResponse(ctx) {
  * @param {*} ctx
  * @param {*} next
  */
-function basicAuth(options) {
+export default function basicAuth(options) {
   return async (ctx, next) => {
     // Forces a new login which is the closest you can get to a logout with basic auth
     if (ctx.request.path === options.logoutPath) {
@@ -40,5 +40,3 @@ function basicAuth(options) {
     return next(ctx);
   };
 }
-
-module.exports = basicAuth;
