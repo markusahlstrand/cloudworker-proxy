@@ -32,18 +32,16 @@
     "unit": "bun test"
   },
   "devDependencies": {
-    "aws4fetch": "1.0.13",
-    "cloudworker-router": "1.11.2",
-    "cookie": "0.4.1",
-    "lodash.get": "4.4.2",
-    "lodash.set": "4.3.2",
-    "shortid": "2.2.16",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.5.9",
+    "@typescript-eslint/eslint-plugin": "^6.6.0",
+    "@typescript-eslint/parser": "^6.6.0",
+    "aws4fetch": "1.0.13",
     "bun": "1.0.0",
     "chai": "4.2.0",
+    "cloudworker-router": "1.11.2",
+    "cookie": "0.4.1",
     "dotenv": "8.2.0",
-    ".comment": "esbuild is required to build CJS modules until https://github.com/oven-sh/bun/blob/d48ff53e4ec4cb49172e0e96ca9890446f971a0e/docs/bundler/vs-esbuild.md?plain=1#L568",
     "esbuild": "^0.19.2",
     "eslint": "7.13.0",
     "eslint-config-airbnb-base": "14.2.1",
@@ -51,8 +49,12 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-prettier": "3.1.4",
     "fetch-mock": "9.11.0",
+    "lodash.get": "4.4.2",
+    "lodash.set": "4.3.2",
     "node-fetch": "2.6.1",
     "prettier": "2.1.2",
+    "shortid": "2.2.16",
+    "typescript": "^5.2.2",
     "wrangler": "^3.7.0"
   }
 }
