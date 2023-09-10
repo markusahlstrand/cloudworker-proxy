@@ -26,7 +26,7 @@
   "scripts": {
     "build": "esbuild --bundle src/index.ts  --format=cjs --outdir=dist --sourcemap --minify",
     "lint": "eslint src",
-    "package": "rm -rf node_modules && rm -rf examples/node_modules && npm install --prod",
+    "package": "bun install; npm run build",
     "test": "npm run unit && npm run lint",
     "test:integration": "node integration/run.js",
     "unit": "bun test"
