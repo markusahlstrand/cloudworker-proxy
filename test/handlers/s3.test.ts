@@ -46,4 +46,39 @@ describe('s3', () => {
     await s3(ctx);
     expect(ctx.status).to.equal(200);
   });
+
+  it('List bucket without enableBucketOperations should 404', async () => {
+    const s3 = s3Factory({
+      endpoint: 'http://localhost:9000',
+      forcePathStyle: true,
+      bucket: 'myBucket',
+      accessKeyId: 'DERP',
+      secretAccessKey: 'DERP',
+    });
+
+    const ctx = helpers.getCtx();
+    ctx.params = {};
+    await s3(ctx);
+    expect(ctx.status).to.equal(404);
+  });
+
+  it('List bucket with enableBucketOperations should forward to bucket URL', async () => {
+    fetchMock.mock(`http://localhost:9000/myBucket`, {
+      status: 200,
+    });
+
+    const s3 = s3Factory({
+      endpoint: 'http://localhost:9000',
+      forcePathStyle: true,
+      bucket: 'myBucket',
+      accessKeyId: 'DERP',
+      secretAccessKey: 'DERP',
+      enableBucketOperations: true,
+    });
+
+    const ctx = helpers.getCtx();
+    ctx.params = {};
+    await s3(ctx);
+    expect(ctx.status).to.equal(200);
+  });
 });

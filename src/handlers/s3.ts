@@ -1,5 +1,6 @@
 import { AwsClient } from 'aws4fetch';
 import utils from '../utils';
+import constants from '../constants';
 
 function getEndpoint(
   endpoint?: string,
@@ -33,6 +34,7 @@ export default function s3HandlerFactory({
   region,
   endpoint,
   forcePathStyle,
+  enableBucketOperations = false,
 }: {
   accessKeyId: string;
   secretAccessKey: string;
@@ -40,6 +42,7 @@ export default function s3HandlerFactory({
   region?: string;
   endpoint?: string;
   forcePathStyle?: boolean;
+  enableBucketOperations?: boolean;
 }) {
   const aws = new AwsClient({
     accessKeyId,
@@ -54,7 +57,16 @@ export default function s3HandlerFactory({
   });
 
   return async (ctx) => {
-    const url = utils.resolveParams(`${resolvedEndpoint}/{file}`, ctx.params);
+    if (ctx.params.file === undefined && !enableBucketOperations) {
+      ctx.status = 404;
+      ctx.body = constants.http.statusMessages['404'];
+      ctx.set('Content-Type', 'text/plain');
+      return;
+    }
+
+    const url = ctx.params.file
+      ? utils.resolveParams(`${resolvedEndpoint}/{file}`, ctx.params)
+      : resolvedEndpoint; // Bucket operations
 
     const headers: Record<string, string> = {};
 
