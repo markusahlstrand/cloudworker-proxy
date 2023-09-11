@@ -1,5 +1,6 @@
 const { AwsClient } = require('aws4fetch');
 const utils = require('../utils');
+const constants = require('../constants');
 
 function getEndpoint(endpoint, options) {
   // See https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-bucket-intro.html
@@ -30,6 +31,7 @@ function s3HandlerFactory({
   region,
   endpoint,
   forcePathStyle,
+  enableBucketOperations = false,
 }) {
   const aws = new AwsClient({
     accessKeyId,
@@ -44,7 +46,16 @@ function s3HandlerFactory({
   });
 
   return async (ctx) => {
-    const url = utils.resolveParams(`${resolvedEndpoint}/{file}`, ctx.params);
+    if (ctx.params.file === undefined && !enableBucketOperations) {
+      ctx.status = 404;
+      ctx.body = constants.http.statusMessages['404'];
+      ctx.set('Content-Type', 'text/plain');
+      return;
+    }
+
+    const url = ctx.params.file
+      ? utils.resolveParams(`${resolvedEndpoint}/{file}`, ctx.params)
+      : resolvedEndpoint; // Bucket operations
 
     const headers = {};
 
