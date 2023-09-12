@@ -1,4 +1,6 @@
-const Proxy = require('../src/index.js');
+console.log('Loading');
+const Proxy = require('../dist/index.js');
+console.log('Proxy', Proxy);
 const config = [
   {
     handlerName: 'response',
