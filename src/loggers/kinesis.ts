@@ -1,9 +1,8 @@
-const { AwsClient } = require('aws4fetch');
+import { AwsClient } from 'aws4fetch';
+import Chunker from './chunker';
+import flatten from './flatten';
 
-const Chunker = require('./chunker');
-const flatten = require('./flatten');
-
-module.exports = class KinesisLogger {
+export default class KinesisLogger {
   constructor(options) {
     this.delimiter = options.delimiter;
     this.chunker = new Chunker({ sink: this.sendMessage.bind(this), ...options });
@@ -43,4 +42,4 @@ module.exports = class KinesisLogger {
 
     return this.awsClient.fetch(request);
   }
-};
+}

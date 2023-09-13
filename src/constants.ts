@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   methodsMethodsWithBody: ['POST', 'PUT', 'PATCH'],
   http: {
     statusMessages: {
@@ -13,7 +13,7 @@ module.exports = {
     ico: 'image/microsoft.vnd.icon',
     jpeg: 'image/jpeg',
     js: 'application/javascript',
-    json: 'appliation/json',
+    json: 'application/json',
     png: 'image/png',
     svg: 'image/svg+xml',
     xml: 'application/xml',

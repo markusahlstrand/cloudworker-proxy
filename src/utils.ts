@@ -1,8 +1,8 @@
-function resolveParams(url, params = {}) {
+export function resolveParams(url, params = {}) {
   return Object.keys(params).reduce((acc, key) => acc.replace(`{${key}}`, params[key]), url);
 }
 
-function instanceToJson(instance) {
+export function instanceToJson(instance): object {
   return [...instance].reduce((obj, item) => {
     const prop = {};
     // eslint-disable-next-line prefer-destructuring
@@ -11,7 +11,7 @@ function instanceToJson(instance) {
   }, {});
 }
 
-module.exports = {
-  instanceToJson,
+export default {
   resolveParams,
+  instanceToJson,
 };

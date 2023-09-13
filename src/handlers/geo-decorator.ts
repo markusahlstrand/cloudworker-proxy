@@ -253,7 +253,7 @@ const countryRegions = {
   XX: 'XX',
 };
 
-module.exports = function geoHandler() {
+export default function geoHandler() {
   return async (ctx, next) => {
     const country = ctx.request.headers['cf-ipcountry'] || 'XX';
 
@@ -261,4 +261,4 @@ module.exports = function geoHandler() {
 
     await next(ctx);
   };
-};
+}

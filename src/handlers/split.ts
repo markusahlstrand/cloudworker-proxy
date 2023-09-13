@@ -1,4 +1,4 @@
-module.exports = function splitHandler({ host }) {
+export default function splitHandler({ host }) {
   if (!host) {
     throw new Error('Need to specify a host for the split middleware.');
   }
@@ -16,4 +16,4 @@ module.exports = function splitHandler({ host }) {
     ctx.event.waitUntil(next(duplicateContext));
     await next(ctx);
   };
-};
+}

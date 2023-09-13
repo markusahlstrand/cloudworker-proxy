@@ -1,7 +1,7 @@
-const lodashGet = require('lodash.get');
-const lodashSet = require('lodash.set');
-const constants = require('../constants');
-const utils = require('../utils');
+import lodashGet from 'lodash.get';
+import lodashSet from 'lodash.set';
+import constants from '../constants';
+import utils from '../utils';
 
 const _ = {
   get: lodashGet,
@@ -25,7 +25,7 @@ function getSource(sources) {
   return sources[Math.floor(Math.random() * sources.length)];
 }
 
-module.exports = function loadbalancerHandler({ sources = [] }) {
+export default function loadbalancerHandler({ sources = [] }) {
   return async (ctx) => {
     const source = getSource(sources);
 
@@ -63,4 +63,4 @@ module.exports = function loadbalancerHandler({ sources = [] }) {
       ctx.set(key, responseHeaders[key]);
     });
   };
-};
+}

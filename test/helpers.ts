@@ -1,6 +1,28 @@
 class Context {
+  request: {
+    method: string;
+    path: string;
+    query: {};
+    hostname: string;
+    host: string;
+    protocol: string;
+    headers: Record<string, string>;
+  };
+  event: {};
+  state: {};
+  response: { headers: Map<any, any>; body: string | undefined };
+  body: object | string | undefined;
+  status: number;
+  query: any;
+  params: Record<string, string> = {};
+
   constructor() {
     this.request = {
+      method: 'GET',
+      path: '/',
+      host: 'example.com',
+      hostname: 'example.com',
+      protocol: 'http',
       query: {},
       headers: {},
     };
@@ -8,24 +30,20 @@ class Context {
     this.state = {};
     this.response = {
       headers: new Map(),
+      body: undefined,
     };
-    this.body = '';
+    this.body = undefined;
     this.status = 404;
 
     // Shortcuts directly on the context
     this.query = this.request.query;
   }
 
-  /**
-   * Gets a header from the request
-   * @param {string} key
-   */
-  header(key) {
-    return this.request.headers.get(key);
-  }
-
-  set(key, value) {
+  set(key: string, value: string) {
     this.response.headers.set(key, value);
+  }
+  header(key: string) {
+    return this.response.headers.get(key);
   }
 }
 
@@ -34,12 +52,7 @@ class Context {
  */
 function getCtx() {
   const ctx = new Context();
-  ctx.request.method = 'GET';
   ctx.request.headers.origin = 'localhost';
-  ctx.request.hostname = 'example.com';
-  ctx.request.host = 'example.com';
-  ctx.request.protocol = 'http';
-
   return ctx;
 }
 
@@ -53,7 +66,7 @@ function getNext() {
   };
 }
 
-module.exports = {
+export default {
   getCtx,
   getNext,
 };

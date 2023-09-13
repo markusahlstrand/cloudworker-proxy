@@ -1,10 +1,10 @@
-const cookie = require('cookie');
-const get = require('lodash.get');
-const set = require('lodash.set');
-const shortid = require('shortid');
-const KvStorage = require('../services/kv-storage');
-const jwtRefresh = require('./jwt-refresh');
-const aes = require('../encryption/aes');
+import cookie from 'cookie';
+import get from 'lodash.get';
+import set from 'lodash.set';
+import shortid from 'shortid';
+import KvStorage from '../services/kv-storage';
+import jwtRefresh from './jwt-refresh';
+import aes from '../encryption/aes';
 
 const _ = {
   get,
@@ -30,7 +30,7 @@ function isBrowser(accept = '') {
   return accept.split(',').indexOf('text/html') !== -1;
 }
 
-module.exports = function oauth2Handler({
+export default function oauth2Handler({
   cookieName = 'proxy',
   cookieHttpOnly = true,
   allowPublicAccess = false,
@@ -329,4 +329,4 @@ module.exports = function oauth2Handler({
         await handleValidate(ctx, next);
     }
   };
-};
+}

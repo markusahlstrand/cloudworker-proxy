@@ -1,6 +1,6 @@
-const cacheService = require('../services/cache');
-const hash = require('../encryption/hash');
-const { instanceToJson } = require('../utils');
+import cacheService from '../services/cache';
+import hash from '../encryption/hash';
+import { instanceToJson } from '../utils';
 
 const defaultHeaderBlacklist = [
   'x-ratelimit-count',
@@ -57,7 +57,7 @@ async function getCacheKey(ctx, cacheKeyTemplate) {
   return new Request(`http://${ctx.request.hostname}/${cacheKeyPath}`);
 }
 
-function cacheFactory({
+export default function cacheFactory({
   cacheDuration,
   cacheKeyTemplate,
   headerBlacklist = defaultHeaderBlacklist,
@@ -107,5 +107,3 @@ function cacheFactory({
     }
   };
 }
-
-module.exports = cacheFactory;

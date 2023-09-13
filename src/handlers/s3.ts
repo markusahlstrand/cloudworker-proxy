@@ -1,8 +1,11 @@
-const { AwsClient } = require('aws4fetch');
-const utils = require('../utils');
-const constants = require('../constants');
+import { AwsClient } from 'aws4fetch';
+import utils from '../utils';
+import constants from '../constants';
 
-function getEndpoint(endpoint, options) {
+function getEndpoint(
+  endpoint?: string,
+  options: { region?: string; bucket?: string; forcePathStyle?: boolean } = {},
+) {
   // See https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-bucket-intro.html
   if (endpoint && options.forcePathStyle) {
     const url = new URL(endpoint);
@@ -24,7 +27,7 @@ function getEndpoint(endpoint, options) {
   return `https://${options.bucket}.s3.amazonaws.com`;
 }
 
-function s3HandlerFactory({
+export default function s3HandlerFactory({
   accessKeyId,
   secretAccessKey,
   bucket,
@@ -32,6 +35,14 @@ function s3HandlerFactory({
   endpoint,
   forcePathStyle,
   enableBucketOperations = false,
+}: {
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucket: string;
+  region?: string;
+  endpoint?: string;
+  forcePathStyle?: boolean;
+  enableBucketOperations?: boolean;
 }) {
   const aws = new AwsClient({
     accessKeyId,
@@ -57,7 +68,7 @@ function s3HandlerFactory({
       ? utils.resolveParams(`${resolvedEndpoint}/{file}`, ctx.params)
       : resolvedEndpoint; // Bucket operations
 
-    const headers = {};
+    const headers: Record<string, string> = {};
 
     if (ctx.request.headers.range) {
       headers.range = ctx.request.headers.range;
@@ -76,5 +87,3 @@ function s3HandlerFactory({
     });
   };
 }
-
-module.exports = s3HandlerFactory;

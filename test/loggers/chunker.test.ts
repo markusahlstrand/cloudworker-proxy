@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const Chunker = require('../../src/loggers/chunker');
+import { expect } from 'chai';
+import Chunker from '../../src/loggers/chunker';
 
 describe('chunker', () => {
   it('should enque a message', async () => {

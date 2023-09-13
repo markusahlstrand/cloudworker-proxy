@@ -32,7 +32,7 @@ async function sign(path, secret) {
     .replace(/=/g, '');
 }
 
-module.exports = function signatureHandler({ secret }) {
+export default function signatureHandler({ secret }) {
   return async (ctx, next) => {
     const pathWithQuery = (ctx.request.path + ctx.request.search).replace(
       /([?|&]sign=[\w|-]+)/,
@@ -48,4 +48,4 @@ module.exports = function signatureHandler({ secret }) {
 
     await next(ctx);
   };
-};
+}

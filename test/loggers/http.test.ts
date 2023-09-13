@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const HttpLogger = require('../../src/loggers/http');
+import { expect } from 'chai';
+import HttpLogger from '../../src/loggers/http';
 
 describe('httpLogger', () => {
   let realFetch, fetchCalls;

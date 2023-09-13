@@ -1,6 +1,6 @@
-const { expect } = require('chai');
+import { expect } from 'chai';
 
-const aes = require('../../src/encryption/aes');
+import aes from '../../src/encryption/aes';
 
 describe('aes', () => {
   it('should encrypt and decrypt back using a pbkfs2 key', async () => {

@@ -1,7 +1,7 @@
-const { AwsClient } = require('aws4fetch');
-const utils = require('../utils');
+import { AwsClient } from 'aws4fetch';
+import utils from '../utils';
 
-function lambdaHandlerFactory({ accessKeyId, secretAccessKey, region, lambdaName }) {
+export default function lambdaHandlerFactory({ accessKeyId, secretAccessKey, region, lambdaName }) {
   const aws = new AwsClient({
     accessKeyId,
     secretAccessKey,
@@ -23,5 +23,3 @@ function lambdaHandlerFactory({ accessKeyId, secretAccessKey, region, lambdaName
     });
   };
 }
-
-module.exports = lambdaHandlerFactory;

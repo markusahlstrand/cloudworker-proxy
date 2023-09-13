@@ -1,8 +1,17 @@
-const Router = require('cloudworker-router');
-const defaultHandlers = require('./handlers');
+import Router from 'cloudworker-router';
+import defaultHandlers from './handlers';
+
+interface Rule {
+  path: string;
+  method: string;
+  handlerName: string;
+  options?: object;
+}
 
 module.exports = class Proxy {
-  constructor(rules = [], handlers = {}) {
+  router: Router;
+
+  constructor(rules: Rule[] = [], handlers = {}) {
     this.router = new Router();
 
     rules.forEach((rule) => {

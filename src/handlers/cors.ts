@@ -1,4 +1,4 @@
-module.exports = function corsHandler({
+export default function corsHandler({
   allowedOrigins = ['*'],
   allowedMethods = ['GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
   allowCredentials = true,
@@ -30,7 +30,7 @@ module.exports = function corsHandler({
     }
     await next(ctx);
   };
-};
+}
 
 function configureOrigin(ctx, origin, allowedOrigins) {
   if (Array.isArray(allowedOrigins)) {

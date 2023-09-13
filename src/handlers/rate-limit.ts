@@ -1,12 +1,12 @@
-const lodashGet = require('lodash.get');
-const lodashSet = require('lodash.set');
+import lodashGet from 'lodash.get';
+import lodashSet from 'lodash.set';
 
 const _ = {
   get: lodashGet,
   set: lodashSet,
 };
 
-module.exports = function rateLimitHandler({ type = 'IP', scope = 'default', limit = 1000 }) {
+export default function rateLimitHandler({ type = 'IP', scope = 'default', limit = 1000 }) {
   const buckets = {};
 
   function getKey(currentMinute, headers) {
@@ -56,4 +56,4 @@ module.exports = function rateLimitHandler({ type = 'IP', scope = 'default', lim
 
     await next(ctx);
   };
-};
+}

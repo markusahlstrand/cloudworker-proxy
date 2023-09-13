@@ -1,6 +1,6 @@
-const { expect } = require('chai');
-const loadbalancerFactory = require('../../src/handlers/loadbalancer');
-const helpers = require('../helpers');
+import { expect } from 'chai';
+import loadbalancerFactory from '../../src/handlers/loadbalancer';
+import helpers from '../helpers';
 
 describe('loadbalancer', () => {
   let fetch;

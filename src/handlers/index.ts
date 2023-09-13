@@ -1,23 +1,23 @@
-const basicAuth = require('./basic-auth');
-const cache = require('./cache');
-const cors = require('./cors');
-const geoDecorator = require('./geo-decorator');
-const jwt = require('./jwt');
-const kvStorage = require('./kv-storage');
-const kvStorageBinding = require('./kv-storage-binding');
-const lambda = require('./lambda');
-const loadbalancer = require('./loadbalancer');
-const logger = require('./logger');
-const oauth2 = require('./oauth2');
-const origin = require('./origin');
-const response = require('./response');
-const rateLimit = require('./rate-limit');
-const s3 = require('./s3');
-const signature = require('./signature');
-const split = require('./split');
-const transform = require('./transform');
+import basicAuth from './basic-auth';
+import cache from './cache';
+import cors from './cors';
+import geoDecorator from './geo-decorator';
+import jwt from './jwt';
+import kvStorage from './kv-storage';
+import kvStorageBinding from './kv-storage-binding';
+import lambda from './lambda';
+import loadbalancer from './loadbalancer';
+import logger from './logger';
+import oauth2 from './oauth2';
+import origin from './origin';
+import response from './response';
+import rateLimit from './rate-limit';
+import s3 from './s3';
+import signature from './signature';
+import split from './split';
+import transform from './transform';
 
-module.exports = {
+export default {
   basicAuth,
   cache,
   cors,
