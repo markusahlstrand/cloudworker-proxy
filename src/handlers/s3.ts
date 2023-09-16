@@ -74,7 +74,7 @@ export default function s3HandlerFactory({
       headers.range = ctx.request.headers.range;
     }
 
-    const response = await aws.fetch(url, {
+    const response = await aws.fetch(url + (ctx.request.search || ''), {
       method: ctx.method || ctx.request.method,
       headers,
     });

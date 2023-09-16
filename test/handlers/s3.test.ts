@@ -81,4 +81,28 @@ describe('s3', () => {
     await s3(ctx);
     expect(ctx.status).to.equal(200);
   });
+
+
+
+  it('List bucket forwards query params', async () => {
+    fetchMock.mock(`http://localhost:9000/myBucket?prefix=foo&list-type=2`, {
+      status: 200,
+    });
+
+    const s3 = s3Factory({
+      endpoint: 'http://localhost:9000',
+      forcePathStyle: true,
+      bucket: 'myBucket',
+      accessKeyId: 'DERP',
+      secretAccessKey: 'DERP',
+      enableBucketOperations: true,
+    });
+
+    const ctx = helpers.getCtx();
+    ctx.request.search = '?prefix=foo&list-type=2';
+    ctx.params = {};
+    await s3(ctx);
+
+    expect(ctx.status).to.equal(200);
+  });
 });
