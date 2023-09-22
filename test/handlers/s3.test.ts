@@ -82,6 +82,56 @@ describe('s3', () => {
     expect(ctx.status).to.equal(200);
   });
 
+  it('Request headers are forwarded', async () => {
+    fetchMock.mock(`http://localhost:9000/myBucket`, (req) => {
+      return {
+        status: 200,
+      };
+    });
+    const s3 = s3Factory({
+      endpoint: 'http://localhost:9000',
+      forcePathStyle: true,
+      bucket: 'myBucket',
+      accessKeyId: 'DERP',
+      secretAccessKey: 'DERP',
+      enableBucketOperations: true,
+    });
+
+    const ctx = helpers.getCtx();
+    ctx.params = {};
+    ctx.request.headers['If-None-Match'] = 'blah';
+    await s3(ctx);
+    expect(ctx.status).to.equal(200);
+    expect(fetchMock.lastOptions().headers['if-none-match']).to.equal('blah');
+  });
+
+  it('Request body is forwarded', async () => {
+    fetchMock.mock(`http://localhost:9000/myBucket`, (req) => {
+      return {
+        status: 200,
+      };
+    });
+    const s3 = s3Factory({
+      endpoint: 'http://localhost:9000',
+      forcePathStyle: true,
+      bucket: 'myBucket',
+      accessKeyId: 'DERP',
+      secretAccessKey: 'DERP',
+      enableBucketOperations: true,
+    });
+
+    const ctx = helpers.getCtx();
+    ctx.request.method = 'PUT';
+    ctx.request.body = 'hello world';
+    ctx.params = {};
+    ctx.request.headers['If-None-Match'] = 'blah';
+    await s3(ctx);
+    expect(ctx.status).to.equal(200);
+    // aws4fetch converts body to readable stream so it is not so easy to figure out the
+    // actual value
+    expect(await fetchMock.lastOptions().body).is.not.undefined;
+  });
+
 
 
   it('List bucket forwards query params', async () => {
