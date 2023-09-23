@@ -1,6 +1,5 @@
-const Proxy = require('../src/index');
-
-const rules = [
+// eslint-disable-next-line
+export const rules: any[] = [
   {
     // This rule is place before the logger and ratelimit as it create a new separate request
     path: '/split',
@@ -339,22 +338,3 @@ const rules = [
     },
   },
 ];
-
-const proxy = new Proxy(rules, {
-  custom: (options) => {
-    return async (ctx) => {
-      ctx.status = 200;
-      ctx.body = 'Custom handler';
-    };
-  },
-});
-
-/**
- * Fetch and log a given request object
- * @param {Request} options
- */
-async function handler(event) {
-  return proxy.resolve(event);
-}
-
-module.exports = handler;
