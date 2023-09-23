@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import fetchMock from 'fetch-mock';
 import Oauth2Handler from '../../src/handlers/oauth2';
 import helpers from '../helpers';
@@ -21,8 +20,8 @@ describe('oauth2Handler', () => {
 
       await oauth2Handler(ctx, helpers.getNext());
 
-      expect(ctx.status).to.equal(302);
-      expect(ctx.response.headers.get('location')).to.equal(
+      expect(ctx.status).toBe(302);
+      expect(ctx.response.headers.get('location')).toBe(
         'http://example.com/authorize?state=%2F&client_id=1234&response_type=code&scope=&audience=test&redirect_uri=http%3A%2F%2Fexample.com%2Fcallback',
       );
     });
@@ -58,9 +57,9 @@ describe('oauth2Handler', () => {
 
       await oauth2Handler(ctx, helpers.getNext());
 
-      expect(ctx.status).to.equal(302);
-      expect(ctx.response.headers.get('Location')).to.equal('/');
-      expect(ctx.response.headers.get('Set-Cookie')).to.exist;
+      expect(ctx.status).toBe(302);
+      expect(ctx.response.headers.get('Location')).toBe('/');
+      expect(typeof ctx.response.headers.get('Set-Cookie')).toBe('string');
     });
 
     it('should redirect back to the url in the state with an appended auth parameter if configured for querystring tokens', async () => {
@@ -93,8 +92,8 @@ describe('oauth2Handler', () => {
 
       await oauth2Handler(ctx, helpers.getNext());
 
-      expect(ctx.status).to.equal(302);
-      expect(ctx.response.headers.get('Location').slice(0, 6)).to.equal('/?auth');
+      expect(ctx.status).toBe(302);
+      expect(ctx.response.headers.get('Location').slice(0, 6)).toBe('/?auth');
     });
 
     it('should use the auth token from the querystring when validating', async () => {
@@ -124,7 +123,7 @@ describe('oauth2Handler', () => {
         ctx.body = 'Hello world';
       });
 
-      expect(ctx.status).to.equal(200);
+      expect(ctx.status).toBe(200);
     });
 
     it('should use the auth token from headers', async () => {
@@ -148,10 +147,10 @@ describe('oauth2Handler', () => {
       await oauth2Handler(ctx, (ctx) => {
         ctx.status = 200;
         ctx.body = 'Hello world';
-        expect(ctx.request.headers.authorization).to.equal('Bearer header-token');
+        expect(ctx.request.headers.authorization).toBe('Bearer header-token');
       });
 
-      expect(ctx.status).to.equal(200);
+      expect(ctx.status).toBe(200);
     });
   });
 });

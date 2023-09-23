@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import HttpLogger from '../../src/loggers/http';
 
 describe('httpLogger', () => {
@@ -31,6 +30,6 @@ describe('httpLogger', () => {
       foo: 'bar',
     });
 
-    expect(fetchCalls.length).to.equal(1);
+    expect(fetchCalls.length).toBe(1);
   });
 });

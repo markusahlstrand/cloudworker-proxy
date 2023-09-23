@@ -1,5 +1,4 @@
 import nodeCrypto from 'crypto';
-import { expect } from 'chai';
 
 function str2ab(str) {
   const uintArray = new Uint8Array(
@@ -13,7 +12,7 @@ function str2ab(str) {
 describe('hmac', () => {
   it('should get the same signature in node as in js', async () => {
     // Generate the SHA-256 hash from the secret string
-    let key = await crypto.subtle.importKey(
+    const key = await crypto.subtle.importKey(
       'raw',
       str2ab('secret'),
       { name: 'HMAC', hash: { name: 'SHA-256' } },
@@ -22,7 +21,7 @@ describe('hmac', () => {
     );
 
     // Sign the "str" with the key generated previously
-    let sig = await crypto.subtle.sign({ name: 'HMAC' }, key, str2ab('message'));
+    const sig = await crypto.subtle.sign({ name: 'HMAC' }, key, str2ab('message'));
     const jsSignature = btoa(String.fromCharCode.apply(null, new Uint8Array(sig)));
 
     const nodeSignature = nodeCrypto
@@ -30,7 +29,7 @@ describe('hmac', () => {
       .update('message')
       .digest('base64');
 
-    expect(nodeSignature).to.equal(jsSignature);
+    expect(nodeSignature).toBe(jsSignature);
   });
 
   it('should get the same signature in node as in js with querystrings', async () => {
@@ -39,7 +38,7 @@ describe('hmac', () => {
     const secret = '694de11d-2883-4b39-a833-4265a48d276a';
 
     // Generate the SHA-256 hash from the secret string
-    let key = await crypto.subtle.importKey(
+    const key = await crypto.subtle.importKey(
       'raw',
       str2ab(secret),
       { name: 'HMAC', hash: { name: 'SHA-256' } },
@@ -48,12 +47,11 @@ describe('hmac', () => {
     );
 
     // Sign the "str" with the key generated previously
-    let sig = await crypto.subtle.sign({ name: 'HMAC' }, key, str2ab(message));
+    const sig = await crypto.subtle.sign({ name: 'HMAC' }, key, str2ab(message));
     const jsSignature = btoa(String.fromCharCode.apply(null, new Uint8Array(sig)));
 
     const nodeSignature = nodeCrypto.createHmac('SHA256', secret).update(message).digest('base64');
 
-    expect(nodeSignature).to.equal(jsSignature);
-    console.log('SIg: ' + nodeSignature);
+    expect(nodeSignature).toBe(jsSignature);
   });
 });

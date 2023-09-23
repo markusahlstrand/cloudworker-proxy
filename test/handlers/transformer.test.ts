@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import transformFactory from '../../src/handlers/transform';
 import helpers from '../helpers';
 
@@ -20,8 +19,8 @@ describe('transform', () => {
 
     await regexHandler(ctx, () => {});
 
-    expect(ctx.body).to.equal('bar');
-    expect(ctx.status).to.equal(200);
+    expect(ctx.body).toBe('bar');
+    expect(ctx.status).toBe(200);
   });
 
   it('should replace multiple instances', async () => {
@@ -41,8 +40,8 @@ describe('transform', () => {
 
     await regexHandler(ctx, () => {});
 
-    expect(ctx.body).to.equal('bar-bar');
-    expect(ctx.status).to.equal(200);
+    expect(ctx.body).toBe('bar-bar');
+    expect(ctx.status).toBe(200);
   });
 
   it('should add text after the body tag', async () => {
@@ -62,8 +61,8 @@ describe('transform', () => {
 
     await transformHandler(ctx, () => {});
 
-    expect(ctx.body).to.equal('<html><body>Hello</body></html>');
-    expect(ctx.status).to.equal(200);
+    expect(ctx.body).toBe('<html><body>Hello</body></html>');
+    expect(ctx.status).toBe(200);
   });
 
   it('should only transform on 200 status codes', async () => {
@@ -83,6 +82,6 @@ describe('transform', () => {
 
     await transformHandler(ctx, () => {});
 
-    expect(ctx.body).to.equal('foo');
+    expect(ctx.body).toBe('foo');
   });
 });

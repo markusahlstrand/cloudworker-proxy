@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import rateLimitFactory from '../../src/handlers/rate-limit';
 import helpers from '../helpers';
 
@@ -10,9 +9,9 @@ describe('ratelimit', () => {
 
     await rateLimit(ctx, helpers.getNext());
 
-    expect(ctx.response.headers.get('X-Ratelimit-Count')).to.equal(1);
-    expect(ctx.response.headers.get('X-Ratelimit-Limit')).to.equal(1000);
-    expect(ctx.response.headers.get('X-Ratelimit-Count')).to.be.below(60);
+    expect(ctx.response.headers.get('X-Ratelimit-Count')).toBe(1);
+    expect(ctx.response.headers.get('X-Ratelimit-Limit')).toBe(1000);
+    expect(ctx.response.headers.get('X-Ratelimit-Count')).toBeLessThan(60);
   });
 
   it('should not count options requests', async () => {
@@ -23,9 +22,9 @@ describe('ratelimit', () => {
 
     await rateLimit(ctx, helpers.getNext());
 
-    expect(ctx.response.headers.get('X-Ratelimit-Count')).to.equal(0);
-    expect(ctx.response.headers.get('X-Ratelimit-Limit')).to.equal(1000);
-    expect(ctx.response.headers.get('X-Ratelimit-Count')).to.be.below(60);
+    expect(ctx.response.headers.get('X-Ratelimit-Count')).toBe(0);
+    expect(ctx.response.headers.get('X-Ratelimit-Limit')).toBe(1000);
+    expect(ctx.response.headers.get('X-Ratelimit-Count')).toBeLessThan(60);
   });
 
   it('should not count head requests', async () => {
@@ -36,9 +35,9 @@ describe('ratelimit', () => {
 
     await rateLimit(ctx, helpers.getNext());
 
-    expect(ctx.response.headers.get('X-Ratelimit-Count')).to.equal(0);
-    expect(ctx.response.headers.get('X-Ratelimit-Limit')).to.equal(1000);
-    expect(ctx.response.headers.get('X-Ratelimit-Count')).to.be.below(60);
+    expect(ctx.response.headers.get('X-Ratelimit-Count')).toBe(0);
+    expect(ctx.response.headers.get('X-Ratelimit-Limit')).toBe(1000);
+    expect(ctx.response.headers.get('X-Ratelimit-Count')).toBeLessThan(60);
   });
 
   it('should return a 429 for ratelimited requests', async () => {
@@ -52,7 +51,7 @@ describe('ratelimit', () => {
     await rateLimit(ctx1, helpers.getNext());
     await rateLimit(ctx2, helpers.getNext());
 
-    expect(ctx1.status).to.equal(200);
-    expect(ctx2.status).to.equal(429);
+    expect(ctx1.status).toBe(200);
+    expect(ctx2.status).toBe(429);
   });
 });
