@@ -1,7 +1,31 @@
 /**
  * Concatinates messages in chunks based on count and timeout
  */
-module.exports = class chunker {
+export default class chunker {
+  maxSeconds: number;
+
+  maxSize: number;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  queue: any[];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sink: any;
+
+  flushing: boolean;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  timer: any;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  resolveTimer: any;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rejectTimer: any;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  cancelationToken: any;
+
   constructor({ maxSize = 10, maxSeconds = 10, sink }) {
     this.maxSize = maxSize;
     this.maxSeconds = maxSeconds;
@@ -62,4 +86,4 @@ module.exports = class chunker {
       this.flushing = false;
     }
   }
-};
+}

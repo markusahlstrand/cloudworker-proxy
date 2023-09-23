@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import basicAuthFactory from '../../src/handlers/basic-auth';
 import helpers from '../helpers';
 
@@ -12,6 +11,6 @@ describe('basicAuth', () => {
     ctx.request.path = '/test';
     await handler(ctx, []);
 
-    expect(ctx.status).to.equal(401);
+    expect(ctx.status).toBe(401);
   });
 });

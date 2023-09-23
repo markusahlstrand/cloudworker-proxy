@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import Chunker from '../../src/loggers/chunker';
 
 describe('chunker', () => {
@@ -12,7 +11,7 @@ describe('chunker', () => {
       foo: 'bar',
     });
 
-    expect(chunker.queue.length).to.equal(1);
+    expect(chunker.queue.length).toBe(1);
 
     await timerPromise;
   });
@@ -27,7 +26,7 @@ describe('chunker', () => {
       foo: 'bar',
     });
 
-    expect(chunker.queue.length).to.equal(0);
+    expect(chunker.queue.length).toBe(0);
   });
 
   it('should concat two messages to a single data chunk', async () => {
@@ -49,8 +48,8 @@ describe('chunker', () => {
       }),
     ]);
 
-    expect(chunker.queue.length).to.equal(0);
-    expect(counter).to.equal(1);
+    expect(chunker.queue.length).toBe(0);
+    expect(counter).toBe(1);
   });
 
   it('should send a chunk once the timeout is triggered', async () => {
@@ -69,7 +68,7 @@ describe('chunker', () => {
       foo: 'bar',
     });
 
-    expect(chunker.queue.length).to.equal(0);
-    expect(counter).to.equal(1);
+    expect(chunker.queue.length).toBe(0);
+    expect(counter).toBe(1);
   });
 });

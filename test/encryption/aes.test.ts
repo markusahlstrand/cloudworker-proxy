@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import aes from '../../src/encryption/aes';
 
 describe('aes', () => {
@@ -15,6 +13,6 @@ describe('aes', () => {
     const encrypted = await aes.encrypt(encodeKey, message);
     const decrypted = await aes.decrypt(decodeKey, encrypted);
 
-    expect(decrypted).to.equal(message);
+    expect(decrypted).toBe(message);
   });
 });

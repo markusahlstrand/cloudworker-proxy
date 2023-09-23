@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import s3Factory from '../../src/handlers/s3';
 import helpers from '../helpers';
 
@@ -24,7 +23,7 @@ describe('s3', () => {
       file: 'doesnoteexist',
     };
     await s3(ctx);
-    expect(ctx.status).to.equal(403);
+    expect(ctx.status).toBe(403);
   });
 
   it('Custom endpoint with forcePathStyle', async () => {
@@ -44,7 +43,7 @@ describe('s3', () => {
       file: 'doesnoteexist',
     };
     await s3(ctx);
-    expect(ctx.status).to.equal(200);
+    expect(ctx.status).toBe(200);
   });
 
   it('List bucket without enableBucketOperations should 404', async () => {
@@ -59,7 +58,7 @@ describe('s3', () => {
     const ctx = helpers.getCtx();
     ctx.params = {};
     await s3(ctx);
-    expect(ctx.status).to.equal(404);
+    expect(ctx.status).toBe(404);
   });
 
   it('List bucket with enableBucketOperations should forward to bucket URL', async () => {
@@ -79,6 +78,6 @@ describe('s3', () => {
     const ctx = helpers.getCtx();
     ctx.params = {};
     await s3(ctx);
-    expect(ctx.status).to.equal(200);
+    expect(ctx.status).toBe(200);
   });
 });

@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import kvStorageFactory from '../../src/handlers/kv-storage';
 import helpers from '../helpers';
 import fetchMock from 'fetch-mock';
@@ -36,7 +35,7 @@ describe('kvStorage', () => {
     };
     await handler(ctx, []);
 
-    expect(ctx.status).to.equal(200);
+    expect(ctx.status).toBe(200);
   });
 
   it('should return a 404 if a file is not found', async () => {
@@ -47,7 +46,7 @@ describe('kvStorage', () => {
     };
     await handler(ctx, []);
 
-    expect(ctx.status).to.equal(404);
+    expect(ctx.status).toBe(404);
   });
 
   it('apply a default file type to a file fetched for kv', async () => {
@@ -60,7 +59,7 @@ describe('kvStorage', () => {
     };
     await handler(ctx, []);
 
-    expect(ctx.status).to.equal(200);
+    expect(ctx.status).toBe(200);
   });
 
   it('apply a default file type to a file in a nested folder', async () => {
@@ -73,6 +72,6 @@ describe('kvStorage', () => {
     };
     await handler(ctx, []);
 
-    expect(ctx.status).to.equal(200);
+    expect(ctx.status).toBe(200);
   });
 });

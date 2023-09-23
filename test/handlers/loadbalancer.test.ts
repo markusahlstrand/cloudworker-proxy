@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import loadbalancerFactory from '../../src/handlers/loadbalancer';
 import helpers from '../helpers';
 
@@ -40,6 +39,6 @@ describe('loadbalancer', () => {
 
     await handler(ctx, []);
 
-    expect(fetchedUrl).to.equal('https://example.com/test?foo=bar');
+    expect(fetchedUrl).toBe('https://example.com/test?foo=bar');
   });
 });
