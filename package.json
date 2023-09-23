@@ -29,7 +29,9 @@
     "package": "bun install; npm run build",
     "test": "npm run unit && npm run lint",
     "test:integration": "node integration/run.js",
-    "unit": "bun test"
+    "unit": "bun test",
+    "semantic-release": "semantic-release",
+    "prepare": "husky install"
   },
   "dependencies": {
     "lodash.get": "4.4.2",
@@ -54,8 +56,10 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-prettier": "3.1.4",
     "fetch-mock": "9.11.0",
+    "husky": "^8.0.3",
     "node-fetch": "2.6.1",
     "prettier": "2.1.2",
+    "semantic-release": "^22.0.4",
     "typescript": "^5.2.2",
     "wrangler": "^3.7.0"
   }
