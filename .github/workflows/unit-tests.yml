@@ -8,8 +8,14 @@ on:
   pull_request
 
 jobs:
-  node-test:
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        bun-version: [1.0.0]
+        node-version: [18.x]
+
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
