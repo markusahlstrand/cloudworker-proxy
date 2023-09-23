@@ -15,12 +15,16 @@ jobs:
         bun-version: [1.0.0]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: ${{ matrix.bun-version }}
       - run: bun install
       - run: bun test
-      - run: npm run build
-      - run: npm run test:integration
-      - run: npm run lint
+      - run: bun run build
+      - run: bun run test:integration
+      - run: bun run lint
+      - name: semantic-releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run semantic-release
