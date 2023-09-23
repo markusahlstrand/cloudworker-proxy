@@ -68,15 +68,14 @@ export default function s3HandlerFactory({
       ? utils.resolveParams(`${resolvedEndpoint}/{file}`, ctx.params)
       : resolvedEndpoint; // Bucket operations
 
-    const headers: Record<string, string> = {};
+    const headers = {
+      ...(ctx.request?.headers?.range && { range: ctx.request.headers.range }),
+    };
 
-    if (ctx.request.headers.range) {
-      headers.range = ctx.request.headers.range;
-    }
-
-    const response = await aws.fetch(url, {
+    const response = await aws.fetch(url + (ctx.request.search || ''), {
       method: ctx.method || ctx.request.method,
       headers,
+      ...(ctx.request.body && { body: ctx.request.body }),
     });
 
     ctx.status = response.status;

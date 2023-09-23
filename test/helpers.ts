@@ -2,7 +2,7 @@ class Context {
   request: {
     method: string;
     path: string;
-    query: {};
+    search?: string;
     hostname: string;
     host: string;
     protocol: string;
@@ -23,7 +23,7 @@ class Context {
       host: 'example.com',
       hostname: 'example.com',
       protocol: 'http',
-      query: {},
+      search: '',
       headers: {},
     };
     this.event = {};
@@ -34,9 +34,6 @@ class Context {
     };
     this.body = undefined;
     this.status = 404;
-
-    // Shortcuts directly on the context
-    this.query = this.request.query;
   }
 
   set(key: string, value: string) {
