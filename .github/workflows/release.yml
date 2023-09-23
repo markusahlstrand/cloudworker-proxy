@@ -3,8 +3,6 @@ name: bun.js CI
 on:
   push:
     branches: [master]
-  pull_request:
-    branches: [master]
 
 jobs:
   build:
@@ -13,6 +11,7 @@ jobs:
     strategy:
       matrix:
         bun-version: [1.0.0]
+        node-version: [18.x]
 
     steps:
       - uses: actions/checkout@v4
