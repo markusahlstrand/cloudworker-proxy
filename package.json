@@ -67,6 +67,7 @@
     "cookie": "0.4.1"
   },
   "devDependencies": {
+    "@semantic-release/git": "^10.0.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.5.9",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
