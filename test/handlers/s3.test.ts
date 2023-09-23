@@ -82,7 +82,7 @@ describe('s3', () => {
     expect(ctx.status).to.equal(200);
   });
 
-  it('Request headers are forwarded', async () => {
+  it('Range headers are forwarded', async () => {
     fetchMock.mock(`http://localhost:9000/myBucket`, (req) => {
       return {
         status: 200,
@@ -99,10 +99,10 @@ describe('s3', () => {
 
     const ctx = helpers.getCtx();
     ctx.params = {};
-    ctx.request.headers['If-None-Match'] = 'blah';
+    ctx.request.headers['range'] = 'blah';
     await s3(ctx);
     expect(ctx.status).to.equal(200);
-    expect(fetchMock.lastOptions().headers['if-none-match']).to.equal('blah');
+    expect(fetchMock.lastOptions().headers['range']).to.equal('blah');
   });
 
   it('Request body is forwarded', async () => {
