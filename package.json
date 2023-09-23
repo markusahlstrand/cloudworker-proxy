@@ -1,6 +1,6 @@
 {
   "name": "cloudworker-proxy",
-  "version": "1.16.1",
+  "version": "1.0.0",
   "description": "An api gateway for cloudflare workers",
   "license": "MIT",
   "repository": {
