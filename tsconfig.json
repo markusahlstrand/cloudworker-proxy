@@ -23,5 +23,5 @@
       "*": ["node_modules/*"]
     }
   },
-  "include": ["src/**/*", "test/**/*", "integartion/**/*"]
+  "include": ["src/**/*", "test/**/*", "integration/**/*"]
 }
